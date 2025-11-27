@@ -282,28 +282,28 @@ export default function FichaTecnicaPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
                   <div className="lg:col-span-2">
                     <h3 className="text-lg font-semibold text-strong mb-3">Composição resumida</h3>
                     <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                      <table className="w-full text-sm">
-                        <thead className="bg-surface-muted text-left text-subtle">
+                      <table className="w-full min-w-max text-sm md:text-base">
+                        <thead className="bg-surface-muted text-left text-subtle font-semibold">
                           <tr>
-                            <th className="px-4 py-3">Ordem</th>
-                            <th className="px-4 py-3">Ingrediente</th>
-                            <th className="px-4 py-3 text-right">Qtd</th>
-                            <th className="px-4 py-3">Unidade</th>
-                            <th className="px-4 py-3 text-right">Custo</th>
+                            <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
+                            <th className="px-3 sm:px-4 py-3 w-80 max-w-xs md:max-w-none truncate text-left">Ingrediente</th>
+                            <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
+                            <th className="px-3 sm:px-4 py-3 w-24">Unidade</th>
+                            <th className="px-3 sm:px-4 py-3 text-right w-32">Custo</th>
                           </tr>
                         </thead>
                         <tbody>
                           {ficha.composicao.map((ing) => (
                             <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-[var(--color-neutral-100)]">
-                              <td className="px-4 py-3 text-subtle">{ing.ordem}</td>
-                              <td className="px-4 py-3 font-medium text-strong">{ing.componente_nome}</td>
-                              <td className="px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
-                              <td className="px-4 py-3 text-subtle">{ing.unidade}</td>
-                              <td className="px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
+                              <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
+                              <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-xs md:max-w-none truncate">{ing.componente_nome}</td>
+                              <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                              <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
+                              <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
                             </tr>
                           ))}
                         </tbody>
@@ -336,33 +336,33 @@ export default function FichaTecnicaPage() {
                   {custoBadge}
                 </div>
                 <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                  <table className="w-full text-sm">
-                    <thead className="bg-surface-muted text-left text-subtle">
+                  <table className="w-full min-w-max text-sm md:text-base">
+                    <thead className="bg-surface-muted text-left text-subtle font-semibold">
                       <tr>
-                        <th className="px-4 py-3">Ordem</th>
-                        <th className="px-4 py-3">Código</th>
-                        <th className="px-4 py-3">Ingrediente</th>
-                        <th className="px-4 py-3 text-right">Qtd</th>
-                        <th className="px-4 py-3">Unidade</th>
-                        <th className="px-4 py-3 text-right">PPU</th>
-                        <th className="px-4 py-3 text-right">Custo</th>
-                        <th className="px-4 py-3 text-right">Peso</th>
-                        <th className="px-4 py-3">Alergénios</th>
+                        <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
+                        <th className="px-3 sm:px-4 py-3 w-24">Código</th>
+                        <th className="px-3 sm:px-4 py-3 text-left w-80 max-w-[18rem] truncate">Ingrediente</th>
+                        <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
+                        <th className="px-3 sm:px-4 py-3 w-28">Unidade</th>
+                        <th className="px-3 sm:px-4 py-3 text-right w-24">PPU</th>
+                        <th className="px-3 sm:px-4 py-3 text-right w-28">Custo</th>
+                        <th className="px-3 sm:px-4 py-3 text-right w-28">Peso</th>
+                        <th className="px-3 sm:px-4 py-3 w-72">Alergénios</th>
                       </tr>
                     </thead>
                     <tbody>
                       {ficha.composicao.map((ing, idx) => (
                         <tr key={`${ing.componente_codigo || 'linha'}-${idx}`} className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted">
-                          <td className="px-4 py-3 text-subtle">{ing.ordem}</td>
-                          <td className="px-4 py-3 font-mono text-xs text-subtle">{ing.componente_codigo || '—'}</td>
-                          <td className="px-4 py-3 font-medium text-strong">{ing.componente_nome}</td>
-                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
-                          <td className="px-4 py-3 text-subtle">{ing.unidade}</td>
-                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
-                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
-                          <td className="px-4 py-3">
-                            <div className="flex flex-wrap gap-2">
+                          <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
+                          <td className="px-3 sm:px-4 py-3 font-mono text-xs md:text-sm text-subtle">{ing.componente_codigo || '—'}</td>
+                          <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-[18rem] truncate">{ing.componente_nome}</td>
+                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                          <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
+                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
+                          <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
+                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
+                          <td className="px-3 sm:px-4 py-3">
+                            <div className="flex flex-wrap gap-2 max-w-xs md:max-w-md">
                               {(ing.alergenos || []).length === 0 && <span className="text-xs text-muted">—</span>}
                               {(ing.alergenos || []).map((al) => (
                                 <span key={`${al.codigo}-${ing.ordem}`} className="text-[11px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100">
