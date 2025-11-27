@@ -1,175 +1,115 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy.orm import relationship
+
 
 db = SQLAlchemy()
+
 
 # ===================================================================
 # TABELAS PRINCIPAIS
 # ===================================================================
 
-class Localizacao(db.Model):
-    __tablename__ = "localizacoes"
-    id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(10), unique=True, nullable=False)
-    nome = db.Column(db.String(100), nullable=False)
-    moeda = db.Column(db.String(10), nullable=False)
-    formato_data = db.Column(db.String(20), default="dd/MM/yyyy")
-    separador_decimal = db.Column(db.String(1), default=",")
-    separador_milhar = db.Column(db.String(1), default=".")
-
-    fichas = relationship("FichaTecnica", back_populates="localizacao")
-    produtos = relationship("Produto", back_populates="localizacao")
 
 class Produto(db.Model):
     __tablename__ = "produtos"
-    id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    nome = db.Column(db.String(200), nullable=False)
-    unidade_medida = db.Column(db.String(20), default="un")
-    preco_unitario = db.Column(db.Numeric(12, 4), default=0.0000)
-    iva_percentagem = db.Column(db.Numeric(6, 2), default=0.00)
-    imagem_nome = db.Column(db.String(255))
-    ativo = db.Column(db.Boolean, default=True)
-    data_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    localizacao_id = db.Column(db.Integer, db.ForeignKey("localizacoes.id"), nullable=False)
-    localizacao = relationship("Localizacao", back_populates="produtos")
-    ingredientes = relationship("Ingrediente", back_populates="produto", cascade="all, delete-orphan")
-    precos = relationship("PrecoTaxa", back_populates="produto", cascade="all, delete-orphan")
-    preparacao = relationship("ProdutoPreparacao", back_populates="produto", uselist=False, cascade="all, delete-orphan")
-
-class Alergeno(db.Model):
-    __tablename__ = "alergenos"
-    id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(10), unique=True, nullable=False)
-    nome_pt = db.Column(db.String(100), nullable=False)
-    nome_en = db.Column(db.String(100))
-    icone = db.Column(db.String(50))
-    obrigatorio_ue = db.Column(db.Boolean, default=False)
-
-    ingredientes = relationship("IngredienteAlergeno", back_populates="alergeno")
-
-class Ingrediente(db.Model):
-    __tablename__ = "ingredientes"
-    id = db.Column(db.Integer, primary_key=True)
-    produto_codigo = db.Column(db.String(50), db.ForeignKey("produtos.codigo"), nullable=False)
-    quantidade = db.Column(db.Numeric(12, 4), nullable=False)
-    unidade = db.Column(db.String(20), default="g")
-    observacoes = db.Column(db.Text)
-
-    produto = relationship("Produto", back_populates="ingredientes")
-    alergenos = relationship("IngredienteAlergeno", back_populates="ingrediente", cascade="all, delete-orphan")
-    fichas = relationship("FichaIngrediente", back_populates="ingrediente")
-
-class IngredienteAlergeno(db.Model):
-    __tablename__ = "ingrediente_alergenos"
-    id = db.Column(db.Integer, primary_key=True)
-    ingrediente_id = db.Column(db.Integer, db.ForeignKey("ingredientes.id"), nullable=False)
-    alergeno_id = db.Column(db.Integer, db.ForeignKey("alergenos.id"), nullable=False)
-
-    ingrediente = relationship("Ingrediente", back_populates="alergenos")
-    alergeno = relationship("Alergeno", back_populates="ingredientes")
-
-
-class ProdutoPreparacao(db.Model):
-    __tablename__ = "produto_preparacoes"
 
     id = db.Column(db.Integer, primary_key=True)
-    produto_codigo = db.Column(db.String(50), db.ForeignKey("produtos.codigo"), nullable=False, unique=True)
-    html = db.Column(db.Text, nullable=False)
+    codigo = db.Column("codigo", db.String(50), unique=True, nullable=False, index=True)
+    produto = db.Column("produto", db.String(200), nullable=False)
+    familia = db.Column("familia", db.String(100))
+    subFamilia = db.Column("subFamilia", db.String(100))
+    codBarras = db.Column("codBarras", db.String(100))
+    afetaStock = db.Column("afetaStock", db.Boolean, default=False)
+    menu = db.Column("menu", db.Boolean, default=False)
+    venda = db.Column("venda", db.Boolean, default=False)
+    mercadoria = db.Column("mercadoria", db.Boolean, default=False)
+    producao = db.Column("producao", db.Boolean, default=False)
+    generico = db.Column("generico", db.Boolean, default=False)
+    intermedio = db.Column("intermedio", db.Boolean, default=False)
+    servico = db.Column("servico", db.Boolean, default=False)
+    unidade = db.Column("unidade", db.String(50))
+    unVenda = db.Column("unVenda", db.String(50))
+    unInventario = db.Column("unInventario", db.String(50))
+    unProducao = db.Column("unProducao", db.String(50))
+    codAuxiliar = db.Column("codAuxiliar", db.String(100))
+    codAuxiliar2 = db.Column("codAuxiliar2", db.String(100))
+    pcu = db.Column("pcu", db.Numeric(12, 4))
+    pcm = db.Column("pcm", db.Numeric(12, 4))
+    descontinuado = db.Column("descontinuado", db.Boolean, default=False)
+    qtdNegativasNasCompras = db.Column("qtdNegativasNasCompras", db.Boolean, default=False)
+    controlaNumerosDeSerie = db.Column("controlaNumerosDeSerie", db.Boolean, default=False)
+    dispLojas = db.Column("dispLojas", db.String(200))
+    pesoTransporte = db.Column("pesoTransporte", db.Numeric(12, 4))
+    markup = db.Column("markup", db.Numeric(12, 4))
+    tipoDeProdutoSaftPsoie = db.Column("tipoDeProdutoSaftPsoie", db.String(50))
+    dataAtualizacao = db.Column(
+        "dataAtualizacao", db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
-    produto = relationship("Produto", back_populates="preparacao")
+    preco = db.relationship(
+        "PrecoTaxa", back_populates="produto", uselist=False, cascade="all, delete-orphan"
+    )
+    fichas = db.relationship(
+        "FichaTecnica", back_populates="produto", cascade="all, delete-orphan"
+    )
+
 
 class FichaTecnica(db.Model):
     __tablename__ = "fichas_tecnicas"
+
     id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    nome = db.Column(db.String(200), nullable=False)
-    porcoes = db.Column(db.Integer, default=1)
-    custo_total = db.Column(db.Numeric(12, 4), default=0.0000)
-    preco_venda_sugerido = db.Column(db.Numeric(12, 4))
-    margem_percentagem = db.Column(db.Numeric(6, 2))
-    observacoes = db.Column(db.Text)
-    imagem_prato = db.Column(db.String(255))
-    ativo = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
-    data_atualizacao = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    codigo = db.Column(
+        "codigo", db.String(50), db.ForeignKey("produtos.codigo"), nullable=False, index=True
+    )
+    produtoNome = db.Column("produtoNome", db.String(200))
+    familiaSubfamilia = db.Column("familiaSubfamilia", db.String(200))
+    componenteCodigo = db.Column("componenteCodigo", db.String(50), nullable=False)
+    componenteNome = db.Column("componenteNome", db.String(200))
+    qtd = db.Column("qtd", db.Numeric(12, 4))
+    unidade = db.Column("unidade", db.String(50))
+    ppu = db.Column("ppu", db.Numeric(12, 4))
+    preco = db.Column("preco", db.Numeric(12, 4))
+    peso = db.Column("peso", db.Numeric(12, 4))
+    dataCriacao = db.Column("dataCriacao", db.DateTime, default=datetime.utcnow)
+    dataAtualizacao = db.Column(
+        "dataAtualizacao", db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
-    localizacao_id = db.Column(db.Integer, db.ForeignKey("localizacoes.id"), nullable=False)
-    localizacao = relationship("Localizacao", back_populates="fichas")
-    ingredientes = relationship("FichaIngrediente", back_populates="ficha", cascade="all, delete-orphan")
+    produto = db.relationship("Produto", back_populates="fichas")
 
-class FichaIngrediente(db.Model):
-    __tablename__ = "ficha_ingredientes"
-    id = db.Column(db.Integer, primary_key=True)
-    ficha_id = db.Column(db.Integer, db.ForeignKey("fichas_tecnicas.id"), nullable=False)
-    ingrediente_id = db.Column(db.Integer, db.ForeignKey("ingredientes.id"), nullable=False)
-    quantidade_ficha = db.Column(db.Numeric(12, 4), nullable=False)
-    custo_parcial = db.Column(db.Numeric(12, 4), default=0.0000)
-
-    ficha = relationship("FichaTecnica", back_populates="ingredientes")
-    ingrediente = relationship("Ingrediente", back_populates="fichas")
-    # REMOVIDO o backref errado! Produto não tem FK direta aqui → removido backref="usado_em_fichas"
+    __table_args__ = (
+        db.UniqueConstraint("codigo", "componenteCodigo", name="uq_ficha_codigo_componente"),
+    )
 
 
 class PrecoTaxa(db.Model):
     __tablename__ = "precos_taxas"
+
     id = db.Column(db.Integer, primary_key=True)
-    produto_codigo = db.Column(db.String(50), db.ForeignKey("produtos.codigo"), nullable=False)
-    loja = db.Column(db.String(50), nullable=False)
-    preco1 = db.Column(db.Numeric(12, 4), default=0.0000)
-    preco2 = db.Column(db.Numeric(12, 4), default=0.0000)
-    preco3 = db.Column(db.Numeric(12, 4), default=0.0000)
-    preco4 = db.Column(db.Numeric(12, 4), default=0.0000)
-    preco5 = db.Column(db.Numeric(12, 4), default=0.0000)
-    iva1 = db.Column(db.Numeric(6, 2), default=0.00)
-    iva2 = db.Column(db.Numeric(6, 2), default=0.00)
-    isencao_iva = db.Column(db.Boolean, default=False)
-    nome_prod_venda = db.Column(db.String(200))
-    familia = db.Column(db.String(100))
-    subfamilia = db.Column(db.String(100))
-    ativo = db.Column(db.Boolean, default=True)
+    produtoCodigo = db.Column(
+        "produtoCodigo", db.String(50), db.ForeignKey("produtos.codigo"), unique=True, nullable=False
+    )
+    loja = db.Column("loja", db.String(100), nullable=False)
+    ativo = db.Column("ativo", db.Boolean, default=True)
+    preco1 = db.Column("preco1", db.Numeric(12, 4))
+    preco2 = db.Column("preco2", db.Numeric(12, 4))
+    preco3 = db.Column("preco3", db.Numeric(12, 4))
+    preco4 = db.Column("preco4", db.Numeric(12, 4))
+    preco5 = db.Column("preco5", db.Numeric(12, 4))
+    iva1 = db.Column("iva1", db.Numeric(6, 2))
+    iva2 = db.Column("iva2", db.Numeric(6, 2))
+    isencaoIVA = db.Column("isencaoIVA", db.Boolean, default=False)
+    nomeProdVenda = db.Column("nomeProdVenda", db.String(200))
+    familia = db.Column("familia", db.String(100))
+    subFamilia = db.Column("subFamilia", db.String(100))
 
-    produto = relationship("Produto", back_populates="precos")
-    __table_args__ = (db.UniqueConstraint("produto_codigo", "loja", name="uq_preco_prod_loja"),)
+    produto = db.relationship("Produto", back_populates="preco")
+
 
 # ===================================================================
-# Seed inicial
+# Utilities
 # ===================================================================
+
 def create_tables_and_seed():
     db.create_all()
-
-    # Localizações
-    locs = [
-        {"codigo": "PT", "nome": "Portugal", "moeda": "EUR"},
-        {"codigo": "CV", "nome": "Cabo Verde", "moeda": "CVE"},
-        {"codigo": "AO", "nome": "Angola", "moeda": "AOA"},
-    ]
-    for loc in locs:
-        if not Localizacao.query.filter_by(codigo=loc["codigo"]).first():
-            db.session.add(Localizacao(**loc))
-
-    # Alergénios UE
-    alergenos = [
-        ("GL", "Glúten", "Gluten", "gluten.svg", True),
-        ("CR", "Crustáceos", "Crustaceans", "crustaceos.svg", True),
-        ("OV", "Ovos", "Eggs", "ovos.svg", True),
-        ("PE", "Peixes", "Fish", "peixe.svg", True),
-        ("AM", "Amendoins", "Peanuts", "amendoim.svg", True),
-        ("SO", "Soja", "Soy", "soja.svg", True),
-        ("LA", "Leite/Lactose", "Milk", "leite.svg", True),
-        ("FR", "Frutos de casca rija", "Nuts", "frutos_secos.svg", True),
-        ("AI", "Aipo", "Celery", "aipo.svg", True),
-        ("MO", "Mostarda", "Mustard", "mostarda.svg", True),
-        ("SE", "Sementes de sésamo", "Sesame", "sesamo.svg", True),
-        ("SU", "Dióxido de enxofre e sulfitos", "Sulphites", "sulfitos.svg", True),
-        ("LU", "Tremoço", "Lupin", "tremoco.svg", True),
-        ("ML", "Moluscos", "Molluscs", "moluscos.svg", True),
-    ]
-    for cod, pt, en, icone, ue in alergenos:
-        if not Alergeno.query.filter_by(codigo=cod).first():
-            db.session.add(Alergeno(codigo=cod, nome_pt=pt, nome_en=en, icone=icone, obrigatorio_ue=ue))
-
-    db.session.commit()
-    print("Tabelas criadas e seed inicial concluído!")
+    print("Tabelas criadas!")
