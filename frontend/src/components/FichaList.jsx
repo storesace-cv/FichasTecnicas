@@ -47,7 +47,7 @@ export default function FichaList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(ficha => (
-            <Link key={ficha.codigo} to={`/ficha/${ficha.codigo}`} className="block">
+            <Link key={ficha.codigo} to={`/fichas/${ficha.codigo}`} className="block">
               <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
                 {ficha.imagem_prato && (
                   <img src={`/api/images/${ficha.imagem_prato}`} alt={ficha.nome} className="w-full h-48 object-cover" />
