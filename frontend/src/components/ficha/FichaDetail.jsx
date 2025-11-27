@@ -90,9 +90,9 @@ export default function FichaDetail() {
       </div>
 
       {/* RESTO DA FICHA (igual à anterior) */}
-      <div className="container mx-auto p-6 max-w-6xl mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-lg shadow">
+      <div className="w-full px-6 mt-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          <div className="bg-white p-8 rounded-lg shadow w-full lg:w-[384px] lg:flex-none">
             <div className="bg-gray-300 border-2 border-dashed rounded w-full h-64 mb-6"></div>
             <h1 className="text-4xl font-bold">{ficha.nome}</h1>
             <p className="text-2xl text-blue-600 mt-2">{ficha.codigo}</p>
@@ -105,7 +105,7 @@ export default function FichaDetail() {
             </div>
           </div>
 
-          <div className="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white rounded-lg shadow overflow-hidden w-full lg:flex-1">
             <div className="bg-gray-800 text-white p-4">
               <h2 className="text-2xl font-bold">Ingredientes</h2>
             </div>
