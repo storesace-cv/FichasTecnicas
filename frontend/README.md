@@ -14,3 +14,8 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Testes
+
+- `npm test` executa o Vitest.
+- `npm test -- --runInBand` agora é aceito; a flag é ignorada porque o Vitest não a suporta. Use `npm test -- --maxWorkers=1` se precisar forçar a execução em um único worker.
