@@ -27,8 +27,8 @@ export default function FichaDetail() {
       .finally(() => setLoading(false));
   }, [codigo]);
 
-  if (loading) return <div className="flex h-screen items-center justify-center text-4xl">A carregar…</div>;
-  if (!ficha) return <div className="flex h-screen items-center justify-center text-4xl text-red-600">Ficha não encontrada</div>;
+  if (loading) return <div className="flex h-screen items-center justify-center text-2xl md:text-4xl px-4">A carregar…</div>;
+  if (!ficha) return <div className="flex h-screen items-center justify-center text-2xl md:text-4xl text-red-600 px-4">Ficha não encontrada</div>;
 
   const currentIndex = allCodigos.indexOf(codigo);
   const first = allCodigos[0];
@@ -40,12 +40,12 @@ export default function FichaDetail() {
     <div className="min-h-screen bg-surface-muted">
       {/* BARRA DE NAVEGAÇÃO COMPLETA */}
       <div className="bg-surface shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-          <Link to="/" className="text-primary-strong hover:underline flex items-center gap-3 text-xl font-bold">
-            <ArrowLeftIcon className="w-7 h-7" /> Voltar à lista
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-5 flex justify-between items-center">
+          <Link to="/" className="text-primary-strong hover:underline flex items-center gap-2 sm:gap-3 text-lg sm:text-xl font-bold">
+            <ArrowLeftIcon className="w-6 h-6 sm:w-7 sm:h-7" /> Voltar à lista
           </Link>
 
-          <div className="flex items-center gap-6 bg-primary-soft px-8 py-4 rounded-full shadow-2xl">
+          <div className="flex items-center gap-4 sm:gap-6 bg-primary-soft px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl">
             {/* Primeira */}
             <button
               onClick={() => navigate(`/ficha/${first}`)}
@@ -91,51 +91,53 @@ export default function FichaDetail() {
       </div>
 
       {/* RESTO DA FICHA (igual à anterior) */}
-      <div className="w-full px-6 mt-8">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="bg-surface p-8 rounded-lg shadow w-full lg:w-[768px] lg:flex-none">
-            <div className="bg-[var(--color-neutral-300)] border-2 border-dashed rounded w-full h-64 mb-6"></div>
-            <h1 className="text-4xl font-bold">{ficha.nome || ficha.cabecalho?.nome}</h1>
-            <p className="text-2xl text-primary-strong mt-2">{ficha.codigo}</p>
-            <p className="text-xl mt-4">Porções: {ficha.cabecalho?.porcoes || 1}</p>
-            <div className="mt-8 p-6 bg-success-soft rounded text-center">
-              <div className="text-5xl font-bold text-success-strong">
+      <div className="w-full px-4 sm:px-6 mt-6 md:mt-8">
+        <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
+          <div className="bg-surface p-5 md:p-8 rounded-lg shadow w-full lg:w-[768px] lg:flex-none space-y-3 md:space-y-4">
+            <div className="bg-[var(--color-neutral-300)] border-2 border-dashed rounded w-full h-56 sm:h-64 mb-2 md:mb-6"></div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold line-clamp-2">{ficha.nome || ficha.cabecalho?.nome}</h1>
+            <p className="text-lg sm:text-xl text-primary-strong mt-1 md:mt-2">{ficha.codigo}</p>
+            <p className="text-base sm:text-lg md:text-xl mt-2 md:mt-4">Porções: {ficha.cabecalho?.porcoes || 1}</p>
+            <div className="mt-4 md:mt-8 p-4 md:p-6 bg-success-soft rounded text-center">
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-success-strong">
                 {Number(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
               </div>
-              <div className="text-subtle mt-2">Custo total</div>
+              <div className="text-sm md:text-base text-subtle mt-1 md:mt-2">Custo total</div>
             </div>
           </div>
 
           <div className="bg-surface rounded-lg shadow overflow-hidden w-full lg:flex-1">
-          <div className="bg-surface-strong text-on-primary p-4">
-              <h2 className="text-2xl font-bold">Ingredientes</h2>
+          <div className="bg-surface-strong text-on-primary px-4 sm:px-6 py-4">
+              <h2 className="text-xl sm:text-2xl font-bold">Ingredientes</h2>
             </div>
-            <table className="w-full">
-              <thead className="bg-surface-muted">
-                <tr>
-                  <th className="px-6 py-3 text-left">#</th>
-                  <th className="px-6 py-3 text-left">Ingrediente</th>
-                  <th className="px-6 py-3 text-right">Qtd</th>
-                  <th className="px-6 py-3 text-left">Unidade</th>
-                  <th className="px-6 py-3 text-right">PPU</th>
-                  <th className="px-6 py-3 text-right">Custo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(ficha.composicao || []).map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-surface-muted">
-                    <td className="px-6 py-3">{i + 1}</td>
-                    <td className="px-6 py-3">{item.componente_nome || '—'}</td>
-                    <td className="px-6 py-3 text-right">{Number((item.quantidade ?? item.qtd) ?? 0).toFixed(3)}</td>
-                    <td className="px-6 py-3">{item.unidade || '—'}</td>
-                    <td className="px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
-                    <td className="px-6 py-3 text-right font-semibold text-success-strong">
-                      {Number(item.preco || 0).toFixed(2)} €
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-max text-sm md:text-base">
+                <thead className="bg-surface-muted text-subtle">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-left w-12">#</th>
+                    <th className="px-4 sm:px-6 py-3 text-left w-64 truncate">Ingrediente</th>
+                    <th className="px-4 sm:px-6 py-3 text-right w-28">Qtd</th>
+                    <th className="px-4 sm:px-6 py-3 text-left w-28">Unidade</th>
+                    <th className="px-4 sm:px-6 py-3 text-right w-28">PPU</th>
+                    <th className="px-4 sm:px-6 py-3 text-right w-32">Custo</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(ficha.composicao || []).map((item, i) => (
+                    <tr key={i} className="border-b hover:bg-surface-muted">
+                      <td className="px-4 sm:px-6 py-3 text-subtle">{i + 1}</td>
+                      <td className="px-4 sm:px-6 py-3 font-medium text-strong max-w-xs sm:max-w-none truncate">{item.componente_nome || '—'}</td>
+                      <td className="px-4 sm:px-6 py-3 text-right">{Number((item.quantidade ?? item.qtd) ?? 0).toFixed(3)}</td>
+                      <td className="px-4 sm:px-6 py-3">{item.unidade || '—'}</td>
+                      <td className="px-4 sm:px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
+                      <td className="px-4 sm:px-6 py-3 text-right font-semibold text-success-strong">
+                        {Number(item.preco || 0).toFixed(2)} €
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
