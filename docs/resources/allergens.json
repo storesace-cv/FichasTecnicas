@@ -1,0 +1,173 @@
+[
+  {
+    "id": 1,
+    "nome": "Glúten",
+    "nome_ingles": "Gluten",
+    "descricao": "Cereais que contêm glúten: trigo, centeio, cevada, aveia, espelta, kamut ou suas estirpes hibridizadas.",
+    "exemplos": [
+      "Pão de trigo",
+      "Massa de trigo",
+      "Cerveja de cevada"
+    ],
+    "notas": "Inclui produtos derivados destes cereais, exceto se o glúten tiver sido removido abaixo dos limites legais."
+  },
+  {
+    "id": 2,
+    "nome": "Crustáceos",
+    "nome_ingles": "Crustaceans",
+    "descricao": "Todos os tipos de crustáceos e produtos à base de crustáceos.",
+    "exemplos": [
+      "Camarão",
+      "Lagosta",
+      "Caranguejo"
+    ],
+    "notas": "Inclui molhos, bases e extratos feitos com crustáceos."
+  },
+  {
+    "id": 3,
+    "nome": "Ovos",
+    "nome_ingles": "Eggs",
+    "descricao": "Ovos de todas as espécies de aves e produtos à base de ovo.",
+    "exemplos": [
+      "Ovos inteiros",
+      "Omelete",
+      "Maionese"
+    ],
+    "notas": "Inclui clara, gema e derivados (ovoproteínas, albúmina, etc.)."
+  },
+  {
+    "id": 4,
+    "nome": "Peixe",
+    "nome_ingles": "Fish",
+    "descricao": "Peixe e produtos à base de peixe.",
+    "exemplos": [
+      "Bacalhau",
+      "Salmão",
+      "Atum enlatado"
+    ],
+    "notas": "Inclui molhos e pastas de peixe; não inclui gelatina de peixe usada como suporte de vitaminas ou clarificação de bebidas (depende da legislação local)."
+  },
+  {
+    "id": 5,
+    "nome": "Amendoins",
+    "nome_ingles": "Peanuts",
+    "descricao": "Amendoins e produtos à base de amendoins.",
+    "exemplos": [
+      "Manteiga de amendoim",
+      "Snacks com amendoim"
+    ],
+    "notas": "Diferente de frutos de casca rija."
+  },
+  {
+    "id": 6,
+    "nome": "Soja",
+    "nome_ingles": "Soybeans",
+    "descricao": "Soja e produtos à base de soja.",
+    "exemplos": [
+      "Bebida de soja",
+      "Tofu",
+      "Molho de soja"
+    ],
+    "notas": "Algumas lecitinas de soja altamente refinadas podem estar isentas, dependendo da legislação."
+  },
+  {
+    "id": 7,
+    "nome": "Leite",
+    "nome_ingles": "Milk",
+    "descricao": "Leite e produtos lácteos, incluindo lactose.",
+    "exemplos": [
+      "Leite de vaca",
+      "Queijo",
+      "Iogurte"
+    ],
+    "notas": "Inclui componentes como caseína, soro de leite, etc."
+  },
+  {
+    "id": 8,
+    "nome": "Frutos de casca rija",
+    "nome_ingles": "Tree nuts",
+    "descricao": "Frutos de casca rija e produtos derivados.",
+    "exemplos": [
+      "Amêndoas",
+      "Avelãs",
+      "Nozes",
+      "Cajus",
+      "Nozes do Brasil",
+      "Pistácios",
+      "Nozes de macadâmia"
+    ],
+    "notas": "Inclui óleos, pastas e farinhas destes frutos."
+  },
+  {
+    "id": 9,
+    "nome": "Aipo",
+    "nome_ingles": "Celery",
+    "descricao": "Aipo e produtos à base de aipo.",
+    "exemplos": [
+      "Aipo fresco",
+      "Sal de aipo",
+      "Sopas com aipo"
+    ],
+    "notas": "Pode aparecer em caldos, condimentos e preparados."
+  },
+  {
+    "id": 10,
+    "nome": "Mostarda",
+    "nome_ingles": "Mustard",
+    "descricao": "Mostarda e produtos à base de mostarda.",
+    "exemplos": [
+      "Mostarda em pasta",
+      "Sementes de mostarda",
+      "Molhos com mostarda"
+    ],
+    "notas": "Inclui mostarda em pó, sementes, folhas e derivados."
+  },
+  {
+    "id": 11,
+    "nome": "Sementes de sésamo",
+    "nome_ingles": "Sesame seeds",
+    "descricao": "Sésamo e produtos à base de sésamo.",
+    "exemplos": [
+      "Sementes de sésamo",
+      "Tahini",
+      "Pão com sementes de sésamo"
+    ],
+    "notas": "Pode aparecer em pães, molhos e toppings."
+  },
+  {
+    "id": 12,
+    "nome": "Dióxido de enxofre e sulfitos",
+    "nome_ingles": "Sulphur dioxide and sulphites",
+    "descricao": "Dióxido de enxofre e sulfitos em concentrações superiores a 10 mg/kg ou 10 mg/l, expressos em SO₂.",
+    "exemplos": [
+      "Vinho",
+      "Fruta seca com conservante",
+      "Alguns sumos embalados"
+    ],
+    "notas": "Importante para produtos com conservantes E220–E228."
+  },
+  {
+    "id": 13,
+    "nome": "Tremoço",
+    "nome_ingles": "Lupin",
+    "descricao": "Tremoço e produtos à base de tremoço.",
+    "exemplos": [
+      "Tremoços em salmoura",
+      "Farinha de tremoço"
+    ],
+    "notas": "Cada vez mais usado em produtos de padaria e substitutos de carne."
+  },
+  {
+    "id": 14,
+    "nome": "Moluscos",
+    "nome_ingles": "Molluscs",
+    "descricao": "Moluscos e produtos à base de moluscos.",
+    "exemplos": [
+      "Lulas",
+      "Polvo",
+      "Berbigão",
+      "Mexilhão"
+    ],
+    "notas": "Inclui moluscos bivalves, gastrópodes e cefalópodes."
+  }
+]
