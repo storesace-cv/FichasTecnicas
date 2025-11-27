@@ -1,5 +1,6 @@
 import os
 import re
+import unicodedata
 import shutil
 from datetime import datetime
 
@@ -17,8 +18,22 @@ from models import (
 )
 
 
+COLUMN_ALIASES = {
+    "prodvenda": "codigo",
+    "nomeprodvendanaonecessariopimportar": "nomeprodvenda",
+    "familianaonecessariopimportar": "familia",
+    "subfamilianaonecessariopimportar": "subfamilia",
+}
+
+
 def _normalize_header(header: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", str(header).strip().lower())
+    ascii_text = (
+        unicodedata.normalize("NFKD", str(header).strip().lower())
+        .encode("ascii", "ignore")
+        .decode("ascii")
+    )
+    normalized = re.sub(r"[^a-z0-9]", "", ascii_text)
+    return COLUMN_ALIASES.get(normalized, normalized)
 
 
 def _load_single_sheet(file_path):
