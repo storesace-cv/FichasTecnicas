@@ -9,6 +9,11 @@
   - `Produtos`, `FichasTecnicas`, `PrecosTaxas`, `Alergenios`, `ProdutoPreparacao`, etc.
 - Ficheiros JSON podem usar **snake_case** (ex.: `nome_ingles`), devendo ser mapeados para os campos CamelCase equivalentes na base de dados.
 
+### Fonte de verdade e imutabilidade
+
+- As tabelas `Produtos`, `FichasTecnicas` e `PrecosTaxas` são alimentadas exclusivamente por importações Excel.
+- Estas três tabelas funcionam como **fonte de verdade imutável** na aplicação: os valores só podem ser alterados por nova importação, nunca por UI ou API de edição direta.
+
 ---
 
 ## 1. Entidade Produto (`Produtos`)

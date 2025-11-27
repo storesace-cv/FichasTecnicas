@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeftIcon, ArrowRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/outline';
+import { mapFichaResponse } from '../../services/fichas';
 
 export default function FichaDetail() {
   const { codigo } = useParams();
@@ -16,8 +17,8 @@ export default function FichaDetail() {
       axios.get('/api/fichas')
     ])
       .then(([resFicha, resAll]) => {
-        setFicha(resFicha.data);
-        const codigos = resAll.data
+        setFicha(mapFichaResponse(resFicha.data));
+        const codigos = (resAll.data || [])
           .map(f => f.codigo)
           .sort((a, b) => Number(a) - Number(b));
         setAllCodigos(codigos);
@@ -94,12 +95,12 @@ export default function FichaDetail() {
         <div className="flex flex-col lg:flex-row gap-8 items-start">
           <div className="bg-white p-8 rounded-lg shadow w-full lg:w-[768px] lg:flex-none">
             <div className="bg-gray-300 border-2 border-dashed rounded w-full h-64 mb-6"></div>
-            <h1 className="text-4xl font-bold">{ficha.nome}</h1>
+            <h1 className="text-4xl font-bold">{ficha.nome || ficha.cabecalho?.nome}</h1>
             <p className="text-2xl text-blue-600 mt-2">{ficha.codigo}</p>
-            <p className="text-xl mt-4">Porções: {ficha.porcoes || 1}</p>
+            <p className="text-xl mt-4">Porções: {ficha.cabecalho?.porcoes || 1}</p>
             <div className="mt-8 p-6 bg-green-100 rounded text-center">
               <div className="text-5xl font-bold text-green-600">
-                {Number(ficha.custo_total).toFixed(2)} €
+                {Number(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
               </div>
               <div className="text-gray-600 mt-2">Custo total</div>
             </div>
@@ -121,15 +122,15 @@ export default function FichaDetail() {
                 </tr>
               </thead>
               <tbody>
-                {(ficha.ingredientes || []).map((item, i) => (
+                {(ficha.composicao || []).map((item, i) => (
                   <tr key={i} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-3">{i + 1}</td>
-                    <td className="px-6 py-3">{item.produto?.nome || '-'}</td>
-                    <td className="px-6 py-3 text-right">{Number(item.quantidade_ficha || 0).toFixed(3)}</td>
-                    <td className="px-6 py-3">{item.ingrediente?.unidade || '-'}</td>
-                    <td className="px-6 py-3 text-right">{Number(item.produto?.preco_unitario || 0).toFixed(3)}</td>
+                    <td className="px-6 py-3">{item.componente_nome || '—'}</td>
+                    <td className="px-6 py-3 text-right">{Number(item.quantidade ?? item.qtd || 0).toFixed(3)}</td>
+                    <td className="px-6 py-3">{item.unidade || '—'}</td>
+                    <td className="px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
                     <td className="px-6 py-3 text-right font-semibold text-green-600">
-                      {Number(item.custo_parcial || 0).toFixed(2)} €
+                      {Number(item.preco || 0).toFixed(2)} €
                     </td>
                   </tr>
                 ))}

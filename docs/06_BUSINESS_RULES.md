@@ -17,6 +17,9 @@ Todos os campos de `PrecosTaxas` são de origem Excel e read-only.
 
 Qualquer alteração válida deve vir de uma nova importação Excel.
 
+### 1.4. Tabelas imutáveis (SoT)
+`Produtos`, `FichasTecnicas` e `PrecosTaxas` atuam como fonte de verdade operacional e são consideradas tabelas **imutáveis** na aplicação. Só podem ser atualizadas através dos fluxos de importação Excel; a UI e a API não devem expor mecanismos de edição direta para estes registos.
+
 ## 2. Cálculos principais
 
 ### 2.1. Linha de ficha
