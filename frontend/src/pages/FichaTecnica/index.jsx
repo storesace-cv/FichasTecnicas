@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import axios from 'axios'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeftIcon,
@@ -14,7 +13,10 @@ import {
 import Breadcrumbs from '../../components/Breadcrumbs'
 import PageHeader from '../../components/PageHeader'
 import Tabs from '../../components/Tabs'
-import { mapFichaResponse } from '../../services/fichas'
+import LoadingSpinner from '../../components/LoadingSpinner'
+import StateMessage from '../../components/StateMessage'
+import FichaSkeleton from '../../components/FichaSkeleton'
+import { fetchFichaByCodigo } from '../../services/fichas'
 
 const tabs = [
   { label: 'Resumo', value: 'resumo' },
@@ -31,21 +33,42 @@ const formatDate = (value) => {
   return date.toLocaleString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
+function useFichaTecnica(codigo) {
+  const [ficha, setFicha] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const carregarFicha = useCallback(() => {
+    if (!codigo) {
+      setFicha(null)
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    fetchFichaByCodigo(codigo)
+      .then((response) => setFicha(response))
+      .catch((err) => {
+        setFicha(null)
+        setError(err)
+      })
+      .finally(() => setLoading(false))
+  }, [codigo])
+
+  useEffect(() => {
+    carregarFicha()
+  }, [carregarFicha])
+
+  return { ficha, loading, error, refetch: carregarFicha }
+}
+
 export default function FichaTecnicaPage() {
   const navigate = useNavigate()
   const { fichaId } = useParams()
-  const [ficha, setFicha] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
   const [activeTab, setActiveTab] = useState('resumo')
-
-  useEffect(() => {
-    setLoading(true)
-    axios
-      .get(`/api/fichas/${fichaId}`)
-      .then((res) => setFicha(mapFichaResponse(res.data)))
-      .catch(() => setFicha(null))
-      .finally(() => setLoading(false))
-  }, [fichaId])
 
   const custoBadge = useMemo(() => {
     if (!ficha?.custos) return null
@@ -60,21 +83,57 @@ export default function FichaTecnicaPage() {
     )
   }, [ficha])
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">A carregar ficha técnica…</div>
+  if (loading && !ficha) {
+    return <FichaSkeleton />
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto py-20 px-6">
+        <StateMessage
+          variant="error"
+          title="Não foi possível carregar a ficha técnica"
+          description="Tenta novamente ou volta para a lista para escolher outra ficha."
+          action={(
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className="px-4 py-2 text-sm font-semibold rounded-lg border border-red-200 text-red-800 hover:bg-red-100"
+              >
+                Voltar à lista
+              </button>
+              <button
+                type="button"
+                onClick={refetch}
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+        />
+      </div>
+    )
   }
 
   if (!ficha) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 text-center">
-        <p className="text-3xl font-bold text-gray-800">Ficha técnica não encontrada</p>
-        <button
-          type="button"
-          onClick={() => navigate('/')}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-        >
-          <ArrowLeftIcon className="w-5 h-5" /> Voltar à lista
-        </button>
+      <div className="max-w-3xl mx-auto py-20 px-6">
+        <StateMessage
+          variant="info"
+          title="Ficha técnica não encontrada"
+          description="O código indicado não devolveu resultados. Volta à lista de fichas e escolhe outro registo."
+          action={(
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="mt-2 inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+            >
+              <ArrowLeftIcon className="w-5 h-5" /> Voltar à lista
+            </button>
+          )}
+        />
       </div>
     )
   }
@@ -82,6 +141,16 @@ export default function FichaTecnicaPage() {
   const meta = ficha.meta || {}
   const documentos = ficha.documentos || []
   const links = ficha.links || []
+  const atributosTecnicos = ficha.atributosTecnicos || {}
+  const historicoRegistos =
+    ficha.historico?.length > 0
+      ? ficha.historico
+      : [
+          { icon: ClockIcon, titulo: 'Criação', descricao: `Ficha criada em ${formatDate(meta.criadoEm)}` },
+          { icon: FolderIcon, titulo: 'Última atualização', descricao: `Registos atualizados em ${formatDate(meta.atualizadoEm)}` },
+          { icon: UserCircleIcon, titulo: 'Responsável', descricao: meta.autor || 'Equipa não definida' },
+        ]
+  const isRefreshing = loading && !!ficha
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -135,6 +204,56 @@ export default function FichaTecnicaPage() {
             <p className="text-sm text-gray-600">{meta.categoria || 'Sem categoria'}</p>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {ficha.descricao && (
+            <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
+              <h3 className="text-lg font-semibold text-gray-900">Descrição</h3>
+              <p className="text-sm leading-relaxed text-gray-700">{ficha.descricao}</p>
+            </div>
+          )}
+
+          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Atributos técnicos</h3>
+              <FolderIcon className="w-5 h-5 text-gray-500" />
+            </div>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">Família</dt>
+                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.familia}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">Subfamília</dt>
+                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.subfamilia}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">Unidade base</dt>
+                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.unidade_base}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">Validade</dt>
+                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.validade}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-gray-500">Temperatura</dt>
+                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.temperatura}</dd>
+              </div>
+              {atributosTecnicos.informacao_adicional && (
+                <div className="sm:col-span-2">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Informação adicional</dt>
+                  <dd className="text-sm text-gray-700">{atributosTecnicos.informacao_adicional}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        </div>
+
+        {isRefreshing && (
+          <div className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm">
+            <LoadingSpinner label="A atualizar a ficha técnica…" />
+          </div>
+        )}
 
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
           <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
@@ -330,27 +449,21 @@ export default function FichaTecnicaPage() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Histórico de alterações</h3>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <ClockIcon className="w-5 h-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Criação</p>
-                      <p className="text-sm text-gray-600">Ficha criada em {formatDate(meta.criadoEm)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <FolderIcon className="w-5 h-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Última atualização</p>
-                      <p className="text-sm text-gray-600">Registos atualizados em {formatDate(meta.atualizadoEm)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <UserCircleIcon className="w-5 h-5 text-gray-500 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">Responsável</p>
-                      <p className="text-sm text-gray-600">{meta.autor || 'Equipa não definida'}</p>
-                    </div>
-                  </div>
+                  {historicoRegistos.map((evento, idx) => {
+                    const Icone = evento.icon || ClockIcon
+
+                    return (
+                      <div key={evento.id || evento.titulo || idx} className="flex items-start gap-3">
+                        <Icone className="w-5 h-5 text-gray-500 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">{evento.titulo || 'Registo'}</p>
+                          <p className="text-sm text-gray-600">
+                            {evento.descricao || formatDate(evento.data)}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
             )}

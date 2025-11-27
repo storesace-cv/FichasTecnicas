@@ -13,7 +13,16 @@ describe('mapFichaResponse', () => {
     const payload = mapFichaResponse({
       codigo: 'P001',
       nome: 'Produto Teste',
-      cabecalho: { porcoes: 2, unidade_base: 'kg' },
+      descricao: 'Uma ficha de exemplo',
+      cabecalho: {
+        porcoes: 2,
+        unidade_base: 'kg',
+        familia: 'Pastelaria',
+        subfamilia: 'Bolos',
+        validade: '3 dias',
+        temperatura: '4ºC',
+        informacao_adicional: 'Servir frio',
+      },
       composicao: [
         { quantidade: 1, unidade: 'kg', ppu: 4, preco: 4, peso: 1 },
         { quantidade: 2, unidade: 'kg', ppu: 2, preco: 4, peso: 2, alergenos: [{ codigo: 'GL', nome: 'Glúten' }] },
@@ -29,6 +38,9 @@ describe('mapFichaResponse', () => {
     expect(payload.cabecalho.unidade_base).toBe('kg');
     expect(payload.alergenos).toHaveLength(1);
     expect(payload.preparacao_html).toContain('calma');
+    expect(payload.descricao).toBe('Uma ficha de exemplo');
+    expect(payload.atributosTecnicos.familia).toBe('Pastelaria');
+    expect(payload.atributosTecnicos.informacao_adicional).toBe('Servir frio');
   });
 
   it('derives costs and totals from legacy ingredient fields when missing', () => {
@@ -45,5 +57,6 @@ describe('mapFichaResponse', () => {
     expect(payload.totais.peso_total).toBeCloseTo(4);
     expect(payload.totais.unidade_base).toBe('un');
     expect(payload.custos.consistente).toBe(true);
+    expect(payload.atributosTecnicos.unidade_base).toBe('un');
   });
 });
