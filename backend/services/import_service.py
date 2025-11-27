@@ -20,6 +20,21 @@ COLUMN_ALIASES = {
     "nomeprodvendanaonecessariopimportar": "nomeProdVenda",
     "familianaonecessariopimportar": "familia",
     "subfamilianaonecessariopimportar": "subFamilia",
+    "nomeprodvenda": "nomeProdVenda",
+    "informacaoadicional": "informacaoAdicional",
+    "afetastk": "afetaStock",
+    "tipomercad": "tipoMercad",
+    "tipovenda": "tipoVenda",
+    "tipoproducao": "tipoProducao",
+    "tipogener": "tipoGener",
+    "unstockvmpg": "unStockVMPG",
+    "unvendavmv": "unVendaVMV",
+    "uninvvmmmpg": "unInvVMMMPG",
+    "unproduftpv": "unProduFtPV",
+    "tipoartigo": "tipoArtigo",
+    "validade": "validade",
+    "temperatura": "temperatura",
+    "ativo": "ativo",
     "produtocodigo": "produtoCodigo",
     "produtonome": "produtoNome",
     "componentecodigo": "componenteCodigo",
@@ -35,6 +50,8 @@ PRODUTO_FIELD_TYPES = {
     "familia": str,
     "subFamilia": str,
     "codBarras": str,
+    "nomeProdVenda": str,
+    "informacaoAdicional": str,
     "afetaStock": "bool",
     "menu": "bool",
     "venda": "bool",
@@ -47,6 +64,18 @@ PRODUTO_FIELD_TYPES = {
     "unVenda": str,
     "unInventario": str,
     "unProducao": str,
+    "tipoMercad": str,
+    "tipoVenda": str,
+    "tipoProducao": str,
+    "tipoGener": str,
+    "unStockVMPG": str,
+    "unVendaVMV": str,
+    "unInvVMMMPG": str,
+    "unProduFtPV": str,
+    "tipoArtigo": str,
+    "validade": str,
+    "temperatura": str,
+    "ativo": "bool",
     "codAuxiliar": str,
     "codAuxiliar2": str,
     "pcu": float,
@@ -71,6 +100,7 @@ FICHA_FIELD_TYPES = {
     "ppu": float,
     "preco": float,
     "peso": float,
+    "ordem": int,
 }
 
 PRECO_FIELD_TYPES = {
@@ -169,6 +199,13 @@ def _assign_value(instance, field, value, field_types):
         if parsed is None:
             return
         setattr(instance, field, parsed)
+    elif target_type == int:
+        if pd.isna(value):
+            return
+        try:
+            setattr(instance, field, int(_parse_number(value, getattr(instance, field, 0) or 0)))
+        except (TypeError, ValueError):
+            return
     elif target_type is float:
         setattr(instance, field, _parse_number(value, getattr(instance, field, 0) or 0))
     else:
@@ -231,6 +268,8 @@ def _import_fichas(df, result):
 
             for field in FICHA_FIELD_TYPES:
                 if field not in df.columns:
+                    continue
+                if field == "produtoCodigo":
                     continue
                 _assign_value(ficha, field, row.get(field), FICHA_FIELD_TYPES)
 
