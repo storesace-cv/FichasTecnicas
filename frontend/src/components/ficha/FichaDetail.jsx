@@ -90,8 +90,8 @@ export default function FichaDetail() {
       </div>
 
       {/* RESTO DA FICHA (igual à anterior) */}
-      <div className="container mx-auto p-6 max-w-6xl mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto p-6 max-w-[1920px] mt-8">
+        <div className="grid grid-cols-1 xl:grid-cols-[2fr_3fr] gap-10 items-start">
           <div className="bg-white p-8 rounded-lg shadow">
             <div className="bg-gray-300 border-2 border-dashed rounded w-full h-64 mb-6"></div>
             <h1 className="text-4xl font-bold">{ficha.nome}</h1>
