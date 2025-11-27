@@ -52,16 +52,16 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 bg-gradient-to-b from-blue-800 to-blue-900 text-white min-h-screen p-6">
-      <h1 className="text-3xl font-black mb-12">BWB FTV</h1>
-      <nav className="space-y-4">
+    <div className="w-64 bg-gradient-to-b from-[var(--color-primary-700)] to-[var(--color-primary-900)] text-on-primary min-h-screen p-[var(--spacing-6)]">
+      <h1 className="text-3xl font-black mb-[var(--spacing-12)]">BWB FTV</h1>
+      <nav className="space-y-[var(--spacing-4)]">
         {menu.map(item => (
           item.children ? (
             <div key={item.nome}>
               <button
                 type="button"
                 onClick={() => toggleSection(item.nome)}
-                className="w-full flex items-center justify-between gap-4 px-6 py-4 rounded-xl text-xl font-medium transition hover:bg-white hover:bg-opacity-20"
+                className="w-full flex items-center justify-between gap-4 px-[var(--spacing-6)] py-[var(--spacing-4)] rounded-xl text-xl font-medium transition hover:bg-[var(--color-surface)] hover:bg-opacity-20"
               >
                 <div className="flex items-center gap-4">
                   {item.icone}
@@ -74,15 +74,15 @@ export default function Sidebar() {
                 )}
               </button>
               {openSections[item.nome] && (
-                <div className="mt-2 space-y-2 ml-4">
+                <div className="mt-[var(--spacing-2)] space-y-[var(--spacing-2)] ml-[var(--spacing-4)]">
                   {item.children.map(child => (
                     child.to ? (
                       <NavLink
                         key={child.to}
                         to={child.to}
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-5 py-3 rounded-lg text-lg font-medium transition ${
-                            isActive ? 'bg-white text-blue-900 shadow-lg' : 'hover:bg-white hover:bg-opacity-20'
+                          `flex items-center gap-3 px-[var(--spacing-5)] py-[var(--spacing-3)] rounded-lg text-lg font-medium transition ${
+                            isActive ? 'bg-surface text-primary-strong shadow-card' : 'hover:bg-[var(--color-surface)] hover:bg-opacity-20'
                           }`
                         }
                       >
@@ -94,10 +94,10 @@ export default function Sidebar() {
                         key={child.nome}
                         type="button"
                         onClick={handleResetDb}
-                        className={`w-full flex items-center gap-3 px-5 py-3 rounded-lg text-left text-lg font-medium transition ${
+                        className={`w-full flex items-center gap-3 px-[var(--spacing-5)] py-[var(--spacing-3)] rounded-lg text-left text-lg font-medium transition ${
                           isResetting
-                            ? 'bg-white bg-opacity-20 cursor-not-allowed'
-                            : 'hover:bg-white hover:bg-opacity-20'
+                            ? 'bg-[var(--color-surface)] bg-opacity-20 cursor-not-allowed'
+                            : 'hover:bg-[var(--color-surface)] hover:bg-opacity-20'
                         }`}
                         disabled={isResetting}
                       >
@@ -114,8 +114,8 @@ export default function Sidebar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-4 px-6 py-4 rounded-xl text-xl font-medium transition ${
-                  isActive ? 'bg-white text-blue-900 shadow-xl' : 'hover:bg-white hover:bg-opacity-20'
+                `flex items-center gap-4 px-[var(--spacing-6)] py-[var(--spacing-4)] rounded-xl text-xl font-medium transition ${
+                  isActive ? 'bg-surface text-primary-strong shadow-card' : 'hover:bg-[var(--color-surface)] hover:bg-opacity-20'
                 }`
               }
             >

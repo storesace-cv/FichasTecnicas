@@ -51,9 +51,9 @@ export default function ImportarTipo() {
         <ArrowLeftIcon className="w-10 h-10" /> Voltar
       </Link>
       <h1 className="text-6xl font-black mb-16 text-center">{titulo}</h1>
-      <input type="file" accept=".xlsx" onChange={e => setFile(e.target.files[0])} className="block w-full text-2xl file:py-6 file:px-12 file:rounded-full file:bg-blue-600 file:text-white" />
-      {file && <p className="mt-8 text-3xl font-bold text-center text-blue-600">{file.name}</p>}
-      <button onClick={upload} disabled={!file} className="mt-16 w-full py-8 bg-blue-600 text-white text-4xl font-bold rounded-3xl hover:bg-blue-700 disabled:bg-gray-400">
+      <input type="file" accept=".xlsx" onChange={e => setFile(e.target.files[0])} className="block w-full text-2xl file:py-6 file:px-12 file:rounded-full file:bg-[var(--color-primary-600)] file:text-on-primary" />
+      {file && <p className="mt-8 text-3xl font-bold text-center text-primary-strong">{file.name}</p>}
+      <button onClick={upload} disabled={!file} className="mt-16 w-full py-8 bg-[var(--color-primary-600)] text-on-primary text-4xl font-bold rounded-3xl hover:bg-[var(--color-primary-700)] disabled:bg-[var(--color-neutral-300)]">
         INICIAR IMPORTAÇÃO
       </button>
       {msg && <p className="mt-12 text-3xl font-bold text-center">{msg}</p>}

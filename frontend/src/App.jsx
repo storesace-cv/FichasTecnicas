@@ -11,7 +11,7 @@ export default function App() {
     <Router>
       <div className="flex">
         <Sidebar />
-        <div className="flex-1 min-h-screen bg-gray-50">
+        <div className="flex-1 min-h-screen bg-surface-muted">
           <Routes>
             <Route path="/" element={<FichaList />} />
             <Route path="/fichas/:fichaId" element={<FichaTecnicaPage />} />
