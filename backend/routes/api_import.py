@@ -10,7 +10,11 @@ import_bp = Blueprint('import', __name__)
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "Nenhum ficheiro enviado"}), 400
-    
+
+    tipo = request.form.get('tipo')
+    if not tipo:
+        return jsonify({"error": "Tipo de importação em falta (produtos, fichas ou precos)"}), 400
+
     file = request.files['file']
     if file.filename == '':
         return jsonify({"error": "Nenhum ficheiro selecionado"}), 400
@@ -22,9 +26,10 @@ def upload_file():
     filepath = os.path.join(Config.UPLOAD_FOLDER, filename)
     file.save(filepath)
 
-    result = process_import(filepath)
+    result = process_import(filepath, tipo)
+    status_code = 200 if result.get("status") == "sucesso" else 400
 
     return jsonify({
         "message": "Importação concluída",
         "detalhes": result
-    }), 200
+    }), status_code
