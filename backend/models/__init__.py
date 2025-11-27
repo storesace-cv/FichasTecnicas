@@ -37,6 +37,7 @@ class Produto(db.Model):
     localizacao = relationship("Localizacao", back_populates="produtos")
     ingredientes = relationship("Ingrediente", back_populates="produto", cascade="all, delete-orphan")
     precos = relationship("PrecoTaxa", back_populates="produto", cascade="all, delete-orphan")
+    preparacao = relationship("ProdutoPreparacao", back_populates="produto", uselist=False, cascade="all, delete-orphan")
 
 class Alergeno(db.Model):
     __tablename__ = "alergenos"
@@ -69,6 +70,16 @@ class IngredienteAlergeno(db.Model):
 
     ingrediente = relationship("Ingrediente", back_populates="alergenos")
     alergeno = relationship("Alergeno", back_populates="ingredientes")
+
+
+class ProdutoPreparacao(db.Model):
+    __tablename__ = "produto_preparacoes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    produto_codigo = db.Column(db.String(50), db.ForeignKey("produtos.codigo"), nullable=False, unique=True)
+    html = db.Column(db.Text, nullable=False)
+
+    produto = relationship("Produto", back_populates="preparacao")
 
 class FichaTecnica(db.Model):
     __tablename__ = "fichas_tecnicas"
