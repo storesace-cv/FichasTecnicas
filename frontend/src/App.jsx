@@ -9,9 +9,9 @@ import ImportarTipo from './pages/import/ImportarTipo';
 export default function App() {
   return (
     <Router>
-      <div className="flex">
+      <div className="min-h-screen flex flex-col md:flex-row bg-surface-muted">
         <Sidebar />
-        <div className="flex-1 min-h-screen bg-surface-muted">
+        <div className="flex-1">
           <Routes>
             <Route path="/" element={<FichaList />} />
             <Route path="/fichas/:fichaId" element={<FichaTecnicaPage />} />

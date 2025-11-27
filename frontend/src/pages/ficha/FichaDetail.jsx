@@ -48,14 +48,14 @@ export default function FichaDetail() {
 
   return (
     <div className="min-h-screen bg-surface-muted py-8">
-      <div className="max-w-7xl mx-auto px-6 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10">
         {/* Navegação com setas */}
-        <div className="flex justify-between items-center">
-          <Link to="/" className="text-primary-strong hover:underline flex items-center gap-2 text-lg">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <Link to="/" className="text-primary-strong hover:underline flex items-center gap-2 text-lg w-fit">
             <ArrowLeftIcon className="w-6 h-6" /> Voltar
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 justify-between md:justify-end">
             {custoBadge}
             <div className="flex items-center gap-6 bg-surface px-6 py-3 rounded-full shadow-lg">
               <button
@@ -80,7 +80,7 @@ export default function FichaDetail() {
         </div>
 
         {/* Cabeçalho e resumo */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="bg-surface rounded-2xl shadow-2xl p-8 space-y-6 lg:col-span-1">
             <div className="bg-[var(--color-neutral-200)] border-2 border-dashed rounded-xl w-full h-64" />
             <div>
@@ -89,7 +89,7 @@ export default function FichaDetail() {
               <p className="text-sm text-muted">Unidade base: {ficha.cabecalho.unidade_base}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-success-soft rounded-xl">
                 <p className="text-sm text-subtle">Custo registado</p>
                 <p className="text-3xl font-black text-success-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
@@ -116,7 +116,7 @@ export default function FichaDetail() {
 
           {/* Tabela de composição */}
           <div className="lg:col-span-2 bg-surface rounded-2xl shadow-2xl overflow-hidden">
-            <div className="bg-surface-strong text-on-primary px-10 py-6 flex items-center justify-between">
+            <div className="bg-surface-strong text-on-primary px-6 md:px-10 py-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-3xl font-bold">Composição</h2>
                 <p className="text-sm text-muted">Ordem original e unidades base</p>

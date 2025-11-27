@@ -154,7 +154,7 @@ export default function FichaTecnicaPage() {
 
   return (
     <div className="min-h-screen bg-surface-muted py-8">
-      <div className="max-w-6xl mx-auto px-6 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
         <Breadcrumbs
           items={[
             { label: 'Fichas Técnicas', href: '/' },
@@ -176,7 +176,7 @@ export default function FichaTecnicaPage() {
           }
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
               <TagIcon className="w-4 h-4" /> Estado
@@ -205,7 +205,7 @@ export default function FichaTecnicaPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {ficha.descricao && (
             <div className="bg-surface border border-soft rounded-xl p-5 space-y-3">
               <h3 className="text-lg font-semibold text-strong">Descrição</h3>
@@ -255,10 +255,10 @@ export default function FichaTecnicaPage() {
           </div>
         )}
 
-        <div className="bg-surface border border-soft rounded-xl shadow-sm">
-          <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+          <div className="bg-surface border border-soft rounded-xl shadow-sm">
+            <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {activeTab === 'resumo' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -331,7 +331,7 @@ export default function FichaTecnicaPage() {
 
             {activeTab === 'especificacoes' && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <h3 className="text-lg font-semibold text-strong">Tabela de composição</h3>
                   {custoBadge}
                 </div>
@@ -394,7 +394,7 @@ export default function FichaTecnicaPage() {
                   ) : (
                     <div className="divide-y divide-[var(--color-neutral-100)] border border-[var(--color-neutral-100)] rounded-lg">
                       {documentos.map((doc) => (
-                        <div key={doc.id || doc.nome} className="flex items-center justify-between px-4 py-3">
+                        <div key={doc.id || doc.nome} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3">
                           <div className="flex items-center gap-3">
                             <DocumentIcon className="w-5 h-5 text-muted" />
                             <div>
@@ -428,7 +428,7 @@ export default function FichaTecnicaPage() {
                         <a
                           key={link.url}
                           href={link.url}
-                          className="flex items-center gap-3 px-4 py-3 bg-surface-muted border border-[var(--color-neutral-100)] rounded-lg hover:bg-[var(--color-neutral-100)] transition"
+                          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-3 bg-surface-muted border border-[var(--color-neutral-100)] rounded-lg hover:bg-[var(--color-neutral-100)] transition"
                           target="_blank"
                           rel="noreferrer"
                         >
