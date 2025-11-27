@@ -13,7 +13,7 @@ Orientar a entrega incremental da aplicação web que apresenta e gere fichas t�
 
 3. **Frontend de navegação e listagem** – concluída (MVP).
    - [x] Sidebar, pesquisa e cartões de resumo funcionais.
-   - [ ] Sincronizar campos exibidos com futuras expansões do backend (dependente da fase 2).
+   - [x] Sincronizar campos exibidos com futuras expansões do backend (dependente da fase 2).
 
 4. **Página de detalhe da ficha técnica** – em progresso (prioritária).
    - [x] Navegação sequencial entre fichas e rendering de nome, código, porções, custo total e tabela de ingredientes (quantidade, unidade, PPU e custo).

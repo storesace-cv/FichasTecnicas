@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import { mapFichaResponse } from '../services/fichas';
 
 export default function FichaList() {
   const [fichas, setFichas] = useState([]);
@@ -10,13 +11,16 @@ export default function FichaList() {
 
   useEffect(() => {
     axios.get('/api/fichas')
-      .then(res => { setFichas(res.data); setLoading(false); })
+      .then(res => {
+        setFichas((res.data || []).map(mapFichaResponse));
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
   const filtered = fichas.filter(f =>
-    f.codigo?.toLowerCase().includes(search.toLowerCase()) ||
-    f.nome?.toLowerCase().includes(search.toLowerCase())
+    f?.codigo?.toLowerCase().includes(search.toLowerCase()) ||
+    f?.nome?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) return <div className="text-center py-20 text-2xl">A carregar fichas...</div>;
@@ -43,22 +47,22 @@ export default function FichaList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(ficha => (
-            <Link key={ficha.id} to={`/ficha/${ficha.codigo}`} className="block">
+            <Link key={ficha.codigo} to={`/ficha/${ficha.codigo}`} className="block">
               <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
                 {ficha.imagem_prato && (
                   <img src={`/api/images/${ficha.imagem_prato}`} alt={ficha.nome} className="w-full h-48 object-cover" />
                 )}
                 <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-sm font-mono bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                      {ficha.codigo}
-                    </span>
-                    <span className="text-sm text-gray-600">{ficha.porcoes || 1} porções</span>
-                  </div>
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="text-sm font-mono bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                        {ficha.codigo}
+                      </span>
+                      <span className="text-sm text-gray-600">{ficha.cabecalho?.porcoes || 1} porções</span>
+                    </div>
                   <h3 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">{ficha.nome}</h3>
                   <div className="text-right">
                     <p className="text-3xl font-bold text-green-600">
-                      {(ficha.custo_total || 0).toFixed(2)} €
+                      {(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
                     </p>
                     <p className="text-sm text-gray-500">custo total</p>
                   </div>
