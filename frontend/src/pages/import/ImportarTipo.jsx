@@ -16,10 +16,32 @@ export default function ImportarTipo() {
     form.append('file', file);
     form.append('tipo', tipo);
     try {
-      await axios.post('/api/import', form);
-      setMsg('SUCESSO! Importação concluída.');
+      const res = await axios.post('/api/import', form);
+      const detalhes = res.data?.detalhes;
+      if (detalhes?.status === 'sucesso') {
+        const linhas = Object.entries({
+          produtos: detalhes.produtos,
+          fichas: detalhes.fichas,
+          ingredientes: detalhes.ingredientes,
+          precos: detalhes.precos,
+        })
+          .filter(([, valor]) => valor > 0)
+          .map(([chave, valor]) => `${valor} ${chave}`)
+          .join(' | ');
+
+        setMsg(`SUCESSO! ${detalhes.tipo} importados. ${linhas}`.trim());
+      } else {
+        setMsg('ERRO: Resultado inesperado na importação.');
+      }
     } catch (e) {
-      setMsg('ERRO: ' + (e.response?.data?.error || e.message));
+      const detalhesErro = e.response?.data?.detalhes;
+      if (detalhesErro?.erros?.length) {
+        const primeiro = detalhesErro.erros[0];
+        const codigo = primeiro.codigo ? `[${primeiro.codigo}] ` : '';
+        setMsg(`ERRO: ${codigo}${primeiro.mensagem || 'Falha a importar ficheiro.'}`);
+      } else {
+        setMsg('ERRO: ' + (e.response?.data?.error || e.message));
+      }
     }
   };
 

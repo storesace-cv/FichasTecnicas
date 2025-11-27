@@ -36,6 +36,7 @@ class Produto(db.Model):
     localizacao_id = db.Column(db.Integer, db.ForeignKey("localizacoes.id"), nullable=False)
     localizacao = relationship("Localizacao", back_populates="produtos")
     ingredientes = relationship("Ingrediente", back_populates="produto", cascade="all, delete-orphan")
+    precos = relationship("PrecoTaxa", back_populates="produto", cascade="all, delete-orphan")
 
 class Alergeno(db.Model):
     __tablename__ = "alergenos"
@@ -99,6 +100,28 @@ class FichaIngrediente(db.Model):
     ficha = relationship("FichaTecnica", back_populates="ingredientes")
     ingrediente = relationship("Ingrediente", back_populates="fichas")
     # REMOVIDO o backref errado! Produto não tem FK direta aqui → removido backref="usado_em_fichas"
+
+
+class PrecoTaxa(db.Model):
+    __tablename__ = "precos_taxas"
+    id = db.Column(db.Integer, primary_key=True)
+    produto_codigo = db.Column(db.String(50), db.ForeignKey("produtos.codigo"), nullable=False)
+    loja = db.Column(db.String(50), nullable=False)
+    preco1 = db.Column(db.Numeric(12, 4), default=0.0000)
+    preco2 = db.Column(db.Numeric(12, 4), default=0.0000)
+    preco3 = db.Column(db.Numeric(12, 4), default=0.0000)
+    preco4 = db.Column(db.Numeric(12, 4), default=0.0000)
+    preco5 = db.Column(db.Numeric(12, 4), default=0.0000)
+    iva1 = db.Column(db.Numeric(6, 2), default=0.00)
+    iva2 = db.Column(db.Numeric(6, 2), default=0.00)
+    isencao_iva = db.Column(db.Boolean, default=False)
+    nome_prod_venda = db.Column(db.String(200))
+    familia = db.Column(db.String(100))
+    subfamilia = db.Column(db.String(100))
+    ativo = db.Column(db.Boolean, default=True)
+
+    produto = relationship("Produto", back_populates="precos")
+    __table_args__ = (db.UniqueConstraint("produto_codigo", "loja", name="uq_preco_prod_loja"),)
 
 # ===================================================================
 # Seed inicial
