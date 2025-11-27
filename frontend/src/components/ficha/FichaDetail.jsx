@@ -126,7 +126,7 @@ export default function FichaDetail() {
                   <tr key={i} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-3">{i + 1}</td>
                     <td className="px-6 py-3">{item.componente_nome || '—'}</td>
-                    <td className="px-6 py-3 text-right">{Number(item.quantidade ?? item.qtd || 0).toFixed(3)}</td>
+                    <td className="px-6 py-3 text-right">{Number((item.quantidade ?? item.qtd) ?? 0).toFixed(3)}</td>
                     <td className="px-6 py-3">{item.unidade || '—'}</td>
                     <td className="px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
                     <td className="px-6 py-3 text-right font-semibold text-green-600">
