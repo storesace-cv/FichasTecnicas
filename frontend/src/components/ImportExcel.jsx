@@ -28,11 +28,11 @@ export default function ImportExcel() {
 
   return (
     <div className="max-w-2xl mx-auto py-12">
-      <h2 className="text-4xl font-bold text-gray-800 mb-10 text-center">Importar Excel NET-bo</h2>
+      <h2 className="text-4xl font-bold text-strong mb-10 text-center">Importar Excel NET-bo</h2>
       
-      <div className="bg-white rounded-2xl shadow-xl p-10">
+      <div className="bg-surface rounded-2xl shadow-xl p-10">
         <form onSubmit={handleSubmit}>
-          <div className="border-4 border-dashed border-blue-300 rounded-2xl p-20 text-center hover:border-blue-500 transition">
+          <div className="border-4 border-dashed border-[var(--color-primary-300)] rounded-2xl p-20 text-center hover:border-[var(--color-primary-500)] transition">
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -42,7 +42,7 @@ export default function ImportExcel() {
             />
             <label htmlFor="file-upload" className="cursor-pointer">
               <div className="text-8xl mb-6">Upload</div>
-              <p className="text-2xl text-gray-700">
+              <p className="text-2xl text-subtle">
                 {file ? file.name : "Clica ou arrasta o teu ficheiro Excel aqui"}
               </p>
             </label>
@@ -51,14 +51,14 @@ export default function ImportExcel() {
           <button
             type="submit"
             disabled={!file || uploading}
-            className="mt-8 w-full bg-blue-700 text-white py-5 rounded-xl text-2xl font-bold hover:bg-blue-800 disabled:bg-gray-400 transition"
+            className="mt-8 w-full bg-[var(--color-primary-700)] text-on-primary py-5 rounded-xl text-2xl font-bold hover:bg-[var(--color-primary-800)] disabled:bg-[var(--color-neutral-300)] transition"
           >
             {uploading ? "A importar... Aguenta!" : "Importar Fichas Técnicas"}
           </button>
         </form>
 
         {result && (
-          <div className={`mt-10 p-8 rounded-xl text-lg ${result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <div className={`mt-10 p-8 rounded-xl text-lg ${result.success ? 'bg-success-soft text-success-strong' : 'bg-error-soft text-error-strong'}`}>
             <strong>{result.success ? "SUCESSO!" : "ERRO"}</strong>
             <pre className="mt-4 text-sm whitespace-pre-wrap">{JSON.stringify(result, null, 2)}</pre>
           </div>

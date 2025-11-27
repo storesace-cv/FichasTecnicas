@@ -19,3 +19,10 @@ If you are developing a production application, we recommend using TypeScript wi
 
 - `npm test` executa o Vitest.
 - `npm test -- --runInBand` agora é aceito; a flag é ignorada porque o Vitest não a suporta. Use `npm test -- --maxWorkers=1` se precisar forçar a execução em um único worker.
+
+## Tokens de estilo
+
+- As variáveis de design system vivem em `src/styles/tokens.css` e seguem a convenção `--color-<family>-<peso>` e `--spacing-<passo>`.
+- Paletas principais: `--color-primary-*` (azuis), `--color-secondary-*` (roxos), `--color-success-*`, `--color-warning-*`, `--color-error-*` e neutros `--color-neutral-*`.
+- Superfícies e texto: `--color-surface`, `--color-surface-muted`, `--color-border-soft`, `--color-text-strong`, `--color-text-subtle`, `--color-text-muted`, `--color-text-on-primary`.
+- Espaçamentos escalares disponíveis: `--spacing-1` até `--spacing-20` (0.25rem a 5rem) para uso em utilitários Tailwind com valores arbitrários.

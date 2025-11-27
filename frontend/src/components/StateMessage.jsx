@@ -4,17 +4,17 @@ import { ExclamationTriangleIcon, CheckCircleIcon, InformationCircleIcon } from 
 const variants = {
   error: {
     icon: ExclamationTriangleIcon,
-    base: 'bg-red-50 border-red-200 text-red-800',
+    base: 'bg-error-soft border-[var(--color-error-200)] text-error-strong',
     title: 'Ocorreu um erro',
   },
   success: {
     icon: CheckCircleIcon,
-    base: 'bg-green-50 border-green-200 text-green-800',
+    base: 'bg-success-soft border-[var(--color-success-200)] text-success-strong',
     title: 'Operação concluída',
   },
   info: {
     icon: InformationCircleIcon,
-    base: 'bg-blue-50 border-blue-200 text-blue-800',
+    base: 'bg-primary-soft border-[var(--color-primary-200)] text-primary-strong',
     title: 'Informação',
   },
 };

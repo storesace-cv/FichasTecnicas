@@ -30,7 +30,7 @@ export default function FichaDetail() {
     <div className="max-w-7xl mx-auto py-8 px-4">
       {/* Navegação */}
       <div className="flex items-center justify-between mb-8">
-        <Link to="/" className="text-blue-600 hover:underline flex items-center gap-2">
+        <Link to="/" className="text-primary-strong hover:underline flex items-center gap-2">
           <ArrowLeftIcon className="w-5 h-5" /> Voltar à lista
         </Link>
 
@@ -38,15 +38,15 @@ export default function FichaDetail() {
           <button
             onClick={() => prevCodigo && navigate(`/ficha/${prevCodigo}`)}
             disabled={!prevCodigo}
-            className={`px-5 py-2 rounded-lg font-medium transition ${prevCodigo ? 'bg-gray-200 hover:bg-gray-300' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+            className={`px-5 py-2 rounded-lg font-medium transition ${prevCodigo ? 'bg-[var(--color-neutral-200)] hover:bg-[var(--color-neutral-300)]' : 'bg-[var(--color-neutral-100)] text-muted cursor-not-allowed'}`}
           >
             ← Anterior
           </button>
-          <span className="font-semibold text-gray-700">{currentIndex + 1} / {allCodigos.length}</span>
+          <span className="font-semibold text-subtle">{currentIndex + 1} / {allCodigos.length}</span>
           <button
             onClick={() => nextCodigo && navigate(`/ficha/${nextCodigo}`)}
             disabled={!nextCodigo}
-            className={`px-5 py-2 rounded-lg font-medium transition ${nextCodigo ? 'bg-gray-200 hover:bg-gray-300' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+            className={`px-5 py-2 rounded-lg font-medium transition ${nextCodigo ? 'bg-[var(--color-neutral-200)] hover:bg-[var(--color-neutral-300)]' : 'bg-[var(--color-neutral-100)] text-muted cursor-not-allowed'}`}
           >
             Próxima →
           </button>
@@ -56,20 +56,20 @@ export default function FichaDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Foto + Info */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-6">
-            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-72 mb-6" />
-            <h1 className="text-4xl font-bold text-gray-800">{ficha.nome}</h1>
-            <p className="text-2xl font-mono text-blue-600 mt-2">{ficha.codigo}</p>
-            <p className="text-lg text-gray-600 mt-3">Porções: <strong>{ficha.porcoes || 1}</strong></p>
+          <div className="bg-surface rounded-2xl shadow-xl p-8 sticky top-6">
+            <div className="bg-[var(--color-neutral-200)] border-2 border-dashed rounded-xl w-full h-72 mb-6" />
+            <h1 className="text-4xl font-bold text-strong">{ficha.nome}</h1>
+            <p className="text-2xl font-mono text-primary-strong mt-2">{ficha.codigo}</p>
+            <p className="text-lg text-subtle mt-3">Porções: <strong>{ficha.porcoes || 1}</strong></p>
 
-            <div className="mt-8 p-6 bg-green-50 rounded-2xl text-center">
-              <p className="text-sm text-gray-600 uppercase tracking-wider">Custo Total</p>
-              <p className="text-5xl font-bold text-green-600 mt-2">
+            <div className="mt-8 p-6 bg-success-soft rounded-2xl text-center">
+              <p className="text-sm text-subtle uppercase tracking-wider">Custo Total</p>
+              <p className="text-5xl font-bold text-success-strong mt-2">
                 {ficha.custo_total.toFixed(2)} €
               </p>
             </div>
 
-            <button className="mt-8 w-full bg-blue-700 text-white py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-semibold hover:bg-blue-800 transition">
+            <button className="mt-8 w-full bg-[var(--color-primary-700)] text-on-primary py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-semibold hover:bg-[var(--color-primary-800)] transition">
               <PrinterIcon className="w-7 h-7" /> Imprimir PDF (em breve)
             </button>
           </div>
@@ -77,13 +77,13 @@ export default function FichaDetail() {
 
         {/* Tabela */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gray-900 text-white px-8 py-5">
+          <div className="bg-surface rounded-2xl shadow-xl overflow-hidden">
+            <div className="bg-surface-strong text-on-primary px-8 py-5">
               <h2 className="text-3xl font-bold">Ingredientes</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-100 text-gray-700">
+                <thead className="bg-[var(--color-neutral-100)] text-subtle">
                   <tr>
                     <th className="px-6 py-4 text-left">#</th>
                     <th className="px-6 py-4 text-left">Ingrediente</th>
@@ -95,13 +95,13 @@ export default function FichaDetail() {
                 </thead>
                 <tbody>
                   {ficha.ingredientes.map((ing, i) => (
-                    <tr key={i} className="border-b hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 text-gray-600">{i + 1}</td>
-                      <td className="px-6 py-4 font-medium text-gray-800">{ing.produto.nome}</td>
+                    <tr key={i} className="border-b hover:bg-surface-muted transition">
+                      <td className="px-6 py-4 text-subtle">{i + 1}</td>
+                      <td className="px-6 py-4 font-medium text-strong">{ing.produto.nome}</td>
                       <td className="px-6 py-4 text-right">{ing.quantidade_ficha.toFixed(3)}</td>
                       <td className="px-6 py-4">{ing.ingrediente.unidade}</td>
                       <td className="px-6 py-4 text-right">{ing.produto.preco_unitario.toFixed(3)}</td>
-                      <td className="px-6 py-4 text-right font-bold text-green-600">
+                      <td className="px-6 py-4 text-right font-bold text-success-strong">
                         {ing.custo_parcial.toFixed(2)} €
                       </td>
                     </tr>

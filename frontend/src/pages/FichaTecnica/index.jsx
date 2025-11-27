@@ -73,11 +73,11 @@ export default function FichaTecnicaPage() {
   const custoBadge = useMemo(() => {
     if (!ficha?.custos) return null
     return ficha.custos.consistente ? (
-      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-800 text-sm font-semibold">
+      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success-soft text-success-strong text-sm font-semibold">
         Custo consistente
       </span>
     ) : (
-      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-sm font-semibold">
+      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warning-soft text-warning-strong text-sm font-semibold">
         Diferença de {ficha.custos.diferenca.toFixed(2)} €
       </span>
     )
@@ -99,14 +99,14 @@ export default function FichaTecnicaPage() {
               <button
                 type="button"
                 onClick={() => navigate('/')}
-                className="px-4 py-2 text-sm font-semibold rounded-lg border border-red-200 text-red-800 hover:bg-red-100"
+                className="px-4 py-2 text-sm font-semibold rounded-lg border border-[var(--color-error-200)] text-error-strong hover:bg-error-soft"
               >
                 Voltar à lista
               </button>
               <button
                 type="button"
                 onClick={refetch}
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-[var(--color-error-600)] text-on-primary hover:bg-[var(--color-error-800)]"
               >
                 Tentar novamente
               </button>
@@ -128,7 +128,7 @@ export default function FichaTecnicaPage() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="mt-2 inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+              className="mt-2 inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-primary-600)] text-on-primary font-semibold rounded-lg hover:bg-[var(--color-primary-700)] transition"
             >
               <ArrowLeftIcon className="w-5 h-5" /> Voltar à lista
             </button>
@@ -153,7 +153,7 @@ export default function FichaTecnicaPage() {
   const isRefreshing = loading && !!ficha
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-surface-muted py-8">
       <div className="max-w-6xl mx-auto px-6 space-y-8">
         <Breadcrumbs
           items={[
@@ -169,7 +169,7 @@ export default function FichaTecnicaPage() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-100"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-subtle bg-surface border border-soft rounded-lg hover:bg-[var(--color-neutral-100)]"
             >
               <ArrowLeftIcon className="w-5 h-5" /> Voltar
             </button>
@@ -177,72 +177,72 @@ export default function FichaTecnicaPage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
+          <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
               <TagIcon className="w-4 h-4" /> Estado
             </div>
-            <p className="text-lg font-semibold text-gray-900">{meta.estado || 'Rascunho'}</p>
+            <p className="text-lg font-semibold text-strong">{meta.estado || 'Rascunho'}</p>
             {custoBadge}
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
+          <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
               <ClockIcon className="w-4 h-4" /> Criado em
             </div>
-            <p className="text-lg font-semibold text-gray-900">{formatDate(meta.criadoEm)}</p>
+            <p className="text-lg font-semibold text-strong">{formatDate(meta.criadoEm)}</p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
+          <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
               <ClockIcon className="w-4 h-4" /> Atualizado em
             </div>
-            <p className="text-lg font-semibold text-gray-900">{formatDate(meta.atualizadoEm)}</p>
+            <p className="text-lg font-semibold text-strong">{formatDate(meta.atualizadoEm)}</p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500 uppercase tracking-wide">
+          <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
               <UserCircleIcon className="w-4 h-4" /> Autor / Categoria
             </div>
-            <p className="text-lg font-semibold text-gray-900">{meta.autor || 'Equipa não definida'}</p>
-            <p className="text-sm text-gray-600">{meta.categoria || 'Sem categoria'}</p>
+            <p className="text-lg font-semibold text-strong">{meta.autor || 'Equipa não definida'}</p>
+            <p className="text-sm text-subtle">{meta.categoria || 'Sem categoria'}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {ficha.descricao && (
-            <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3">
-              <h3 className="text-lg font-semibold text-gray-900">Descrição</h3>
-              <p className="text-sm leading-relaxed text-gray-700">{ficha.descricao}</p>
+            <div className="bg-surface border border-soft rounded-xl p-5 space-y-3">
+              <h3 className="text-lg font-semibold text-strong">Descrição</h3>
+              <p className="text-sm leading-relaxed text-subtle">{ficha.descricao}</p>
             </div>
           )}
 
-          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+          <div className="bg-surface border border-soft rounded-xl p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Atributos técnicos</h3>
-              <FolderIcon className="w-5 h-5 text-gray-500" />
+              <h3 className="text-lg font-semibold text-strong">Atributos técnicos</h3>
+              <FolderIcon className="w-5 h-5 text-muted" />
             </div>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Família</dt>
-                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.familia}</dd>
+                <dt className="text-xs uppercase tracking-wide text-muted">Família</dt>
+                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.familia}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Subfamília</dt>
-                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.subfamilia}</dd>
+                <dt className="text-xs uppercase tracking-wide text-muted">Subfamília</dt>
+                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.subfamilia}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Unidade base</dt>
-                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.unidade_base}</dd>
+                <dt className="text-xs uppercase tracking-wide text-muted">Unidade base</dt>
+                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.unidade_base}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Validade</dt>
-                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.validade}</dd>
+                <dt className="text-xs uppercase tracking-wide text-muted">Validade</dt>
+                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.validade}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Temperatura</dt>
-                <dd className="text-sm font-semibold text-gray-900">{atributosTecnicos.temperatura}</dd>
+                <dt className="text-xs uppercase tracking-wide text-muted">Temperatura</dt>
+                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.temperatura}</dd>
               </div>
               {atributosTecnicos.informacao_adicional && (
                 <div className="sm:col-span-2">
-                  <dt className="text-xs uppercase tracking-wide text-gray-500">Informação adicional</dt>
-                  <dd className="text-sm text-gray-700">{atributosTecnicos.informacao_adicional}</dd>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Informação adicional</dt>
+                  <dd className="text-sm text-subtle">{atributosTecnicos.informacao_adicional}</dd>
                 </div>
               )}
             </dl>
@@ -250,44 +250,44 @@ export default function FichaTecnicaPage() {
         </div>
 
         {isRefreshing && (
-          <div className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm">
+          <div className="bg-primary-soft border border-[var(--color-primary-200)] rounded-xl shadow-sm">
             <LoadingSpinner label="A atualizar a ficha técnica…" />
           </div>
         )}
 
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div className="bg-surface border border-soft rounded-xl shadow-sm">
           <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
           <div className="p-6">
             {activeTab === 'resumo' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                    <p className="text-xs text-blue-700 uppercase tracking-wide">Custo registado</p>
-                    <p className="text-2xl font-bold text-blue-900">{ficha.totais.custo_total.toFixed(2)} €</p>
+                  <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
+                    <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
+                    <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
                   </div>
-                  <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
-                    <p className="text-xs text-indigo-700 uppercase tracking-wide">Custo calculado</p>
-                    <p className="text-2xl font-bold text-indigo-900">{ficha.custos.custo_calculado.toFixed(2)} €</p>
+                  <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)]">
+                    <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
+                    <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
                   </div>
-                  <div className="bg-amber-50 rounded-lg p-4 border border-amber-100">
-                    <p className="text-xs text-amber-700 uppercase tracking-wide">Peso total</p>
-                    <p className="text-2xl font-bold text-amber-900">
+                  <div className="bg-warning-soft rounded-lg p-4 border border-[var(--color-warning-200)]">
+                    <p className="text-xs text-warning-strong uppercase tracking-wide">Peso total</p>
+                    <p className="text-2xl font-bold text-[var(--color-warning-800)]">
                       {ficha.totais.peso_total.toFixed(3)} {ficha.cabecalho.unidade_base}
                     </p>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-                    <p className="text-xs text-green-700 uppercase tracking-wide">Custo / unidade base</p>
-                    <p className="text-2xl font-bold text-green-900">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
+                  <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)]">
+                    <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
+                    <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Composição resumida</h3>
-                    <div className="overflow-x-auto border border-gray-100 rounded-lg">
+                    <h3 className="text-lg font-semibold text-strong mb-3">Composição resumida</h3>
+                    <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
                       <table className="w-full text-sm">
-                        <thead className="bg-gray-50 text-left text-gray-600">
+                        <thead className="bg-surface-muted text-left text-subtle">
                           <tr>
                             <th className="px-4 py-3">Ordem</th>
                             <th className="px-4 py-3">Ingrediente</th>
@@ -298,12 +298,12 @@ export default function FichaTecnicaPage() {
                         </thead>
                         <tbody>
                           {ficha.composicao.map((ing) => (
-                            <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-gray-100">
-                              <td className="px-4 py-3 text-gray-700">{ing.ordem}</td>
-                              <td className="px-4 py-3 font-medium text-gray-900">{ing.componente_nome}</td>
-                              <td className="px-4 py-3 text-right text-gray-700">{Number(ing.quantidade).toFixed(3)}</td>
-                              <td className="px-4 py-3 text-gray-700">{ing.unidade}</td>
-                              <td className="px-4 py-3 text-right font-semibold text-gray-900">{Number(ing.preco).toFixed(2)} €</td>
+                            <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-[var(--color-neutral-100)]">
+                              <td className="px-4 py-3 text-subtle">{ing.ordem}</td>
+                              <td className="px-4 py-3 font-medium text-strong">{ing.componente_nome}</td>
+                              <td className="px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                              <td className="px-4 py-3 text-subtle">{ing.unidade}</td>
+                              <td className="px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
                             </tr>
                           ))}
                         </tbody>
@@ -311,14 +311,14 @@ export default function FichaTecnicaPage() {
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
-                    <h3 className="text-lg font-semibold text-gray-900">Alergénios</h3>
+                  <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
+                    <h3 className="text-lg font-semibold text-strong">Alergénios</h3>
                     {ficha.alergenos.length === 0 ? (
-                      <p className="text-sm text-gray-600">Nenhum alergénio associado às linhas desta ficha.</p>
+                      <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {ficha.alergenos.map((al) => (
-                          <span key={al.codigo} className="text-xs px-3 py-1 rounded-full border border-red-100 bg-red-50 text-red-700">
+                          <span key={al.codigo} className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong">
                             {al.nome || al.codigo}
                           </span>
                         ))}
@@ -332,12 +332,12 @@ export default function FichaTecnicaPage() {
             {activeTab === 'especificacoes' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Tabela de composição</h3>
+                  <h3 className="text-lg font-semibold text-strong">Tabela de composição</h3>
                   {custoBadge}
                 </div>
-                <div className="overflow-x-auto border border-gray-100 rounded-lg">
+                <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 text-left text-gray-600">
+                    <thead className="bg-surface-muted text-left text-subtle">
                       <tr>
                         <th className="px-4 py-3">Ordem</th>
                         <th className="px-4 py-3">Código</th>
@@ -352,18 +352,18 @@ export default function FichaTecnicaPage() {
                     </thead>
                     <tbody>
                       {ficha.composicao.map((ing, idx) => (
-                        <tr key={`${ing.componente_codigo || 'linha'}-${idx}`} className="border-t border-gray-100 hover:bg-gray-50">
-                          <td className="px-4 py-3 text-gray-700">{ing.ordem}</td>
-                          <td className="px-4 py-3 font-mono text-xs text-gray-600">{ing.componente_codigo || '—'}</td>
-                          <td className="px-4 py-3 font-medium text-gray-900">{ing.componente_nome}</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{Number(ing.quantidade).toFixed(3)}</td>
-                          <td className="px-4 py-3 text-gray-700">{ing.unidade}</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{Number(ing.ppu).toFixed(3)}</td>
-                          <td className="px-4 py-3 text-right font-semibold text-gray-900">{Number(ing.preco).toFixed(2)} €</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{Number(ing.peso).toFixed(3)}</td>
+                        <tr key={`${ing.componente_codigo || 'linha'}-${idx}`} className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted">
+                          <td className="px-4 py-3 text-subtle">{ing.ordem}</td>
+                          <td className="px-4 py-3 font-mono text-xs text-subtle">{ing.componente_codigo || '—'}</td>
+                          <td className="px-4 py-3 font-medium text-strong">{ing.componente_nome}</td>
+                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                          <td className="px-4 py-3 text-subtle">{ing.unidade}</td>
+                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
+                          <td className="px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
                           <td className="px-4 py-3">
                             <div className="flex flex-wrap gap-2">
-                              {(ing.alergenos || []).length === 0 && <span className="text-xs text-gray-400">—</span>}
+                              {(ing.alergenos || []).length === 0 && <span className="text-xs text-muted">—</span>}
                               {(ing.alergenos || []).map((al) => (
                                 <span key={`${al.codigo}-${ing.ordem}`} className="text-[11px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100">
                                   {al.nome || al.codigo}
@@ -377,8 +377,8 @@ export default function FichaTecnicaPage() {
                   </table>
                 </div>
                 {ficha.preparacao_html && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h4 className="text-md font-semibold text-gray-900 mb-2">Preparação</h4>
+                  <div className="bg-surface-muted border border-soft rounded-lg p-4">
+                    <h4 className="text-md font-semibold text-strong mb-2">Preparação</h4>
                     <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: ficha.preparacao_html }} />
                   </div>
                 )}
@@ -388,24 +388,24 @@ export default function FichaTecnicaPage() {
             {activeTab === 'documentos' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Anexos</h3>
+                  <h3 className="text-lg font-semibold text-strong mb-2">Anexos</h3>
                   {documentos.length === 0 ? (
-                    <p className="text-sm text-gray-600">Sem anexos disponíveis para esta ficha técnica.</p>
+                    <p className="text-sm text-subtle">Sem anexos disponíveis para esta ficha técnica.</p>
                   ) : (
-                    <div className="divide-y divide-gray-100 border border-gray-100 rounded-lg">
+                    <div className="divide-y divide-[var(--color-neutral-100)] border border-[var(--color-neutral-100)] rounded-lg">
                       {documentos.map((doc) => (
                         <div key={doc.id || doc.nome} className="flex items-center justify-between px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <DocumentIcon className="w-5 h-5 text-gray-500" />
+                            <DocumentIcon className="w-5 h-5 text-muted" />
                             <div>
-                              <p className="text-sm font-semibold text-gray-900">{doc.nome || doc.filename}</p>
-                              <p className="text-xs text-gray-500">{doc.tipo || doc.mime || 'Documento'}</p>
+                              <p className="text-sm font-semibold text-strong">{doc.nome || doc.filename}</p>
+                              <p className="text-xs text-muted">{doc.tipo || doc.mime || 'Documento'}</p>
                             </div>
                           </div>
                           {doc.url && (
                             <a
                               href={doc.url}
-                              className="inline-flex items-center gap-2 text-sm text-blue-700 font-semibold hover:underline"
+                              className="inline-flex items-center gap-2 text-sm text-primary-strong font-semibold hover:underline"
                               target="_blank"
                               rel="noreferrer"
                             >
@@ -419,23 +419,23 @@ export default function FichaTecnicaPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Links úteis</h3>
+                  <h3 className="text-lg font-semibold text-strong mb-2">Links úteis</h3>
                   {links.length === 0 ? (
-                    <p className="text-sm text-gray-600">Nenhum link registado para esta ficha.</p>
+                    <p className="text-sm text-subtle">Nenhum link registado para esta ficha.</p>
                   ) : (
                     <div className="space-y-3">
                       {links.map((link) => (
                         <a
                           key={link.url}
                           href={link.url}
-                          className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-100 rounded-lg hover:bg-gray-100 transition"
+                          className="flex items-center gap-3 px-4 py-3 bg-surface-muted border border-[var(--color-neutral-100)] rounded-lg hover:bg-[var(--color-neutral-100)] transition"
                           target="_blank"
                           rel="noreferrer"
                         >
-                          <LinkIcon className="w-5 h-5 text-gray-500" />
+                          <LinkIcon className="w-5 h-5 text-muted" />
                           <div>
-                            <p className="text-sm font-semibold text-gray-900">{link.titulo || link.label || link.url}</p>
-                            {link.descricao && <p className="text-xs text-gray-500">{link.descricao}</p>}
+                            <p className="text-sm font-semibold text-strong">{link.titulo || link.label || link.url}</p>
+                            {link.descricao && <p className="text-xs text-muted">{link.descricao}</p>}
                           </div>
                         </a>
                       ))}
@@ -447,17 +447,17 @@ export default function FichaTecnicaPage() {
 
             {activeTab === 'historico' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Histórico de alterações</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+                <h3 className="text-lg font-semibold text-strong">Histórico de alterações</h3>
+                <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
                   {historicoRegistos.map((evento, idx) => {
                     const Icone = evento.icon || ClockIcon
 
                     return (
                       <div key={evento.id || evento.titulo || idx} className="flex items-start gap-3">
-                        <Icone className="w-5 h-5 text-gray-500 mt-0.5" />
+                        <Icone className="w-5 h-5 text-muted mt-0.5" />
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{evento.titulo || 'Registo'}</p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm font-semibold text-strong">{evento.titulo || 'Registo'}</p>
+                          <p className="text-sm text-subtle">
                             {evento.descricao || formatDate(evento.data)}
                           </p>
                         </div>
@@ -470,11 +470,11 @@ export default function FichaTecnicaPage() {
 
             {activeTab === 'comentarios' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Comentários</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-semibold text-strong">Comentários</h3>
+                <p className="text-sm text-subtle">
                   Integração com o backend de comentários pendente. Mantém as notas internas aqui quando o serviço estiver disponível.
                 </p>
-                <div className="border border-dashed border-gray-300 rounded-lg p-4 text-center text-sm text-gray-500">
+                <div className="border border-dashed border-strong rounded-lg p-4 text-center text-sm text-muted">
                   Em breve poderás consultar e adicionar comentários ligados a esta ficha técnica.
                 </div>
               </div>

@@ -37,20 +37,20 @@ export default function FichaDetail() {
   const next = allCodigos[currentIndex + 1];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-surface-muted">
       {/* BARRA DE NAVEGAÇÃO COMPLETA */}
-      <div className="bg-white shadow-lg sticky top-0 z-50">
+      <div className="bg-surface shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-          <Link to="/" className="text-blue-600 hover:underline flex items-center gap-3 text-xl font-bold">
+          <Link to="/" className="text-primary-strong hover:underline flex items-center gap-3 text-xl font-bold">
             <ArrowLeftIcon className="w-7 h-7" /> Voltar à lista
           </Link>
 
-          <div className="flex items-center gap-6 bg-blue-50 px-8 py-4 rounded-full shadow-2xl">
+          <div className="flex items-center gap-6 bg-primary-soft px-8 py-4 rounded-full shadow-2xl">
             {/* Primeira */}
             <button
               onClick={() => navigate(`/ficha/${first}`)}
               disabled={currentIndex === 0}
-              className={`p-3 rounded-full transition ${currentIndex === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'}`}
+              className={`p-3 rounded-full transition ${currentIndex === 0 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
             >
               <ChevronDoubleLeftIcon className="w-8 h-8" />
             </button>
@@ -59,13 +59,13 @@ export default function FichaDetail() {
             <button
               onClick={() => prev && navigate(`/ficha/${prev}`)}
               disabled={!prev}
-              className={`p-3 rounded-full transition ${!prev ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'}`}
+              className={`p-3 rounded-full transition ${!prev ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
             >
               <ArrowLeftIcon className="w-8 h-8" />
             </button>
 
             {/* Contador */}
-            <span className="text-2xl font-black text-blue-900 min-w-44 text-center px-4">
+            <span className="text-2xl font-black text-primary-strong min-w-44 text-center px-4">
               {currentIndex + 1} / {allCodigos.length}
             </span>
 
@@ -73,7 +73,7 @@ export default function FichaDetail() {
             <button
               onClick={() => next && navigate(`/ficha/${next}`)}
               disabled={!next}
-              className={`p-3 rounded-full transition ${!next ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'}`}
+              className={`p-3 rounded-full transition ${!next ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
             >
               <ArrowRightIcon className="w-8 h-8" />
             </button>
@@ -82,7 +82,7 @@ export default function FichaDetail() {
             <button
               onClick={() => navigate(`/ficha/${last}`)}
               disabled={currentIndex === allCodigos.length - 1}
-              className={`p-3 rounded-full transition ${currentIndex === allCodigos.length - 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-110'}`}
+              className={`p-3 rounded-full transition ${currentIndex === allCodigos.length - 1 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
             >
               <ChevronDoubleRightIcon className="w-8 h-8" />
             </button>
@@ -93,25 +93,25 @@ export default function FichaDetail() {
       {/* RESTO DA FICHA (igual à anterior) */}
       <div className="w-full px-6 mt-8">
         <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="bg-white p-8 rounded-lg shadow w-full lg:w-[768px] lg:flex-none">
-            <div className="bg-gray-300 border-2 border-dashed rounded w-full h-64 mb-6"></div>
+          <div className="bg-surface p-8 rounded-lg shadow w-full lg:w-[768px] lg:flex-none">
+            <div className="bg-[var(--color-neutral-300)] border-2 border-dashed rounded w-full h-64 mb-6"></div>
             <h1 className="text-4xl font-bold">{ficha.nome || ficha.cabecalho?.nome}</h1>
-            <p className="text-2xl text-blue-600 mt-2">{ficha.codigo}</p>
+            <p className="text-2xl text-primary-strong mt-2">{ficha.codigo}</p>
             <p className="text-xl mt-4">Porções: {ficha.cabecalho?.porcoes || 1}</p>
-            <div className="mt-8 p-6 bg-green-100 rounded text-center">
-              <div className="text-5xl font-bold text-green-600">
+            <div className="mt-8 p-6 bg-success-soft rounded text-center">
+              <div className="text-5xl font-bold text-success-strong">
                 {Number(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
               </div>
-              <div className="text-gray-600 mt-2">Custo total</div>
+              <div className="text-subtle mt-2">Custo total</div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow overflow-hidden w-full lg:flex-1">
-            <div className="bg-gray-800 text-white p-4">
+          <div className="bg-surface rounded-lg shadow overflow-hidden w-full lg:flex-1">
+          <div className="bg-surface-strong text-on-primary p-4">
               <h2 className="text-2xl font-bold">Ingredientes</h2>
             </div>
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-surface-muted">
                 <tr>
                   <th className="px-6 py-3 text-left">#</th>
                   <th className="px-6 py-3 text-left">Ingrediente</th>
@@ -123,13 +123,13 @@ export default function FichaDetail() {
               </thead>
               <tbody>
                 {(ficha.composicao || []).map((item, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
+                  <tr key={i} className="border-b hover:bg-surface-muted">
                     <td className="px-6 py-3">{i + 1}</td>
                     <td className="px-6 py-3">{item.componente_nome || '—'}</td>
                     <td className="px-6 py-3 text-right">{Number((item.quantidade ?? item.qtd) ?? 0).toFixed(3)}</td>
                     <td className="px-6 py-3">{item.unidade || '—'}</td>
                     <td className="px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
-                    <td className="px-6 py-3 text-right font-semibold text-green-600">
+                    <td className="px-6 py-3 text-right font-semibold text-success-strong">
                       {Number(item.preco || 0).toFixed(2)} €
                     </td>
                   </tr>
