@@ -23,6 +23,7 @@ COLUMN_ALIASES = {
     "nomeprodvendanaonecessariopimportar": "nomeprodvenda",
     "familianaonecessariopimportar": "familia",
     "subfamilianaonecessariopimportar": "subfamilia",
+    "unidade": "unidademedida",
 }
 
 
@@ -100,8 +101,20 @@ def _import_produtos(df, result, loc_pt):
         produto.nome = str(nome or "").strip() or produto.nome or codigo
         if "unidademedida" in df.columns:
             produto.unidade_medida = str(row.get("unidademedida") or produto.unidade_medida or "un")
+
+        preco_bruto = None
         if "ppu" in df.columns:
-            produto.preco_unitario = _parse_number(row.get("ppu"), produto.preco_unitario or 0)
+            preco_bruto = row.get("ppu")
+        elif "pcu" in df.columns:
+            preco_bruto = row.get("pcu")
+        elif "pcm" in df.columns:
+            preco_bruto = row.get("pcm")
+        if preco_bruto is not None:
+            produto.preco_unitario = _parse_number(preco_bruto, produto.preco_unitario or 0)
+        if "descontinuado" in df.columns:
+            descontinuado = _parse_bool(row.get("descontinuado"))
+            if descontinuado is True:
+                produto.ativo = False
         if "iva1" in df.columns:
             produto.iva_percentagem = _parse_number(row.get("iva1"), produto.iva_percentagem or 0)
         ativo_val = row.get("ativo") if "ativo" in df.columns else None
