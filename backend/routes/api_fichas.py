@@ -33,11 +33,14 @@ def _serialize_ficha(ficha, include_composicao=True):
         ingrediente = fi.ingrediente
         produto_comp = ingrediente.produto
 
-        quantidade = _to_float(fi.quantidade_ficha, _to_float(ingrediente.quantidade, 0))
+        quantidade = _to_float(fi.quantidade_ficha, 0)
         unidade = ingrediente.unidade or (produto_comp.unidade_medida if produto_comp else "un")
         ppu = _to_float(produto_comp.preco_unitario, 0) if produto_comp else 0.0
+        if ppu == 0 and quantidade:
+            ppu = _to_float(fi.custo_parcial, 0) / quantidade
+
         custo = _to_float(fi.custo_parcial, quantidade * ppu)
-        peso = _to_float(ingrediente.quantidade, quantidade)
+        peso = quantidade
 
         custo_calculado += custo
         peso_total += peso
