@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import FichaList from './components/ficha/FichaList';
+import FichaList from './components/FichaList';
 import FichaDetail from './components/ficha/FichaDetail';
 import Importacoes from './pages/import/Importacoes';
 import ImportarTipo from './pages/import/ImportarTipo';
