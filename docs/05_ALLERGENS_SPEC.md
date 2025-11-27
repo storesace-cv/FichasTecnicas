@@ -1,19 +1,19 @@
 # 05 – Especificação de Alergénios
 
-## 1. Fonte oficial de alergénios
+## 1. Fonte oficial de dados
 
-A lista canónica de alergénios usada pela aplicação é definida em:
+A lista oficial de alergénios existe em duas camadas:
 
-- `docs/resources/allergens.json`
+1. **Ficheiro de seed/documentação**  
+   - `docs/resources/allergens.json`  
+   - Estrutura por registo (em snake_case):
 
-Formato de cada registo:
-
-```json
-{
-  "id": <inteiro>,
-  "nome": "<nome em PT>",
-  "nome_ingles": "<nome em EN>",
-  "descricao": "<texto opcional>",
-  "exemplos": ["<exemplo1>", "<exemplo2>", "..."],
-  "notas": "<texto opcional>"
-}
+   ```json
+   {
+     "id": 1,
+     "nome": "Glúten",
+     "nome_ingles": "Gluten",
+     "descricao": "…",
+     "exemplos": ["…"],
+     "notas": "…"
+   }
