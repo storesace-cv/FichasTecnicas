@@ -49,7 +49,16 @@ export function mapFichaResponse(apiData) {
       consistente,
       diferenca: custoRegistado - custoCalculado,
     },
+    meta: {
+      estado: apiData.estado || cabecalho.estado || 'Rascunho',
+      categoria: apiData.categoria || cabecalho.categoria || 'Sem categoria',
+      autor: apiData.autor || cabecalho.autor || 'Equipa não definida',
+      criadoEm: apiData.criado_em || apiData.createdAt || apiData.data_criacao || cabecalho.data_criacao || null,
+      atualizadoEm: apiData.atualizado_em || apiData.updatedAt || apiData.data_atualizacao || cabecalho.data_atualizacao || null,
+    },
     alergenos: apiData.alergenos || [],
+    documentos: apiData.documentos || apiData.anexos || [],
+    links: apiData.links || apiData.ligacoes || [],
     preparacao_html: apiData.preparacao_html || null,
     imagem_prato: apiData.imagem_prato || null,
   };

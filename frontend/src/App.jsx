@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import FichaList from './components/FichaList';
-import FichaDetail from './components/ficha/FichaDetail';
+import FichaTecnicaPage from './pages/FichaTecnica';
 import Importacoes from './pages/import/Importacoes';
 import ImportarTipo from './pages/import/ImportarTipo';
 
@@ -14,7 +14,8 @@ export default function App() {
         <div className="flex-1 min-h-screen bg-gray-50">
           <Routes>
             <Route path="/" element={<FichaList />} />
-            <Route path="/ficha/:codigo" element={<FichaDetail />} />
+            <Route path="/fichas/:fichaId" element={<FichaTecnicaPage />} />
+            <Route path="/ficha/:fichaId" element={<FichaTecnicaPage />} />
             <Route path="/importacoes" element={<Importacoes />} />
             <Route path="/importar/:tipo" element={<ImportarTipo />} />
           </Routes>
