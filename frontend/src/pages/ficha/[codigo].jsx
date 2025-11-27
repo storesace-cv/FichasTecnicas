@@ -15,13 +15,13 @@ export default function FichaDetail() {
   if (!ficha) return <div className="p-20 text-center text-3xl">A carregar ou ficha não encontrada...</div>;
 
   return (
-    <div className="min-h-screen bg-[var(--color-neutral-100)] p-8">
+    <div className="min-h-screen bg-[var(--color-neutral-100)] px-4 py-8 sm:px-8">
       <div className="max-w-6xl mx-auto">
         <Link to="/" className="inline-block mb-8 text-primary-strong hover:underline text-lg">
           ← Voltar à lista
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
           {/* Lado esquerdo */}
           <div className="bg-surface rounded-xl shadow-lg p-8">
             <div className="bg-[var(--color-neutral-200)] border-2 border-dashed rounded-xl w-full h-80 mb-6" />

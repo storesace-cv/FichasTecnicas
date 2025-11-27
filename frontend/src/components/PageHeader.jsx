@@ -8,7 +8,7 @@ export default function PageHeader({ title, subtitle, actions = null }) {
         <h1 className="text-3xl font-extrabold text-strong">{title}</h1>
         {subtitle && <p className="text-base text-subtle">{subtitle}</p>}
       </div>
-      {actions && <div className="flex items-center gap-3">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-start lg:justify-end">{actions}</div>}
     </div>
   )
 }

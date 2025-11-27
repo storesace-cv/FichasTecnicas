@@ -52,7 +52,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-64 bg-gradient-to-b from-[var(--color-primary-700)] to-[var(--color-primary-900)] text-on-primary min-h-screen p-[var(--spacing-6)]">
+    <div className="w-full md:w-64 bg-gradient-to-b from-[var(--color-primary-700)] to-[var(--color-primary-900)] text-on-primary md:min-h-screen p-[var(--spacing-6)] flex-shrink-0 md:sticky md:top-0">
       <h1 className="text-3xl font-black mb-[var(--spacing-12)]">BWB FTV</h1>
       <nav className="space-y-[var(--spacing-4)]">
         {menu.map(item => (

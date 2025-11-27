@@ -26,13 +26,13 @@ export default function FichaList() {
   if (loading) return <div className="text-center py-20 text-2xl">A carregar fichas...</div>;
 
   return (
-    <div>
-      <div className="mb-8 flex justify-between items-center">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-8 space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h2 className="text-3xl font-bold text-strong">Fichas Técnicas ({filtered.length})</h2>
         <input
           type="text"
           placeholder="Pesquisar código ou nome..."
-          className="px-4 py-3 border border-soft rounded-lg text-lg w-96 bg-surface text-subtle placeholder:text-muted"
+          className="px-4 py-3 border border-soft rounded-lg text-lg w-full sm:w-96 bg-surface text-subtle placeholder:text-muted"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -45,7 +45,7 @@ export default function FichaList() {
           <p className="text-lg text-subtle mt-2">Vai a "Importar Excel" e carrega o teu ficheiro do NET-bo!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.map(ficha => (
             <Link key={ficha.codigo} to={`/fichas/${ficha.codigo}`} className="block">
               <div className="bg-surface rounded-xl shadow-card overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border border-soft">

@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Tabs({ tabs = [], activeTab, onChange }) {
   return (
-    <div className="border-b border-soft flex items-center gap-1 overflow-x-auto">
+    <div className="border-b border-soft flex items-center gap-1 overflow-x-auto px-2 sm:px-4">
       {tabs.map((tab) => {
         const isActive = tab.value === activeTab
         return (
