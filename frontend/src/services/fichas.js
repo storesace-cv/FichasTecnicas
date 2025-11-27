@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export function normalizeNumber(value, fallback = 0) {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : fallback;
@@ -8,6 +10,13 @@ export function mapFichaResponse(apiData) {
 
   const cabecalho = apiData.cabecalho || {};
   const composicaoOrigem = apiData.composicao || apiData.ingredientes || [];
+  const descricao =
+    apiData.descricao ||
+    cabecalho.descricao ||
+    apiData.descricao_curta ||
+    cabecalho.descricao_curta ||
+    cabecalho.informacao_adicional ||
+    '';
   const composicao = composicaoOrigem.map((item, index) => ({
     ordem: item.ordem ?? index + 1,
     componente_codigo: item.componente_codigo ?? item.produto?.codigo ?? null,
@@ -28,9 +37,19 @@ export function mapFichaResponse(apiData) {
   const custoPorUnidadeBase = apiData.totais?.custo_por_unidade_base ?? (porcoes ? custoCalculado / porcoes : custoCalculado);
   const consistente = Math.abs(custoRegistado - custoCalculado) < 0.01;
 
+  const atributosTecnicos = {
+    familia: cabecalho.familia || apiData.familia || '—',
+    subfamilia: cabecalho.subfamilia || apiData.subfamilia || '—',
+    unidade_base: unidadeBase,
+    validade: cabecalho.validade || apiData.validade || '—',
+    temperatura: cabecalho.temperatura || apiData.temperatura || '—',
+    informacao_adicional: cabecalho.informacao_adicional || apiData.informacao_adicional || '',
+  };
+
   return {
     codigo: apiData.codigo,
     nome: apiData.nome ?? cabecalho.nome,
+    descricao,
     cabecalho: {
       ...cabecalho,
       unidade_base: unidadeBase,
@@ -56,10 +75,22 @@ export function mapFichaResponse(apiData) {
       criadoEm: apiData.criado_em || apiData.createdAt || apiData.data_criacao || cabecalho.data_criacao || null,
       atualizadoEm: apiData.atualizado_em || apiData.updatedAt || apiData.data_atualizacao || cabecalho.data_atualizacao || null,
     },
+    atributosTecnicos,
     alergenos: apiData.alergenos || [],
     documentos: apiData.documentos || apiData.anexos || [],
     links: apiData.links || apiData.ligacoes || [],
+    historico: apiData.historico || [],
     preparacao_html: apiData.preparacao_html || null,
     imagem_prato: apiData.imagem_prato || null,
   };
+}
+
+export async function fetchFichaByCodigo(codigo) {
+  const response = await axios.get(`/api/fichas/${codigo}`);
+  return mapFichaResponse(response.data);
+}
+
+export async function fetchFichas() {
+  const response = await axios.get('/api/fichas');
+  return response.data.map(mapFichaResponse);
 }
