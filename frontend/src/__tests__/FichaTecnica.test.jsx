@@ -152,4 +152,18 @@ describe('FichaTecnicaPage', () => {
     expect(await screen.findByText('Rascunho')).toBeInTheDocument()
     expect(screen.getAllByText(/Código interno: FT-123/)).not.toHaveLength(0)
   })
+
+  it('exibe a fotografia do prato quando presente na ficha', async () => {
+    const imagemPratoUrl = 'https://images.example.com/foto-bolo.jpg'
+
+    fetchFichaByCodigo.mockResolvedValueOnce(
+      buildFicha({ imagem_prato: imagemPratoUrl, nome: 'Bolo Mármore' })
+    )
+
+    renderWithRouter()
+
+    const imagem = await screen.findByAltText('Imagem do prato Bolo Mármore')
+    expect(imagem).toBeInTheDocument()
+    expect(imagem.getAttribute('src')).toBe(imagemPratoUrl)
+  })
 })

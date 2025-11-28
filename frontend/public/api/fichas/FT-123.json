@@ -1,0 +1,113 @@
+{
+  "codigo": "FT-123",
+  "nome": "Tosta de Abacate",
+  "descricao": "Tosta de pão de fermentação lenta com abacate esmagado, ovo escalfado e topping de sementes.",
+  "cabecalho": {
+    "porcoes": 2,
+    "unidade_base": "un",
+    "familia": "Brunch",
+    "subfamilia": "Tostas",
+    "validade": "Consumir no próprio dia",
+    "temperatura": "Servir a quente",
+    "informacao_adicional": "Recomendar acompanhamento de salada verde."
+  },
+  "custos": {
+    "custo_calculado": 6.2,
+    "custo_registado": 6.2,
+    "consistente": true,
+    "diferenca": 0
+  },
+  "totais": {
+    "peso_total": 0.35,
+    "custo_total": 6.2,
+    "custo_por_unidade_base": 3.1,
+    "unidade_base": "un"
+  },
+  "composicao": [
+    {
+      "ordem": 1,
+      "componente_codigo": "PÃO-001",
+      "componente_nome": "Pão de massa mãe",
+      "quantidade": 0.2,
+      "unidade": "kg",
+      "ppu": 3.5,
+      "preco": 0.7,
+      "peso": 0.2,
+      "alergenos": [{ "codigo": "GL", "nome": "Glúten" }]
+    },
+    {
+      "ordem": 2,
+      "componente_codigo": "AVC-009",
+      "componente_nome": "Abacate",
+      "quantidade": 0.12,
+      "unidade": "kg",
+      "ppu": 7.5,
+      "preco": 0.9,
+      "peso": 0.12,
+      "alergenos": []
+    },
+    {
+      "ordem": 3,
+      "componente_codigo": "OVO-XL",
+      "componente_nome": "Ovo biológico",
+      "quantidade": 0.08,
+      "unidade": "kg",
+      "ppu": 6.5,
+      "preco": 0.52,
+      "peso": 0.08,
+      "alergenos": [{ "codigo": "OV", "nome": "Ovos" }]
+    },
+    {
+      "ordem": 4,
+      "componente_codigo": "MOLHO-01",
+      "componente_nome": "Molho holandês",
+      "quantidade": 0.05,
+      "unidade": "kg",
+      "ppu": 18.5,
+      "preco": 0.925,
+      "peso": 0.05,
+      "alergenos": [{ "codigo": "LC", "nome": "Lactose" }]
+    }
+  ],
+  "alergenos": [
+    { "codigo": "GL", "nome": "Glúten" },
+    { "codigo": "OV", "nome": "Ovos" },
+    { "codigo": "LC", "nome": "Lactose" }
+  ],
+  "documentos": [
+    {
+      "id": "doc1",
+      "nome": "Ficha PDF",
+      "tipo": "PDF",
+      "url": "https://example.com/doc.pdf"
+    }
+  ],
+  "links": [
+    {
+      "url": "https://example.com/manual",
+      "titulo": "Manual de preparação",
+      "descricao": "Notas complementares para a cozinha"
+    }
+  ],
+  "historico": [
+    {
+      "id": "hist1",
+      "titulo": "Criação",
+      "descricao": "Ficha criada a partir do import NET-bo"
+    },
+    {
+      "id": "hist2",
+      "titulo": "Atualização",
+      "descricao": "Custos revistos com nova fatura de ingredientes"
+    }
+  ],
+  "preparacao_html": "<p>Torrar o pão, esmagar o abacate com lima e sal, escalfar o ovo e terminar com sementes.</p>",
+  "meta": {
+    "estado": "Ativo",
+    "categoria": "Brunch",
+    "autor": "Chefe Ana",
+    "criadoEm": "2024-08-01T10:00:00Z",
+    "atualizadoEm": "2024-08-10T10:00:00Z"
+  },
+  "imagem_prato": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
+}

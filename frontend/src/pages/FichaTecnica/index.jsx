@@ -69,6 +69,13 @@ export default function FichaTecnicaPage() {
   const { fichaId } = useParams()
   const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
   const [activeTab, setActiveTab] = useState('resumo')
+  const imagemPratoSrc = useMemo(() => {
+    if (!ficha?.imagem_prato) return null
+    return /^https?:\/\//.test(ficha.imagem_prato)
+      ? ficha.imagem_prato
+      : `/api/images/${ficha.imagem_prato}`
+  }, [ficha?.imagem_prato])
+  const infoGridColumns = imagemPratoSrc ? 'lg:grid-cols-3' : 'lg:grid-cols-2'
 
   const custoBadge = useMemo(() => {
     if (!ficha?.custos) return null
@@ -205,48 +212,67 @@ export default function FichaTecnicaPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {ficha.descricao && (
-            <div className="bg-surface border border-soft rounded-xl p-5 space-y-3">
-              <h3 className="text-lg font-semibold text-strong">Descrição</h3>
-              <p className="text-sm leading-relaxed text-subtle">{ficha.descricao}</p>
+        <div className={`grid grid-cols-1 ${infoGridColumns} gap-4 sm:gap-6`}>
+          <div className="space-y-4 lg:col-span-2">
+            {ficha.descricao && (
+              <div className="bg-surface border border-soft rounded-xl p-5 space-y-3 shadow-sm">
+                <h3 className="text-lg font-semibold text-strong">Descrição</h3>
+                <p className="text-sm leading-relaxed text-subtle">{ficha.descricao}</p>
+              </div>
+            )}
+
+            <div className="bg-surface border border-soft rounded-xl p-5 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-strong">Atributos técnicos</h3>
+                <FolderIcon className="w-5 h-5 text-muted" />
+              </div>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Família</dt>
+                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.familia}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Subfamília</dt>
+                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.subfamilia}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Unidade base</dt>
+                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.unidade_base}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Validade</dt>
+                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.validade}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-muted">Temperatura</dt>
+                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.temperatura}</dd>
+                </div>
+                {atributosTecnicos.informacao_adicional && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs uppercase tracking-wide text-muted">Informação adicional</dt>
+                    <dd className="text-sm text-subtle">{atributosTecnicos.informacao_adicional}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          </div>
+
+          {imagemPratoSrc && (
+            <div className="bg-surface border border-soft rounded-xl overflow-hidden shadow-card self-start">
+              <div className="relative aspect-[4/3] bg-[var(--color-neutral-100)]">
+                <img
+                  src={imagemPratoSrc}
+                  alt={`Imagem do prato ${ficha.nome || ficha.codigo}`}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent px-4 py-3 text-on-primary">
+                  <p className="text-sm font-semibold">Fotografia do prato</p>
+                  <p className="text-xs text-neutral-50/90">Última atualização visual da ficha</p>
+                </div>
+              </div>
             </div>
           )}
-
-          <div className="bg-surface border border-soft rounded-xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-strong">Atributos técnicos</h3>
-              <FolderIcon className="w-5 h-5 text-muted" />
-            </div>
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-muted">Família</dt>
-                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.familia}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-muted">Subfamília</dt>
-                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.subfamilia}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-muted">Unidade base</dt>
-                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.unidade_base}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-muted">Validade</dt>
-                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.validade}</dd>
-              </div>
-              <div>
-                <dt className="text-xs uppercase tracking-wide text-muted">Temperatura</dt>
-                <dd className="text-sm font-semibold text-strong">{atributosTecnicos.temperatura}</dd>
-              </div>
-              {atributosTecnicos.informacao_adicional && (
-                <div className="sm:col-span-2">
-                  <dt className="text-xs uppercase tracking-wide text-muted">Informação adicional</dt>
-                  <dd className="text-sm text-subtle">{atributosTecnicos.informacao_adicional}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
         </div>
 
         {isRefreshing && (
