@@ -678,6 +678,7 @@ export default function FichaTecnicaPage() {
                     {[1, 2, 3, 4, 5].map((indice) => {
                       const valorFoodCost = foodCosts?.[indice]
                       const { background, status } = getFoodCostClassification(valorFoodCost)
+                      const ratioCalculado = valorFoodCost > 0 ? 100 / valorFoodCost : null
                       const isFoodCostMau = status === 'mau'
                       const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
                         background ? '' : 'bg-surface-muted'
@@ -698,6 +699,9 @@ export default function FichaTecnicaPage() {
                           <p className={priceClassName}>{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
                           <p className={foodCostClassName}>
                             Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
+                          </p>
+                          <p className={foodCostClassName}>
+                            Rácio: {ratioCalculado ? `${ratioCalculado.toFixed(2)}×` : '—'}
                           </p>
                         </div>
                       )
