@@ -62,6 +62,16 @@ def _serialize_produto_ficha(produto: Produto):
     porcoes = cabecalho.get("porcoes") or 1
     unidade_base = cabecalho.get("unidade_base") or "un"
 
+    precos_taxas = None
+    if produto.preco:
+        precos_taxas = {
+            "preco1": float(produto.preco.preco1 or 0),
+            "preco2": float(produto.preco.preco2 or 0),
+            "preco3": float(produto.preco.preco3 or 0),
+            "preco4": float(produto.preco.preco4 or 0),
+            "preco5": float(produto.preco.preco5 or 0),
+        }
+
     return {
         "codigo": produto.codigo,
         "nome": cabecalho["nome"],
@@ -81,6 +91,7 @@ def _serialize_produto_ficha(produto: Produto):
         },
         "alergenos": [],
         "preparacao_html": None,
+        "precos_taxas": precos_taxas,
     }
 
 

@@ -47,6 +47,14 @@ export function mapFichaResponse(apiData) {
     informacao_adicional: cabecalho.informacao_adicional || apiData.informacao_adicional || '',
   };
 
+  const precosTaxas = {
+    preco1: normalizeNumber(apiData.precos_taxas?.preco1 ?? apiData.preco1, 0),
+    preco2: normalizeNumber(apiData.precos_taxas?.preco2 ?? apiData.preco2, 0),
+    preco3: normalizeNumber(apiData.precos_taxas?.preco3 ?? apiData.preco3, 0),
+    preco4: normalizeNumber(apiData.precos_taxas?.preco4 ?? apiData.preco4, 0),
+    preco5: normalizeNumber(apiData.precos_taxas?.preco5 ?? apiData.preco5, 0),
+  };
+
   return {
     codigo: apiData.codigo,
     nome: apiData.nome ?? cabecalho.nome,
@@ -83,6 +91,7 @@ export function mapFichaResponse(apiData) {
     historico: apiData.historico || [],
     preparacao_html: apiData.preparacao_html || null,
     imagem_prato: apiData.imagem_prato || null,
+    precosTaxas,
   };
 }
 
