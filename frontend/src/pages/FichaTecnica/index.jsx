@@ -580,7 +580,7 @@ export default function FichaTecnicaPage() {
           <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
             <div className="p-4 sm:p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-strong">Resumo</h2>
+                <h2 className="text-xl font-semibold text-strong">Food Cost</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
@@ -602,7 +602,7 @@ export default function FichaTecnicaPage() {
           <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
             <div className="p-4 sm:p-6 space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-xl font-semibold text-strong">Especificações</h2>
+                <h2 className="text-xl font-semibold text-strong">Ficha Técnica</h2>
                 {custoBadge}
               </div>
               <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
