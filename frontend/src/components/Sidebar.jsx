@@ -12,6 +12,7 @@ import {
   Cog6ToothIcon,
   GlobeEuropeAfricaIcon,
   CurrencyDollarIcon,
+  CalculatorIcon,
 } from '@heroicons/react/24/outline';
 
 export default function Sidebar() {
@@ -40,13 +41,20 @@ export default function Sidebar() {
             { to: "/configuracao/regionalizacao/moeda", nome: "Moeda" },
           ],
         },
-        {
+        { 
           nome: "Food Cost",
           icone: <CurrencyDollarIcon className="w-6 h-6" />,
           children: [
             { to: "/configuracao/food-cost/tipo-negocio", nome: "Tipo de Negócio" },
             { to: "/configuracao/food-cost/intervalos", nome: "Intervalos de Food Cost" },
-            { to: "/configuracao/food-cost/custos-operacionais", nome: "Custos Operacionais" },
+          ],
+        },
+        {
+          nome: "Calculo PVP",
+          icone: <CalculatorIcon className="w-6 h-6" />,
+          children: [
+            { to: "/configuracao/calculo-pvp/food-cost-alvo", nome: "via Food Cost alvo" },
+            { to: "/configuracao/calculo-pvp/ratio", nome: "via Rácio" },
           ],
         },
       ],
