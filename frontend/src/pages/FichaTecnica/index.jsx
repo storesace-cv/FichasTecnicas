@@ -28,10 +28,13 @@ import {
   getBusinessType,
   getIntervalsForBusinessType,
   getFoodCostTargetDecimals,
+  getPvpRatios,
   getOperationalCostPercent,
   OPERACIONAL_COST_STORAGE_KEY,
   PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY,
   PVP_FOOD_COST_TARGETS_STORAGE_KEY,
+  PVP_RATIOS_STORAGE_KEY,
+  LEGACY_PVP_RATIO_STORAGE_KEY,
 } from '../../services/foodCostConfig'
 
 const FOOD_COST_BACKGROUND_STYLES = {
@@ -125,6 +128,7 @@ export default function FichaTecnicaPage() {
     getOperationalCostPercent()
   )
   const [foodCostTargets, setFoodCostTargets] = useState(() => getFoodCostTargetDecimals())
+  const [ratios, setRatios] = useState(() => getPvpRatios())
   const [selecoesAtributos, setSelecoesAtributos] = useState({
     validade: '',
     temperatura: '',
@@ -269,6 +273,27 @@ export default function FichaTecnicaPage() {
     }, {})
   }, [custoCalculado, foodCostTargets, operationalCostPercent, precosTaxas?.iva1])
 
+  const pvpCalculadoRatio = useMemo(() => {
+    if (typeof custoCalculado !== 'number') return null
+
+    const custoComOperacionais = custoCalculado * (1 + (operationalCostPercent || 0) / 100)
+    const ivaPercent = Number(precosTaxas?.iva1) || 0
+
+    return [1, 2, 3, 4, 5].reduce((acc, indice) => {
+      const ratio = ratios?.[indice - 1]
+
+      if (ratio && Number.isFinite(ratio)) {
+        const pvsi = custoComOperacionais * ratio
+        const pvp = pvsi * (1 + ivaPercent / 100)
+        acc[indice] = Number.isFinite(pvp) ? pvp : null
+      } else {
+        acc[indice] = null
+      }
+
+      return acc
+    }, {})
+  }, [custoCalculado, operationalCostPercent, precosTaxas?.iva1, ratios])
+
   useEffect(() => {
     const atualizarIntervalos = () => {
       setFoodCostIntervals(getIntervalsForBusinessType(getBusinessType()))
@@ -277,6 +302,7 @@ export default function FichaTecnicaPage() {
     const atualizarParametrosFoodCost = () => {
       setOperationalCostPercent(getOperationalCostPercent())
       setFoodCostTargets(getFoodCostTargetDecimals())
+      setRatios(getPvpRatios())
     }
 
     atualizarIntervalos()
@@ -298,7 +324,9 @@ export default function FichaTecnicaPage() {
         chave === null ||
         chave === OPERACIONAL_COST_STORAGE_KEY ||
         chave === PVP_FOOD_COST_TARGETS_STORAGE_KEY ||
-        chave === PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY
+        chave === PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY ||
+        chave === PVP_RATIOS_STORAGE_KEY ||
+        chave === LEGACY_PVP_RATIO_STORAGE_KEY
       ) {
         atualizarParametrosFoodCost()
       }
@@ -805,6 +833,57 @@ export default function FichaTecnicaPage() {
                           </p>
                           <p className={foodCostClassName}>
                             Rácio: {ratioCalculado ? `${ratioCalculado.toFixed(2)}×` : '—'}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">via Rácio de multiplicação</p>
+                </div>
+              </div>
+              {pvpCalculadoRatio && (
+                <div className="overflow-x-auto">
+                  <div className="grid min-w-[640px] grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map((indice) => {
+                      const ratio = ratios?.[indice - 1]
+                      const valorFoodCost = ratio && Number.isFinite(ratio) ? 100 / ratio : null
+                      const { background, status } = getFoodCostClassification(valorFoodCost)
+                      const isFoodCostMau = status === 'mau'
+                      const precoCalculado = pvpCalculadoRatio[indice]
+                      const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
+                        background ? '' : 'bg-surface-muted'
+                      } ${isFoodCostMau ? 'text-white' : ''}`
+                      const labelClassName = `text-xs uppercase tracking-wide ${
+                        isFoodCostMau ? 'text-white/90' : 'text-subtle'
+                      }`
+                      const priceClassName = `text-xl font-semibold ${isFoodCostMau ? 'text-white' : 'text-strong'}`
+                      const foodCostClassName = `text-sm ${isFoodCostMau ? 'text-white/90' : 'text-muted'}`
+
+                      return (
+                        <div
+                          key={`preco-calculado-ratio-${indice}`}
+                          className={cardClasses}
+                          style={background ? { background, backgroundColor: '#fff' } : undefined}
+                        >
+                          <p className={labelClassName}>PVP {indice}</p>
+                          <p className={priceClassName}>
+                            {precoCalculado ? `${precoCalculado.toFixed(2)} ${currencySymbol}` : '—'}
+                          </p>
+                          <p className={foodCostClassName}>
+                            Rácio: {ratio ? `${Number(ratio).toFixed(2)}×` : '—'}
+                          </p>
+                          <p className={foodCostClassName}>
+                            Food Cost alvo: {valorFoodCost ? `${valorFoodCost.toFixed(2)} %` : '—'}
                           </p>
                         </div>
                       )
