@@ -3,15 +3,41 @@ import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   getBusinessType,
   getDefaultPvpParameters,
+  PVP_VARIATIONS_COUNT,
 } from '../../services/foodCostConfig';
 
 const STORAGE_KEY_OPERACIONAIS = 'configuracao_food_cost_operacionais';
-const STORAGE_KEY_FOOD_COST_ALVO = 'configuracao_pvp_food_cost_alvo';
-const STORAGE_KEY_FOOD_COST_ALVO_DECIMAL = 'configuracao_pvp_food_cost_alvo_decimal';
+const STORAGE_KEY_FOOD_COST_ALVOS = 'configuracao_pvp_food_cost_alvos';
+const STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS = 'configuracao_pvp_food_cost_alvos_decimais';
+const LEGACY_STORAGE_KEY_FOOD_COST_ALVO = 'configuracao_pvp_food_cost_alvo';
+
+const createEmptyFoodCostList = () => Array.from({ length: PVP_VARIATIONS_COUNT }, () => '');
+const parseStoredArray = (rawValue) => {
+  if (!rawValue) return null;
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (Array.isArray(parsed)) {
+      const normalized = parsed.slice(0, PVP_VARIATIONS_COUNT).map((value) =>
+        value === '' || value === null || value === undefined ? '' : value.toString()
+      );
+
+      while (normalized.length < PVP_VARIATIONS_COUNT) {
+        normalized.push('');
+      }
+
+      return normalized;
+    }
+  } catch (error) {
+    return null;
+  }
+
+  return null;
+};
 
 export default function CalculoPVPFoodCost() {
   const [custosOperacionais, setCustosOperacionais] = useState('');
-  const [foodCostAlvo, setFoodCostAlvo] = useState('');
+  const [foodCostAlvos, setFoodCostAlvos] = useState(createEmptyFoodCostList());
   const [tipoNegocio, setTipoNegocio] = useState(getBusinessType());
   const [mensagem, setMensagem] = useState('');
 
@@ -24,13 +50,17 @@ export default function CalculoPVPFoodCost() {
       setCustosOperacionais(custosGuardados);
     }
 
-    const foodCostGuardado = localStorage.getItem(STORAGE_KEY_FOOD_COST_ALVO);
+    const foodCostGuardado = parseStoredArray(localStorage.getItem(STORAGE_KEY_FOOD_COST_ALVOS));
+    const foodCostLegacy = localStorage.getItem(LEGACY_STORAGE_KEY_FOOD_COST_ALVO);
+
     if (foodCostGuardado !== null) {
-      setFoodCostAlvo(foodCostGuardado);
+      setFoodCostAlvos(foodCostGuardado);
+    } else if (foodCostLegacy !== null) {
+      setFoodCostAlvos(Array.from({ length: PVP_VARIATIONS_COUNT }, () => foodCostLegacy));
     }
 
     // Pré-preenche apenas quando não existem valores guardados, usando o tipo de negócio escolhido.
-    if (custosGuardados === null && foodCostGuardado === null) {
+    if (custosGuardados === null && foodCostGuardado === null && foodCostLegacy === null) {
       aplicarDefaults(negocioSelecionado, false);
     }
   }, []);
@@ -50,21 +80,28 @@ export default function CalculoPVPFoodCost() {
     event.preventDefault();
 
     const custosNormalizados = custosOperacionais === '' ? '' : Math.max(0, Math.min(100, Number(custosOperacionais)));
-    const foodCostNormalizado = foodCostAlvo === '' ? '' : Math.max(0.01, Math.min(100, Number(foodCostAlvo)));
 
-    const foodCostDecimalNormalizado =
-      foodCostNormalizado === '' ? '' : Math.max(0.01, Math.min(1, foodCostNormalizado / 100));
+    const foodCostPercentsNormalizados = foodCostAlvos.map((valor) =>
+      valor === '' ? '' : Math.max(0.01, Math.min(100, Number(valor)))
+    );
+    const foodCostDecimaisNormalizados = foodCostPercentsNormalizados.map((valor) =>
+      valor === '' ? '' : Math.max(0.01, Math.min(1, valor / 100))
+    );
 
     const custosParaGuardar = custosNormalizados === '' ? '' : custosNormalizados.toString();
-    const foodCostParaGuardar = foodCostNormalizado === '' ? '' : foodCostNormalizado.toString();
-    const foodCostDecimalParaGuardar = foodCostDecimalNormalizado === '' ? '' : foodCostDecimalNormalizado.toString();
+    const foodCostParaGuardar = foodCostPercentsNormalizados.map((valor) =>
+      valor === '' ? '' : valor.toString()
+    );
+    const foodCostDecimalParaGuardar = foodCostDecimaisNormalizados.map((valor) =>
+      valor === '' ? '' : valor.toString()
+    );
 
     setCustosOperacionais(custosParaGuardar);
-    setFoodCostAlvo(foodCostParaGuardar);
+    setFoodCostAlvos(foodCostParaGuardar);
 
     localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO, foodCostParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO_DECIMAL, foodCostDecimalParaGuardar);
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS, JSON.stringify(foodCostParaGuardar));
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS, JSON.stringify(foodCostDecimalParaGuardar));
 
     setMensagem('Parâmetros de cálculo via food cost alvo atualizados com sucesso.');
     setTimeout(() => setMensagem(''), 3000);
@@ -74,16 +111,16 @@ export default function CalculoPVPFoodCost() {
     const defaults = getDefaultPvpParameters(negocio);
 
     const custosParaGuardar = defaults.operacionaisPercent.toString();
-    const foodCostParaGuardar = defaults.foodCostPercent.toString();
-    const foodCostDecimalParaGuardar = defaults.foodCostDecimal.toString();
+    const foodCostParaGuardar = defaults.foodCostPercents.map((valor) => valor.toString());
+    const foodCostDecimalParaGuardar = defaults.foodCostDecimals.map((valor) => valor.toString());
 
     // Substitui pelos valores recomendados para o tipo de negócio selecionado.
     setCustosOperacionais(custosParaGuardar);
-    setFoodCostAlvo(foodCostParaGuardar);
+    setFoodCostAlvos(foodCostParaGuardar);
 
     localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO, foodCostParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO_DECIMAL, foodCostDecimalParaGuardar);
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS, JSON.stringify(foodCostParaGuardar));
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS, JSON.stringify(foodCostDecimalParaGuardar));
 
     if (exibirMensagem) {
       setMensagem(`Valores predefinidos aplicados para ${negocio}.`);
@@ -96,10 +133,11 @@ export default function CalculoPVPFoodCost() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">Configuração · Cálculo PVP</p>
-          <h1 className="text-4xl font-black text-strong">via Food Cost alvo</h1>
+          <h1 className="text-4xl font-black text-strong">Food cost alvo (%)</h1>
           <p className="text-base text-subtle">
-            Configure os parâmetros necessários para calcular o PVP usando o food cost alvo. Os preços importados de Excel já incluem IVA,
-            e a taxa a usar está no campo <strong>iva1</strong> da tabela de preços.
+            Configure até cinco valores de food cost alvo — cada um será usado para calcular PVP1 a PVP5 quando forem
+            disponibilizados. Os preços importados de Excel já incluem IVA, e a taxa a usar está no campo <strong>iva1</strong> da
+            tabela de preços.
           </p>
           <p className="text-sm text-muted">Tipo de negócio selecionado: <strong>{tipoNegocio}</strong></p>
         </div>
@@ -128,23 +166,38 @@ export default function CalculoPVPFoodCost() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-strong" htmlFor="food-cost-alvo">
-                Food cost alvo (%)
-              </label>
-              <input
-                id="food-cost-alvo"
-                type="number"
-                inputMode="decimal"
-                min="0.01"
-                max="100"
-                step="0.01"
-                value={foodCostAlvo}
-                onChange={(event) => setFoodCostAlvo(event.target.value)}
-                placeholder="Exemplo: 30"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
-              />
+              <p className="block text-sm font-semibold text-strong">Food cost alvo (%)</p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {foodCostAlvos.map((valor, indice) => (
+                  <div key={`food-cost-${indice}`} className="space-y-1">
+                    <label className="block text-sm font-semibold text-strong" htmlFor={`food-cost-${indice}`}>
+                      Food cost alvo [{indice + 1}] (%)
+                    </label>
+                    <input
+                      id={`food-cost-${indice}`}
+                      type="number"
+                      inputMode="decimal"
+                      min="0.01"
+                      max="100"
+                      step="0.01"
+                      value={valor}
+                      onChange={(event) =>
+                        setFoodCostAlvos((prev) => {
+                          const atualizados = [...prev];
+                          atualizados[indice] = event.target.value;
+                          return atualizados;
+                        })
+                      }
+                      placeholder="Exemplo: 30"
+                      className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
+                    />
+                    <p className="text-xs text-subtle">Associado ao futuro cálculo do PVP{indice + 1}.</p>
+                  </div>
+                ))}
+              </div>
               <p className="text-sm text-subtle">
-                Indique o food cost alvo em percentagem; o valor decimal correspondente é deduzido automaticamente (ex.: 30% → 0.30) e usado em PVSI = Custo com operacionais / FoodCostAlvo.
+                Indique o food cost alvo em percentagem; o valor decimal correspondente é deduzido automaticamente (ex.: 30% → 0.30)
+                e usado em PVSI = Custo com operacionais / FoodCostAlvo.
               </p>
             </div>
 
