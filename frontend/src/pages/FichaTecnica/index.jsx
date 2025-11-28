@@ -713,6 +713,65 @@ export default function FichaTecnicaPage() {
           </section>
 
           <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)] text-center">
+                  <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
+                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</p>
+                </div>
+                <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)] text-center">
+                  <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
+                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} {currencySymbol}</p>
+                </div>
+                <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)] text-center">
+                  <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
+                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</p>
+                </div>
+              </div>
+              {precosTaxas && (
+                <div className="overflow-x-auto">
+                  <div className="grid min-w-[640px] grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map((indice) => {
+                      const valorFoodCost = foodCosts?.[indice]
+                      const { background, status } = getFoodCostClassification(valorFoodCost)
+                      const ratioCalculado = valorFoodCost > 0 ? 100 / valorFoodCost : null
+                      const isFoodCostMau = status === 'mau'
+                      const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
+                        background ? '' : 'bg-surface-muted'
+                      } ${isFoodCostMau ? 'text-white' : ''}`
+                      const labelClassName = `text-xs uppercase tracking-wide ${
+                        isFoodCostMau ? 'text-white/90' : 'text-subtle'
+                      }`
+                      const priceClassName = `text-xl font-semibold ${isFoodCostMau ? 'text-white' : 'text-strong'}`
+                      const foodCostClassName = `text-sm ${isFoodCostMau ? 'text-white/90' : 'text-muted'}`
+
+                      return (
+                        <div
+                          key={`preco-calculado-${indice}`}
+                          className={cardClasses}
+                          style={background ? { background, backgroundColor: '#fff' } : undefined}
+                        >
+                          <p className={labelClassName}>PVP {indice}</p>
+                          <p className={priceClassName}>{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
+                          <p className={foodCostClassName}>
+                            Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
+                          </p>
+                          <p className={foodCostClassName}>
+                            Rácio: {ratioCalculado ? `${ratioCalculado.toFixed(2)}×` : '—'}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
             <div className="p-4 sm:p-6 space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-semibold text-strong">Ficha Técnica</h2>
