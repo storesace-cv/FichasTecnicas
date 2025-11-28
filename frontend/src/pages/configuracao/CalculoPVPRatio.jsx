@@ -24,7 +24,7 @@ export default function CalculoPVPRatio() {
     event.preventDefault();
 
     const custosNormalizados = custosOperacionais === '' ? '' : Math.max(0, Math.min(100, Number(custosOperacionais)));
-    const ratioNormalizado = ratio === '' ? '' : Math.max(0, Number(ratio));
+    const ratioNormalizado = ratio === '' ? '' : Math.max(0.01, Number(ratio));
 
     const custosParaGuardar = custosNormalizados === '' ? '' : custosNormalizados.toString();
     const ratioParaGuardar = ratioNormalizado === '' ? '' : ratioNormalizado.toString();
@@ -82,7 +82,7 @@ export default function CalculoPVPRatio() {
                 id="ratio"
                 type="number"
                 inputMode="decimal"
-                min="0"
+                min="0.01"
                 step="0.01"
                 value={ratio}
                 onChange={(event) => setRatio(event.target.value)}
@@ -90,7 +90,7 @@ export default function CalculoPVPRatio() {
                 className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
               />
               <p className="text-sm text-subtle">
-                Use o rácio que multiplicará o custo com operacionais para obter o PVSI antes da aplicação do IVA (iva1).
+                Use o rácio que multiplicará o custo com operacionais para obter o PVSI antes da aplicação do IVA (iva1). Este valor deve ser maior que 0 e, tipicamente, superior a 1 (ex.: rácio 4 ≈ food cost de 25%).
               </p>
             </div>
 

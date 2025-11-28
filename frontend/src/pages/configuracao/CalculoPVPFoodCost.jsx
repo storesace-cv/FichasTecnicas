@@ -31,9 +31,17 @@ export default function CalculoPVPFoodCost() {
     event.preventDefault();
 
     const custosNormalizados = custosOperacionais === '' ? '' : Math.max(0, Math.min(100, Number(custosOperacionais)));
-    const foodCostNormalizado = foodCostAlvo === '' ? '' : Math.max(0, Math.min(100, Number(foodCostAlvo)));
-    const foodCostDecimalNormalizado =
-      foodCostAlvoDecimal === '' ? '' : Math.max(0, Math.min(1, Number(foodCostAlvoDecimal)));
+    const foodCostNormalizado = foodCostAlvo === '' ? '' : Math.max(0.01, Math.min(100, Number(foodCostAlvo)));
+
+    const foodCostDecimalNormalizado = (() => {
+      if (foodCostAlvoDecimal !== '') {
+        return Math.max(0.01, Math.min(1, Number(foodCostAlvoDecimal)));
+      }
+      if (foodCostNormalizado !== '') {
+        return Math.max(0.01, Math.min(1, foodCostNormalizado / 100));
+      }
+      return '';
+    })();
 
     const custosParaGuardar = custosNormalizados === '' ? '' : custosNormalizados.toString();
     const foodCostParaGuardar = foodCostNormalizado === '' ? '' : foodCostNormalizado.toString();
@@ -94,7 +102,7 @@ export default function CalculoPVPFoodCost() {
                 id="food-cost-alvo"
                 type="number"
                 inputMode="decimal"
-                min="0"
+                min="0.01"
                 max="100"
                 step="0.01"
                 value={foodCostAlvo}
@@ -103,7 +111,7 @@ export default function CalculoPVPFoodCost() {
                 className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
               />
               <p className="text-sm text-subtle">
-                Indique o food cost alvo em percentagem. O valor decimal será usado no cálculo PVSI = Custo com operacionais / FoodCostAlvo.
+                Indique o food cost alvo em percentagem. Se não preencher o valor decimal, este será deduzido automaticamente (ex.: 30% → 0.30) e usado em PVSI = Custo com operacionais / FoodCostAlvo.
               </p>
             </div>
 
@@ -115,7 +123,7 @@ export default function CalculoPVPFoodCost() {
                 id="food-cost-alvo-decimal"
                 type="number"
                 inputMode="decimal"
-                min="0"
+                min="0.01"
                 max="1"
                 step="0.001"
                 value={foodCostAlvoDecimal}
