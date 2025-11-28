@@ -767,7 +767,10 @@ export default function FichaTecnicaPage() {
           <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
             <div className="p-4 sm:p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">via Food Cost alvo</p>
+                  <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
+                </div>
               </div>
               {pvpCalculadoFoodCost && (
                 <div className="overflow-x-auto">
