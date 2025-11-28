@@ -21,11 +21,11 @@ export function mapFichaResponse(apiData) {
     ordem: item.ordem ?? index + 1,
     componente_codigo: item.componente_codigo ?? item.produto?.codigo ?? null,
     componente_nome: item.componente_nome ?? item.produto?.nome ?? '—',
-    quantidade: normalizeNumber(item.quantidade ?? item.quantidade_ficha, 0),
+    quantidade: normalizeNumber(item.quantidade ?? item.quantidade_ficha ?? item.qtd, 0),
     unidade: item.unidade || item.ingrediente?.unidade || '—',
     ppu: normalizeNumber(item.ppu ?? item.produto?.preco_unitario, 0),
     preco: normalizeNumber(item.preco ?? item.custo_parcial, 0),
-    peso: normalizeNumber(item.peso ?? item.quantidade ?? item.quantidade_ficha, 0),
+    peso: normalizeNumber(item.peso ?? item.quantidade ?? item.quantidade_ficha ?? item.qtd, 0),
     alergenos: item.alergenos || [],
   }));
 
