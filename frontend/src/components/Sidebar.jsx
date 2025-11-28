@@ -8,22 +8,24 @@ import {
   ArrowPathIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  Squares2X2Icon,
 } from '@heroicons/react/24/outline';
 
 export default function Sidebar() {
-  const [openSections, setOpenSections] = useState({ "Base de Dados": true });
+  const [openSections, setOpenSections] = useState({ "Base de Dados": false });
   const [isResetting, setIsResetting] = useState(false);
 
   const menu = [
     { to: "/", nome: "Fichas", icone: <HomeIcon className="w-6 h-6" /> },
-    {
-      nome: "Base de Dados",
-      icone: <ServerStackIcon className="w-6 h-6" />,
-      children: [
-        { to: "/importacoes", nome: "Importações", icone: <DocumentArrowUpIcon className="w-6 h-6" /> },
-        { nome: "Reset da BD", acao: "reset", icone: <ArrowPathIcon className="w-6 h-6" /> },
-      ],
-    },
+        {
+          nome: "Base de Dados",
+          icone: <ServerStackIcon className="w-6 h-6" />,
+          children: [
+            { to: "/importacoes", nome: "Importações", icone: <DocumentArrowUpIcon className="w-6 h-6" /> },
+            { to: "/referencias", nome: "Tabelas de Referência", icone: <Squares2X2Icon className="w-6 h-6" /> },
+            { nome: "Reset da BD", acao: "reset", icone: <ArrowPathIcon className="w-6 h-6" /> },
+          ],
+        },
   ];
 
   const toggleSection = (nome) => {

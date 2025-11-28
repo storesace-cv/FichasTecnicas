@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import uuid
 
 
 db = SQLAlchemy()
@@ -129,7 +130,7 @@ class PrecoTaxa(db.Model):
 class TipoArtigo(db.Model):
     __tablename__ = "TiposArtigos"
 
-    Codigo = db.Column("Codigo", db.String(50), primary_key=True)
+    Codigo = db.Column("Codigo", db.String(50), primary_key=True, default=lambda: uuid.uuid4().hex[:12])
     Descricao = db.Column("Descricao", db.String(200), nullable=False)
     Ativo = db.Column("Ativo", db.Boolean, default=True)
 
@@ -137,7 +138,7 @@ class TipoArtigo(db.Model):
 class Validade(db.Model):
     __tablename__ = "Validades"
 
-    Codigo = db.Column("Codigo", db.String(50), primary_key=True)
+    Codigo = db.Column("Codigo", db.String(50), primary_key=True, default=lambda: uuid.uuid4().hex[:12])
     Descricao = db.Column("Descricao", db.String(200), nullable=False)
     Unidade = db.Column("Unidade", db.String(50), nullable=False)
     Valor = db.Column("Valor", db.Numeric(12, 4), nullable=False)
@@ -147,7 +148,7 @@ class Validade(db.Model):
 class Temperatura(db.Model):
     __tablename__ = "Temperaturas"
 
-    Codigo = db.Column("Codigo", db.String(50), primary_key=True)
+    Codigo = db.Column("Codigo", db.String(50), primary_key=True, default=lambda: uuid.uuid4().hex[:12])
     Descricao = db.Column("Descricao", db.String(200), nullable=False)
     Intervalo = db.Column("Intervalo", db.String(50))
     Ativo = db.Column("Ativo", db.Boolean, default=True)
