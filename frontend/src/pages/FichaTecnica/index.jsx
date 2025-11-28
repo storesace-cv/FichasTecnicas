@@ -27,6 +27,11 @@ import {
   DEFAULT_INTERVALS_BY_BUSINESS,
   getBusinessType,
   getIntervalsForBusinessType,
+  getFoodCostTargetDecimals,
+  getOperationalCostPercent,
+  OPERACIONAL_COST_STORAGE_KEY,
+  PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY,
+  PVP_FOOD_COST_TARGETS_STORAGE_KEY,
 } from '../../services/foodCostConfig'
 
 const FOOD_COST_BACKGROUND_STYLES = {
@@ -116,6 +121,10 @@ export default function FichaTecnicaPage() {
   const [foodCostIntervals, setFoodCostIntervals] = useState(() =>
     getIntervalsForBusinessType(getBusinessType())
   )
+  const [operationalCostPercent, setOperationalCostPercent] = useState(() =>
+    getOperationalCostPercent()
+  )
+  const [foodCostTargets, setFoodCostTargets] = useState(() => getFoodCostTargetDecimals())
   const [selecoesAtributos, setSelecoesAtributos] = useState({
     validade: '',
     temperatura: '',
@@ -234,21 +243,64 @@ export default function FichaTecnicaPage() {
     }, {})
   }, [custoCalculado, precosTaxas])
 
+  const foodCostTargetsPercent = useMemo(
+    () => foodCostTargets.map((value) => (value ? value * 100 : null)),
+    [foodCostTargets],
+  )
+
+  const pvpCalculadoFoodCost = useMemo(() => {
+    if (typeof custoCalculado !== 'number') return null
+
+    const custoComOperacionais = custoCalculado * (1 + (operationalCostPercent || 0) / 100)
+    const ivaPercent = Number(precosTaxas?.iva1) || 0
+
+    return [1, 2, 3, 4, 5].reduce((acc, indice) => {
+      const alvoDecimal = foodCostTargets?.[indice - 1]
+
+      if (alvoDecimal && Number.isFinite(alvoDecimal)) {
+        const pvsi = custoComOperacionais / alvoDecimal
+        const pvp = pvsi * (1 + ivaPercent / 100)
+        acc[indice] = Number.isFinite(pvp) ? pvp : null
+      } else {
+        acc[indice] = null
+      }
+
+      return acc
+    }, {})
+  }, [custoCalculado, foodCostTargets, operationalCostPercent, precosTaxas?.iva1])
+
   useEffect(() => {
     const atualizarIntervalos = () => {
       setFoodCostIntervals(getIntervalsForBusinessType(getBusinessType()))
     }
 
+    const atualizarParametrosFoodCost = () => {
+      setOperationalCostPercent(getOperationalCostPercent())
+      setFoodCostTargets(getFoodCostTargetDecimals())
+    }
+
     atualizarIntervalos()
+    atualizarParametrosFoodCost()
 
     const handleStorageChange = (event) => {
+      const chave = event?.key
       if (
         !event ||
-        event.key === null ||
-        event.key === FOOD_COST_BUSINESS_TYPE_STORAGE_KEY ||
-        event.key === FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY
+        chave === null ||
+        chave === FOOD_COST_BUSINESS_TYPE_STORAGE_KEY ||
+        chave === FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY
       ) {
         atualizarIntervalos()
+      }
+
+      if (
+        !event ||
+        chave === null ||
+        chave === OPERACIONAL_COST_STORAGE_KEY ||
+        chave === PVP_FOOD_COST_TARGETS_STORAGE_KEY ||
+        chave === PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY
+      ) {
+        atualizarParametrosFoodCost()
       }
     }
 
@@ -717,28 +769,15 @@ export default function FichaTecnicaPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)] text-center">
-                  <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
-                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</p>
-                </div>
-                <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)] text-center">
-                  <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
-                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} {currencySymbol}</p>
-                </div>
-                <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)] text-center">
-                  <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
-                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</p>
-                </div>
-              </div>
-              {precosTaxas && (
+              {pvpCalculadoFoodCost && (
                 <div className="overflow-x-auto">
                   <div className="grid min-w-[640px] grid-cols-5 gap-4">
                     {[1, 2, 3, 4, 5].map((indice) => {
-                      const valorFoodCost = foodCosts?.[indice]
+                      const valorFoodCost = foodCostTargetsPercent?.[indice - 1]
                       const { background, status } = getFoodCostClassification(valorFoodCost)
                       const ratioCalculado = valorFoodCost > 0 ? 100 / valorFoodCost : null
                       const isFoodCostMau = status === 'mau'
+                      const precoCalculado = pvpCalculadoFoodCost[indice]
                       const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
                         background ? '' : 'bg-surface-muted'
                       } ${isFoodCostMau ? 'text-white' : ''}`
@@ -755,9 +794,11 @@ export default function FichaTecnicaPage() {
                           style={background ? { background, backgroundColor: '#fff' } : undefined}
                         >
                           <p className={labelClassName}>PVP {indice}</p>
-                          <p className={priceClassName}>{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
+                          <p className={priceClassName}>
+                            {precoCalculado ? `${precoCalculado.toFixed(2)} ${currencySymbol}` : '—'}
+                          </p>
                           <p className={foodCostClassName}>
-                            Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
+                            Food Cost alvo: {valorFoodCost ? `${valorFoodCost.toFixed(2)} %` : '—'}
                           </p>
                           <p className={foodCostClassName}>
                             Rácio: {ratioCalculado ? `${ratioCalculado.toFixed(2)}×` : '—'}

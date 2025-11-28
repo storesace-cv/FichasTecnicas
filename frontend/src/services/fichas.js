@@ -53,6 +53,7 @@ export function mapFichaResponse(apiData) {
     preco3: normalizeNumber(apiData.precos_taxas?.preco3 ?? apiData.preco3, 0),
     preco4: normalizeNumber(apiData.precos_taxas?.preco4 ?? apiData.preco4, 0),
     preco5: normalizeNumber(apiData.precos_taxas?.preco5 ?? apiData.preco5, 0),
+    iva1: normalizeNumber(apiData.precos_taxas?.iva1 ?? apiData.iva1, 0),
   };
 
   return {

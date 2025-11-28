@@ -70,6 +70,7 @@ def _serialize_produto_ficha(produto: Produto):
             "preco3": float(produto.preco.preco3 or 0),
             "preco4": float(produto.preco.preco4 or 0),
             "preco5": float(produto.preco.preco5 or 0),
+            "iva1": float(produto.preco.iva1 or 0),
         }
 
     return {

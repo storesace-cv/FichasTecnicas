@@ -3,12 +3,12 @@ import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   getBusinessType,
   getDefaultPvpParameters,
+  OPERACIONAL_COST_STORAGE_KEY,
+  PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY,
+  PVP_FOOD_COST_TARGETS_STORAGE_KEY,
   PVP_VARIATIONS_COUNT,
 } from '../../services/foodCostConfig';
 
-const STORAGE_KEY_OPERACIONAIS = 'configuracao_food_cost_operacionais';
-const STORAGE_KEY_FOOD_COST_ALVOS = 'configuracao_pvp_food_cost_alvos';
-const STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS = 'configuracao_pvp_food_cost_alvos_decimais';
 const LEGACY_STORAGE_KEY_FOOD_COST_ALVO = 'configuracao_pvp_food_cost_alvo';
 
 const createEmptyFoodCostList = () => Array.from({ length: PVP_VARIATIONS_COUNT }, () => '');
@@ -45,12 +45,12 @@ export default function CalculoPVPFoodCost() {
     const negocioSelecionado = getBusinessType();
     setTipoNegocio(negocioSelecionado);
 
-    const custosGuardados = localStorage.getItem(STORAGE_KEY_OPERACIONAIS);
+    const custosGuardados = localStorage.getItem(OPERACIONAL_COST_STORAGE_KEY);
     if (custosGuardados !== null) {
       setCustosOperacionais(custosGuardados);
     }
 
-    const foodCostGuardado = parseStoredArray(localStorage.getItem(STORAGE_KEY_FOOD_COST_ALVOS));
+    const foodCostGuardado = parseStoredArray(localStorage.getItem(PVP_FOOD_COST_TARGETS_STORAGE_KEY));
     const foodCostLegacy = localStorage.getItem(LEGACY_STORAGE_KEY_FOOD_COST_ALVO);
 
     if (foodCostGuardado !== null) {
@@ -99,9 +99,9 @@ export default function CalculoPVPFoodCost() {
     setCustosOperacionais(custosParaGuardar);
     setFoodCostAlvos(foodCostParaGuardar);
 
-    localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS, JSON.stringify(foodCostParaGuardar));
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS, JSON.stringify(foodCostDecimalParaGuardar));
+    localStorage.setItem(OPERACIONAL_COST_STORAGE_KEY, custosParaGuardar);
+    localStorage.setItem(PVP_FOOD_COST_TARGETS_STORAGE_KEY, JSON.stringify(foodCostParaGuardar));
+    localStorage.setItem(PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY, JSON.stringify(foodCostDecimalParaGuardar));
 
     setMensagem('Parâmetros de cálculo via food cost alvo atualizados com sucesso.');
     setTimeout(() => setMensagem(''), 3000);
@@ -118,9 +118,9 @@ export default function CalculoPVPFoodCost() {
     setCustosOperacionais(custosParaGuardar);
     setFoodCostAlvos(foodCostParaGuardar);
 
-    localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS, JSON.stringify(foodCostParaGuardar));
-    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVOS_DECIMAIS, JSON.stringify(foodCostDecimalParaGuardar));
+    localStorage.setItem(OPERACIONAL_COST_STORAGE_KEY, custosParaGuardar);
+    localStorage.setItem(PVP_FOOD_COST_TARGETS_STORAGE_KEY, JSON.stringify(foodCostParaGuardar));
+    localStorage.setItem(PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY, JSON.stringify(foodCostDecimalParaGuardar));
 
     if (exibirMensagem) {
       setMensagem(`Valores predefinidos aplicados para ${negocio}.`);
