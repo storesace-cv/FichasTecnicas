@@ -258,6 +258,8 @@ export default function FichaTecnicaPage() {
 
   const getFoodCostBackground = useCallback(
     (valor) => {
+      if (valor === null || valor === undefined || valor === '') return undefined
+
       const valorNormalizado = Number(valor)
 
       if (!Number.isFinite(valorNormalizado)) return undefined
