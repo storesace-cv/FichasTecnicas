@@ -1,6 +1,33 @@
 export const FOOD_COST_BUSINESS_TYPE_STORAGE_KEY = 'configuracao_food_cost_tipo_negocio';
 export const FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY = 'configuracao_food_cost_intervalos_consultores';
 
+export const DEFAULT_PVP_PARAMETERS_BY_BUSINESS = {
+  Hotéis: {
+    operacionaisPercent: 18,
+    foodCostPercent: 30,
+    foodCostDecimal: 0.3,
+    ratio: 3.3,
+  },
+  'Restauração tradicional': {
+    operacionaisPercent: 15,
+    foodCostPercent: 30,
+    foodCostDecimal: 0.3,
+    ratio: 3.5,
+  },
+  Cadeias: {
+    operacionaisPercent: 12,
+    foodCostPercent: 25,
+    foodCostDecimal: 0.25,
+    ratio: 4.0,
+  },
+  'Consultores de F&B': {
+    operacionaisPercent: 15,
+    foodCostPercent: 27,
+    foodCostDecimal: 0.27,
+    ratio: 3.7,
+  },
+};
+
 export const BUSINESS_TYPES = [
   'Hotéis',
   'Restauração tradicional',
@@ -68,4 +95,8 @@ export const getIntervalsForBusinessType = (tipoNegocio) => {
   }
 
   return DEFAULT_INTERVALS_BY_BUSINESS[tipoNegocio] || DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'];
+};
+
+export const getDefaultPvpParameters = (tipoNegocio) => {
+  return DEFAULT_PVP_PARAMETERS_BY_BUSINESS[tipoNegocio] || DEFAULT_PVP_PARAMETERS_BY_BUSINESS['Restauração tradicional'];
 };

@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from 'react';
+import {
+  FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
+  getBusinessType,
+  getDefaultPvpParameters,
+} from '../../services/foodCostConfig';
 
 const STORAGE_KEY_OPERACIONAIS = 'configuracao_food_cost_operacionais';
 const STORAGE_KEY_FOOD_COST_ALVO = 'configuracao_pvp_food_cost_alvo';
 const STORAGE_KEY_FOOD_COST_ALVO_DECIMAL = 'configuracao_pvp_food_cost_alvo_decimal';
+
 export default function CalculoPVPFoodCost() {
   const [custosOperacionais, setCustosOperacionais] = useState('');
   const [foodCostAlvo, setFoodCostAlvo] = useState('');
+  const [tipoNegocio, setTipoNegocio] = useState(getBusinessType());
   const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
+    const negocioSelecionado = getBusinessType();
+    setTipoNegocio(negocioSelecionado);
+
     const custosGuardados = localStorage.getItem(STORAGE_KEY_OPERACIONAIS);
     if (custosGuardados !== null) {
       setCustosOperacionais(custosGuardados);
@@ -19,6 +29,21 @@ export default function CalculoPVPFoodCost() {
       setFoodCostAlvo(foodCostGuardado);
     }
 
+    // Pré-preenche apenas quando não existem valores guardados, usando o tipo de negócio escolhido.
+    if (custosGuardados === null && foodCostGuardado === null) {
+      aplicarDefaults(negocioSelecionado, false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const atualizaTipo = (event) => {
+      if (!event || event.key === null || event.key === FOOD_COST_BUSINESS_TYPE_STORAGE_KEY) {
+        setTipoNegocio(getBusinessType());
+      }
+    };
+
+    window.addEventListener('storage', atualizaTipo);
+    return () => window.removeEventListener('storage', atualizaTipo);
   }, []);
 
   const guardar = (event) => {
@@ -45,6 +70,27 @@ export default function CalculoPVPFoodCost() {
     setTimeout(() => setMensagem(''), 3000);
   };
 
+  const aplicarDefaults = (negocio = tipoNegocio, exibirMensagem = true) => {
+    const defaults = getDefaultPvpParameters(negocio);
+
+    const custosParaGuardar = defaults.operacionaisPercent.toString();
+    const foodCostParaGuardar = defaults.foodCostPercent.toString();
+    const foodCostDecimalParaGuardar = defaults.foodCostDecimal.toString();
+
+    // Substitui pelos valores recomendados para o tipo de negócio selecionado.
+    setCustosOperacionais(custosParaGuardar);
+    setFoodCostAlvo(foodCostParaGuardar);
+
+    localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO, foodCostParaGuardar);
+    localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO_DECIMAL, foodCostDecimalParaGuardar);
+
+    if (exibirMensagem) {
+      setMensagem(`Valores predefinidos aplicados para ${negocio}.`);
+      setTimeout(() => setMensagem(''), 3000);
+    }
+  };
+
   return (
     <div className="p-8 md:p-12 lg:p-16 space-y-8">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -55,6 +101,7 @@ export default function CalculoPVPFoodCost() {
             Configure os parâmetros necessários para calcular o PVP usando o food cost alvo. Os preços importados de Excel já incluem IVA,
             e a taxa a usar está no campo <strong>iva1</strong> da tabela de preços.
           </p>
+          <p className="text-sm text-muted">Tipo de negócio selecionado: <strong>{tipoNegocio}</strong></p>
         </div>
 
         <div className="rounded-2xl bg-white p-6 shadow-card border border-gray-100 space-y-4">
@@ -107,6 +154,13 @@ export default function CalculoPVPFoodCost() {
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white font-semibold shadow-sm transition hover:bg-primary-strong"
               >
                 Guardar parâmetros
+              </button>
+              <button
+                type="button"
+                onClick={() => aplicarDefaults()}
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white font-semibold shadow-sm transition hover:bg-primary-strong"
+              >
+                Repor valores por defeito
               </button>
               <p className="text-sm text-subtle">
                 Ao apresentar o PVP, será aplicada a taxa de IVA definida no artigo (campo iva1).
