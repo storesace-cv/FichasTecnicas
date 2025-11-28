@@ -114,7 +114,7 @@ describe('FichaTecnicaPage', () => {
     })
   })
 
-  it('renders ficha metadata and switches between tabs', async () => {
+  it('renders ficha metadata and all section blocks', async () => {
     fetchFichaByCodigo.mockResolvedValueOnce(buildFicha())
 
     renderWithRouter()
@@ -133,11 +133,7 @@ describe('FichaTecnicaPage', () => {
 
     expect(screen.getByText('Custo registado')).toBeInTheDocument()
     expect(screen.getByText('Composição resumida')).toBeInTheDocument()
-
-    await userEvent.click(screen.getByRole('button', { name: 'Especificações' }))
     expect(await screen.findByText('Tabela de composição')).toBeInTheDocument()
-
-    await userEvent.click(screen.getByRole('button', { name: 'Documentos' }))
     expect(screen.getByText('Anexos')).toBeInTheDocument()
     expect(screen.getByText('Ficha PDF')).toBeInTheDocument()
   })

@@ -12,26 +12,23 @@ import {
 } from '@heroicons/react/24/outline'
 import Breadcrumbs from '../../components/Breadcrumbs'
 import PageHeader from '../../components/PageHeader'
-import Tabs from '../../components/Tabs'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
 import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
 
-const tabs = [
-  { label: 'Resumo', value: 'resumo' },
-  { label: 'Especificações', value: 'especificacoes' },
-  { label: 'Documentos', value: 'documentos' },
-  { label: 'Histórico', value: 'historico' },
-  { label: 'Comentários', value: 'comentarios' },
-]
-
 const formatDate = (value) => {
   if (!value) return '—'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return date.toLocaleString('pt-PT', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function useFichaTecnica(codigo) {
@@ -69,7 +66,6 @@ export default function FichaTecnicaPage() {
   const navigate = useNavigate()
   const { fichaId } = useParams()
   const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
-  const [activeTab, setActiveTab] = useState('resumo')
   const [referencias, setReferencias] = useState({ validades: [], temperaturas: [], tipoArtigos: [] })
   const [referenciasCarregadas, setReferenciasCarregadas] = useState(false)
   const [selecoesAtributos, setSelecoesAtributos] = useState({
@@ -269,15 +265,7 @@ export default function FichaTecnicaPage() {
           ]}
         />
 
-        <PageHeader
-          title={ficha.nome || 'Ficha Técnica'}
-          subtitle={`Código interno: ${ficha.codigo}`}
-          actions={
-            <div className="w-full lg:w-auto">
-              <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-            </div>
-          }
-        />
+        <PageHeader title={ficha.nome || 'Ficha Técnica'} subtitle={`Código interno: ${ficha.codigo}`} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
@@ -437,229 +425,241 @@ export default function FichaTecnicaPage() {
           </div>
         )}
 
-          <div className="bg-surface border border-soft rounded-xl shadow-sm">
-          <div className="p-4 sm:p-6">
-            {activeTab === 'resumo' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
-                    <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
-                    <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
-                  </div>
-                  <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)]">
-                    <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
-                    <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
-                  </div>
-                  <div className="bg-warning-soft rounded-lg p-4 border border-[var(--color-warning-200)]">
-                    <p className="text-xs text-warning-strong uppercase tracking-wide">Peso total</p>
-                    <p className="text-2xl font-bold text-[var(--color-warning-800)]">
-                      {ficha.totais.peso_total.toFixed(3)} {ficha.cabecalho.unidade_base}
-                    </p>
-                  </div>
-                  <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)]">
-                    <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
-                    <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
-                  </div>
+        <div className="space-y-8">
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-strong">Resumo</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
+                  <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
+                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
                 </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
-                  <div className="lg:col-span-2">
-                    <h3 className="text-lg font-semibold text-strong mb-3">Composição resumida</h3>
-                    <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                      <table className="w-full min-w-max text-sm md:text-base">
-                        <thead className="bg-surface-muted text-left text-subtle font-semibold">
-                          <tr>
-                            <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
-                            <th className="px-3 sm:px-4 py-3 w-80 max-w-xs md:max-w-none truncate text-left">Ingrediente</th>
-                            <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
-                            <th className="px-3 sm:px-4 py-3 w-24">Unidade</th>
-                            <th className="px-3 sm:px-4 py-3 text-right w-32">Custo</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ficha.composicao.map((ing) => (
-                            <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-[var(--color-neutral-100)]">
-                              <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
-                              <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-xs md:max-w-none truncate">{ing.componente_nome}</td>
-                              <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
-                              <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
-                              <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
-                    <h3 className="text-lg font-semibold text-strong">Alergénios</h3>
-                    {ficha.alergenos.length === 0 ? (
-                      <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {ficha.alergenos.map((al) => (
-                          <span key={al.codigo} className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong">
-                            {al.nome || al.codigo}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)]">
+                  <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
+                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
+                </div>
+                <div className="bg-warning-soft rounded-lg p-4 border border-[var(--color-warning-200)]">
+                  <p className="text-xs text-warning-strong uppercase tracking-wide">Peso total</p>
+                  <p className="text-2xl font-bold text-[var(--color-warning-800)]">
+                    {ficha.totais.peso_total.toFixed(3)} {ficha.cabecalho.unidade_base}
+                  </p>
+                </div>
+                <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)]">
+                  <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
+                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
                 </div>
               </div>
-            )}
 
-            {activeTab === 'especificacoes' && (
-              <div className="space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <h3 className="text-lg font-semibold text-strong">Tabela de composição</h3>
-                  {custoBadge}
-                </div>
-                <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                  <table className="w-full min-w-max text-sm md:text-base">
-                    <thead className="bg-surface-muted text-left text-subtle font-semibold">
-                      <tr>
-                        <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
-                        <th className="px-3 sm:px-4 py-3 w-24">Código</th>
-                        <th className="px-3 sm:px-4 py-3 text-left w-80 max-w-[18rem] truncate">Ingrediente</th>
-                        <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
-                        <th className="px-3 sm:px-4 py-3 w-28">Unidade</th>
-                        <th className="px-3 sm:px-4 py-3 text-right w-24">PPU</th>
-                        <th className="px-3 sm:px-4 py-3 text-right w-28">Custo</th>
-                        <th className="px-3 sm:px-4 py-3 text-right w-28">Peso</th>
-                        <th className="px-3 sm:px-4 py-3 w-72">Alergénios</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ficha.composicao.map((ing, idx) => (
-                        <tr key={`${ing.componente_codigo || 'linha'}-${idx}`} className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted">
-                          <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
-                          <td className="px-3 sm:px-4 py-3 font-mono text-xs md:text-sm text-subtle">{ing.componente_codigo || '—'}</td>
-                          <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-[18rem] truncate">{ing.componente_nome}</td>
-                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
-                          <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
-                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
-                          <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
-                          <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
-                          <td className="px-3 sm:px-4 py-3">
-                            <div className="flex flex-wrap gap-2 max-w-xs md:max-w-md">
-                              {(ing.alergenos || []).length === 0 && <span className="text-xs text-muted">—</span>}
-                              {(ing.alergenos || []).map((al) => (
-                                <span key={`${al.codigo}-${ing.ordem}`} className="text-[11px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100">
-                                  {al.nome || al.codigo}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
+                <div className="lg:col-span-2">
+                  <h3 className="text-lg font-semibold text-strong mb-3">Composição resumida</h3>
+                  <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
+                    <table className="w-full min-w-max text-sm md:text-base">
+                      <thead className="bg-surface-muted text-left text-subtle font-semibold">
+                        <tr>
+                          <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
+                          <th className="px-3 sm:px-4 py-3 w-80 max-w-xs md:max-w-none truncate text-left">Ingrediente</th>
+                          <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
+                          <th className="px-3 sm:px-4 py-3 w-24">Unidade</th>
+                          <th className="px-3 sm:px-4 py-3 text-right w-32">Custo</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {ficha.composicao.map((ing) => (
+                          <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-[var(--color-neutral-100)]">
+                            <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
+                            <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-xs md:max-w-none truncate">{ing.componente_nome}</td>
+                            <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                            <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
+                            <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                {ficha.preparacao_html && (
-                  <div className="bg-surface-muted border border-soft rounded-lg p-4">
-                    <h4 className="text-md font-semibold text-strong mb-2">Preparação</h4>
-                    <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: ficha.preparacao_html }} />
+
+                <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
+                  <h3 className="text-lg font-semibold text-strong">Alergénios</h3>
+                  {ficha.alergenos.length === 0 ? (
+                    <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {ficha.alergenos.map((al) => (
+                        <span
+                          key={al.codigo}
+                          className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong"
+                        >
+                          {al.nome || al.codigo}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xl font-semibold text-strong">Especificações</h2>
+                {custoBadge}
+              </div>
+              <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
+                <table className="w-full min-w-max text-sm md:text-base">
+                  <thead className="bg-surface-muted text-left text-subtle font-semibold">
+                    <tr>
+                      <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
+                      <th className="px-3 sm:px-4 py-3 w-24">Código</th>
+                      <th className="px-3 sm:px-4 py-3 text-left w-80 max-w-[18rem] truncate">Ingrediente</th>
+                      <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
+                      <th className="px-3 sm:px-4 py-3 w-28">Unidade</th>
+                      <th className="px-3 sm:px-4 py-3 text-right w-24">PPU</th>
+                      <th className="px-3 sm:px-4 py-3 text-right w-28">Custo</th>
+                      <th className="px-3 sm:px-4 py-3 text-right w-28">Peso</th>
+                      <th className="px-3 sm:px-4 py-3 w-72">Alergénios</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ficha.composicao.map((ing, idx) => (
+                      <tr
+                        key={`${ing.componente_codigo || 'linha'}-${idx}`}
+                        className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted"
+                      >
+                        <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
+                        <td className="px-3 sm:px-4 py-3 font-mono text-xs md:text-sm text-subtle">{ing.componente_codigo || '—'}</td>
+                        <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-[18rem] truncate">{ing.componente_nome}</td>
+                        <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
+                        <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
+                        <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
+                        <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)}€</td>
+                        <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
+                        <td className="px-3 sm:px-4 py-3">
+                          <div className="flex flex-wrap gap-2 max-w-xs md:max-w-md">
+                            {(ing.alergenos || []).length === 0 && <span className="text-xs text-muted">—</span>}
+                            {(ing.alergenos || []).map((al) => (
+                              <span
+                                key={`${al.codigo}-${ing.ordem}`}
+                                className="text-[11px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100"
+                              >
+                                {al.nome || al.codigo}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {ficha.preparacao_html && (
+                <div className="bg-surface-muted border border-soft rounded-lg p-4">
+                  <h4 className="text-md font-semibold text-strong mb-2">Preparação</h4>
+                  <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: ficha.preparacao_html }} />
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-6">
+              <h2 className="text-xl font-semibold text-strong">Documentos</h2>
+              <div>
+                <h3 className="text-lg font-semibold text-strong mb-2">Anexos</h3>
+                {documentos.length === 0 ? (
+                  <p className="text-sm text-subtle">Sem anexos disponíveis para esta ficha técnica.</p>
+                ) : (
+                  <div className="divide-y divide-[var(--color-neutral-100)] border border-[var(--color-neutral-100)] rounded-lg">
+                    {documentos.map((doc) => (
+                      <div
+                        key={doc.id || doc.nome}
+                        className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <DocumentIcon className="w-5 h-5 text-muted" />
+                          <div>
+                            <p className="text-sm font-semibold text-strong">{doc.nome || doc.filename}</p>
+                            <p className="text-xs text-muted">{doc.tipo || doc.mime || 'Documento'}</p>
+                          </div>
+                        </div>
+                        {doc.url && (
+                          <a
+                            href={doc.url}
+                            className="inline-flex items-center gap-2 text-sm text-primary-strong font-semibold hover:underline"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <DocumentArrowDownIcon className="w-5 h-5" /> Transferir
+                          </a>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            )}
 
-            {activeTab === 'documentos' && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-strong mb-2">Anexos</h3>
-                  {documentos.length === 0 ? (
-                    <p className="text-sm text-subtle">Sem anexos disponíveis para esta ficha técnica.</p>
-                  ) : (
-                    <div className="divide-y divide-[var(--color-neutral-100)] border border-[var(--color-neutral-100)] rounded-lg">
-                      {documentos.map((doc) => (
-                        <div key={doc.id || doc.nome} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <DocumentIcon className="w-5 h-5 text-muted" />
-                            <div>
-                              <p className="text-sm font-semibold text-strong">{doc.nome || doc.filename}</p>
-                              <p className="text-xs text-muted">{doc.tipo || doc.mime || 'Documento'}</p>
-                            </div>
-                          </div>
-                          {doc.url && (
-                            <a
-                              href={doc.url}
-                              className="inline-flex items-center gap-2 text-sm text-primary-strong font-semibold hover:underline"
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              <DocumentArrowDownIcon className="w-5 h-5" /> Transferir
-                            </a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-strong mb-2">Links úteis</h3>
-                  {links.length === 0 ? (
-                    <p className="text-sm text-subtle">Nenhum link registado para esta ficha.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {links.map((link) => (
-                        <a
-                          key={link.url}
-                          href={link.url}
-                          className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-3 bg-surface-muted border border-[var(--color-neutral-100)] rounded-lg hover:bg-[var(--color-neutral-100)] transition"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <LinkIcon className="w-5 h-5 text-muted" />
-                          <div>
-                            <p className="text-sm font-semibold text-strong">{link.titulo || link.label || link.url}</p>
-                            {link.descricao && <p className="text-xs text-muted">{link.descricao}</p>}
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'historico' && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-strong">Histórico de alterações</h3>
-                <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
-                  {historicoRegistos.map((evento, idx) => {
-                    const Icone = evento.icon || ClockIcon
-
-                    return (
-                      <div key={evento.id || evento.titulo || idx} className="flex items-start gap-3">
-                        <Icone className="w-5 h-5 text-muted mt-0.5" />
+              <div>
+                <h3 className="text-lg font-semibold text-strong mb-2">Links úteis</h3>
+                {links.length === 0 ? (
+                  <p className="text-sm text-subtle">Nenhum link registado para esta ficha.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {links.map((link) => (
+                      <a
+                        key={link.url}
+                        href={link.url}
+                        className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-4 py-3 bg-surface-muted border border-[var(--color-neutral-100)] rounded-lg hover:bg-[var(--color-neutral-100)] transition"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkIcon className="w-5 h-5 text-muted" />
                         <div>
-                          <p className="text-sm font-semibold text-strong">{evento.titulo || 'Registo'}</p>
-                          <p className="text-sm text-subtle">
-                            {evento.descricao || formatDate(evento.data)}
-                          </p>
+                          <p className="text-sm font-semibold text-strong">{link.titulo || link.label || link.url}</p>
+                          {link.descricao && <p className="text-xs text-muted">{link.descricao}</p>}
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+          </section>
 
-            {activeTab === 'comentarios' && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-strong">Comentários</h3>
-                <p className="text-sm text-subtle">
-                  Integração com o backend de comentários pendente. Mantém as notas internas aqui quando o serviço estiver disponível.
-                </p>
-                <div className="border border-dashed border-strong rounded-lg p-4 text-center text-sm text-muted">
-                  Em breve poderás consultar e adicionar comentários ligados a esta ficha técnica.
-                </div>
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-strong">Histórico</h2>
+              <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
+                {historicoRegistos.map((evento, idx) => {
+                  const Icone = evento.icon || ClockIcon
+
+                  return (
+                    <div key={evento.id || evento.titulo || idx} className="flex items-start gap-3">
+                      <Icone className="w-5 h-5 text-muted mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-strong">{evento.titulo || 'Registo'}</p>
+                        <p className="text-sm text-subtle">{evento.descricao || formatDate(evento.data)}</p>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            )}
-          </div>
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-strong">Comentários</h2>
+              <p className="text-sm text-subtle">
+                Integração com o backend de comentários pendente. Mantém as notas internas aqui quando o serviço estiver disponível.
+              </p>
+              <div className="border border-dashed border-strong rounded-lg p-4 text-center text-sm text-muted">
+                Em breve poderás consultar e adicionar comentários ligados a esta ficha técnica.
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>
