@@ -5,6 +5,7 @@ import FichaList from './components/FichaList';
 import FichaTecnicaPage from './pages/FichaTecnica';
 import Importacoes from './pages/import/Importacoes';
 import ImportarTipo from './pages/import/ImportarTipo';
+import Referencias from './pages/referencias/Referencias';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/ficha/:fichaId" element={<FichaTecnicaPage />} />
             <Route path="/importacoes" element={<Importacoes />} />
             <Route path="/importar/:tipo" element={<ImportarTipo />} />
+            <Route path="/referencias" element={<Referencias />} />
           </Routes>
         </div>
       </div>
