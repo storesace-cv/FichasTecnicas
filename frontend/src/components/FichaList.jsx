@@ -4,6 +4,32 @@ import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { mapFichaResponse } from '../services/fichas';
 
+const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim();
+
+const ordenarPorHierarquiaProdutos = (lista = []) => {
+  const locale = 'pt-PT';
+  const compareStrings = (a, b) => a.localeCompare(b, locale, { sensitivity: 'base', numeric: true });
+
+  return [...lista].sort((a, b) => {
+    const familiaA = normalizarCampoOrdenacao(a.atributosTecnicos?.familia || a.cabecalho?.familia);
+    const familiaB = normalizarCampoOrdenacao(b.atributosTecnicos?.familia || b.cabecalho?.familia);
+    const familiaCmp = compareStrings(familiaA, familiaB);
+    if (familiaCmp !== 0) return familiaCmp;
+
+    const subfamiliaA = normalizarCampoOrdenacao(a.atributosTecnicos?.subfamilia || a.cabecalho?.subfamilia);
+    const subfamiliaB = normalizarCampoOrdenacao(b.atributosTecnicos?.subfamilia || b.cabecalho?.subfamilia);
+    const subfamiliaCmp = compareStrings(subfamiliaA, subfamiliaB);
+    if (subfamiliaCmp !== 0) return subfamiliaCmp;
+
+    const produtoA = normalizarCampoOrdenacao(a.nome || a.cabecalho?.nome);
+    const produtoB = normalizarCampoOrdenacao(b.nome || b.cabecalho?.nome);
+    const produtoCmp = compareStrings(produtoA, produtoB);
+    if (produtoCmp !== 0) return produtoCmp;
+
+    return compareStrings(normalizarCampoOrdenacao(a.codigo), normalizarCampoOrdenacao(b.codigo));
+  });
+};
+
 export default function FichaList() {
   const [fichas, setFichas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,12 +49,14 @@ export default function FichaList() {
     f?.nome?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const ordered = ordenarPorHierarquiaProdutos(filtered);
+
   if (loading) return <div className="text-center py-16 md:py-20 text-xl md:text-2xl px-4">A carregar fichas...</div>;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6">
+    <div className="max-w-[90rem] mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold text-strong">Fichas Técnicas ({filtered.length})</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-strong">Fichas Técnicas ({ordered.length})</h2>
         <input
           type="text"
           placeholder="Pesquisar código ou nome..."
@@ -38,7 +66,7 @@ export default function FichaList() {
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {ordered.length === 0 ? (
         <div className="text-center py-24 sm:py-32 bg-surface rounded-2xl shadow-card border border-soft px-6">
           <DocumentTextIcon className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 text-muted" />
           <p className="text-xl sm:text-2xl text-strong">Ainda não tens fichas técnicas</p>
@@ -46,7 +74,7 @@ export default function FichaList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {filtered.map(ficha => (
+          {ordered.map(ficha => (
             <Link key={ficha.codigo} to={`/fichas/${ficha.codigo}`} className="block">
               <div className="bg-surface rounded-xl shadow-card overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border border-soft">
                 {ficha.imagem_prato && (
