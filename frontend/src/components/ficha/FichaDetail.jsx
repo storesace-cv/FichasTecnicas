@@ -17,11 +17,28 @@ export default function FichaDetail() {
       axios.get('/api/fichas')
     ])
       .then(([resFicha, resAll]) => {
-        setFicha(mapFichaResponse(resFicha.data));
-        const codigos = (resAll.data || [])
-          .map(f => f.codigo)
-          .sort((a, b) => Number(a) - Number(b));
-        setAllCodigos(codigos);
+        const fichaAtual = mapFichaResponse(resFicha.data);
+        setFicha(fichaAtual);
+
+        const fichasOrdenadas = (resAll.data || [])
+          .map(mapFichaResponse)
+          .sort((a, b) => {
+            const familiaA = (a.atributosTecnicos?.familia || '').toString();
+            const familiaB = (b.atributosTecnicos?.familia || '').toString();
+            if (familiaA.localeCompare(familiaB) !== 0) return familiaA.localeCompare(familiaB);
+
+            const subfamiliaA = (a.atributosTecnicos?.subfamilia || '').toString();
+            const subfamiliaB = (b.atributosTecnicos?.subfamilia || '').toString();
+            if (subfamiliaA.localeCompare(subfamiliaB) !== 0) return subfamiliaA.localeCompare(subfamiliaB);
+
+            const produtoA = (a.nome || a.cabecalho?.nome || '').toString();
+            const produtoB = (b.nome || b.cabecalho?.nome || '').toString();
+            if (produtoA.localeCompare(produtoB) !== 0) return produtoA.localeCompare(produtoB);
+
+            return Number(a.codigo) - Number(b.codigo);
+          });
+
+        setAllCodigos(fichasOrdenadas.map(f => f.codigo));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -45,23 +62,27 @@ export default function FichaDetail() {
             <ArrowLeftIcon className="w-6 h-6 sm:w-7 sm:h-7" /> Voltar à lista
           </Link>
 
-          <div className="flex items-center gap-4 sm:gap-6 bg-primary-soft px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl">
+          <div className="flex items-center gap-3 sm:gap-4 bg-primary-soft px-4 sm:px-8 py-3 sm:py-4 rounded-full shadow-2xl">
             {/* Primeira */}
             <button
               onClick={() => navigate(`/ficha/${first}`)}
               disabled={currentIndex === 0}
-              className={`p-3 rounded-full transition ${currentIndex === 0 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition ${currentIndex === 0 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'}`}
+              aria-label="Início"
             >
-              <ChevronDoubleLeftIcon className="w-8 h-8" />
+              <ChevronDoubleLeftIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="hidden sm:inline font-semibold tracking-tight">Início</span>
             </button>
 
             {/* Anterior */}
             <button
               onClick={() => prev && navigate(`/ficha/${prev}`)}
               disabled={!prev}
-              className={`p-3 rounded-full transition ${!prev ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition ${!prev ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'}`}
+              aria-label="Atrás"
             >
-              <ArrowLeftIcon className="w-8 h-8" />
+              <ArrowLeftIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="hidden sm:inline font-semibold tracking-tight">Atrás</span>
             </button>
 
             {/* Contador */}
@@ -73,18 +94,22 @@ export default function FichaDetail() {
             <button
               onClick={() => next && navigate(`/ficha/${next}`)}
               disabled={!next}
-              className={`p-3 rounded-full transition ${!next ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition ${!next ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'}`}
+              aria-label="Avançar"
             >
-              <ArrowRightIcon className="w-8 h-8" />
+              <ArrowRightIcon className="w-6 h-6 sm:w-8 sm:h-8" />
+              <span className="hidden sm:inline font-semibold tracking-tight">Avançar</span>
             </button>
 
             {/* Última */}
             <button
               onClick={() => navigate(`/ficha/${last}`)}
               disabled={currentIndex === allCodigos.length - 1}
-              className={`p-3 rounded-full transition ${currentIndex === allCodigos.length - 1 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-110'}`}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full transition ${currentIndex === allCodigos.length - 1 ? 'bg-[var(--color-neutral-300)] text-muted cursor-not-allowed' : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'}`}
+              aria-label="Fim"
             >
-              <ChevronDoubleRightIcon className="w-8 h-8" />
+              <span className="hidden sm:inline font-semibold tracking-tight">Fim</span>
+              <ChevronDoubleRightIcon className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
           </div>
         </div>
