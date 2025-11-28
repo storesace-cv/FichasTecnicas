@@ -3,7 +3,7 @@ import axios from 'axios';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { mapFichaResponse } from '../services/fichas';
-import { useCurrencySymbol } from '../services/currency';
+import { useCurrencyFormatter } from '../services/currency';
 import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
@@ -50,7 +50,7 @@ export default function FichaList() {
   const [foodCostIntervals, setFoodCostIntervals] = useState(() =>
     getIntervalsForBusinessType(getBusinessType()),
   );
-  const currencySymbol = useCurrencySymbol();
+  const { formatCurrency } = useCurrencyFormatter();
 
   useEffect(() => {
     const atualizarIntervalos = () => {
@@ -327,7 +327,7 @@ export default function FichaList() {
                   <h3 className="text-lg sm:text-xl font-bold text-strong mb-2 sm:mb-3 line-clamp-2">{ficha.nome}</h3>
                   <div className="text-right">
                     <p className="text-2xl sm:text-3xl font-bold text-success-strong">
-                      {(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} {currencySymbol}
+                      {formatCurrency(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0)}
                     </p>
                     <p className="text-xs sm:text-sm text-muted">custo total</p>
                   </div>

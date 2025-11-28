@@ -25,7 +25,7 @@ import {
   fetchFichas,
 } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
-import { useCurrencySymbol } from '../../services/currency'
+import { useCurrencyFormatter } from '../../services/currency'
 import { listarAlergenios } from '../../services/alergenios'
 import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
@@ -150,7 +150,7 @@ export default function FichaTecnicaPage() {
   const [alergenoNotaAberta, setAlergenoNotaAberta] = useState(null)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
-  const currencySymbol = useCurrencySymbol()
+  const { formatCurrency } = useCurrencyFormatter()
   const listaNavegacaoEstado = useMemo(() => {
     const codigos = location.state?.listaNavegacao
     return Array.isArray(codigos) ? codigos.map((codigo) => String(codigo)) : null
@@ -171,10 +171,10 @@ export default function FichaTecnicaPage() {
       </span>
     ) : (
       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warning-soft text-warning-strong text-sm font-semibold">
-        Diferença de {ficha.custos.diferenca.toFixed(2)} {currencySymbol}
+        Diferença de {formatCurrency(ficha.custos.diferenca)}
       </span>
     )
-  }, [ficha, currencySymbol])
+  }, [ficha, formatCurrency])
 
   const meta = ficha?.meta || {}
   const documentos = ficha?.documentos || []
@@ -822,15 +822,15 @@ export default function FichaTecnicaPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)] text-center">
                   <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
-                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</p>
+                  <p className="text-2xl font-bold text-primary-strong">{formatCurrency(ficha.totais.custo_total)}</p>
                 </div>
                 <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)] text-center">
                   <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
-                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} {currencySymbol}</p>
+                  <p className="text-2xl font-bold text-secondary-strong">{formatCurrency(ficha.custos.custo_calculado)}</p>
                 </div>
                 <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)] text-center">
                   <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
-                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</p>
+                  <p className="text-2xl font-bold text-success-strong">{formatCurrency(ficha.totais.custo_por_unidade_base, 3)}</p>
                 </div>
               </div>
               {precosTaxas && (
@@ -857,7 +857,7 @@ export default function FichaTecnicaPage() {
                           style={background ? { background, backgroundColor: '#fff' } : undefined}
                         >
                           <p className={labelClassName}>PVP {indice}</p>
-                          <p className={priceClassName}>{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
+                          <p className={priceClassName}>{formatCurrency(precosTaxas[`preco${indice}`])}</p>
                           <p className={foodCostClassName}>
                             Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
                           </p>
@@ -907,7 +907,7 @@ export default function FichaTecnicaPage() {
                         >
                           <p className={labelClassName}>PVP {indice}</p>
                           <p className={priceClassName}>
-                            {precoCalculado ? `${precoCalculado.toFixed(2)} ${currencySymbol}` : '—'}
+                            {precoCalculado ? formatCurrency(precoCalculado) : '—'}
                           </p>
                           <p className={foodCostClassName}>
                             Food Cost alvo: {valorFoodCost ? `${valorFoodCost.toFixed(2)} %` : '—'}
@@ -958,7 +958,7 @@ export default function FichaTecnicaPage() {
                         >
                           <p className={labelClassName}>PVP {indice}</p>
                           <p className={priceClassName}>
-                            {precoCalculado ? `${precoCalculado.toFixed(2)} ${currencySymbol}` : '—'}
+                            {precoCalculado ? formatCurrency(precoCalculado) : '—'}
                           </p>
                           <p className={foodCostClassName}>
                             Rácio: {ratio ? `${Number(ratio).toFixed(2)}×` : '—'}
@@ -1008,7 +1008,7 @@ export default function FichaTecnicaPage() {
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
                         <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
-                        <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} {currencySymbol}</td>
+                        <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{formatCurrency(Number(ing.preco))}</td>
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
                         <td className="px-3 sm:px-4 py-3">
                           <div className="flex flex-wrap gap-2 max-w-xs md:max-w-md">

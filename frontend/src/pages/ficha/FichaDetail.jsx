@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeftIcon, ArrowRightIcon, PrinterIcon, ShieldCheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { mapFichaResponse } from '../../services/fichas';
-import { useCurrencySymbol } from '../../services/currency';
+import { useCurrencyFormatter } from '../../services/currency';
 
 export default function FichaDetail() {
   const { codigo } = useParams();
@@ -11,7 +11,7 @@ export default function FichaDetail() {
   const [ficha, setFicha] = useState(null);
   const [allCodigos, setAllCodigos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const currencySymbol = useCurrencySymbol();
+  const { formatCurrency } = useCurrencyFormatter();
 
   useEffect(() => {
     // Carrega a ficha atual + todos os códigos
@@ -43,10 +43,10 @@ export default function FichaDetail() {
       </span>
     ) : (
       <span className="inline-flex items-center gap-2 text-sm font-semibold text-warning-strong bg-warning-soft px-3 py-1 rounded-full">
-        <ExclamationTriangleIcon className="w-5 h-5" /> Diferença {diferenca.toFixed(2)} {currencySymbol}
+        <ExclamationTriangleIcon className="w-5 h-5" /> Diferença {formatCurrency(diferenca)}
       </span>
     );
-  }, [ficha, currencySymbol]);
+  }, [ficha, formatCurrency]);
 
   return (
     <div className="min-h-screen bg-surface-muted py-6 md:py-8">
@@ -94,11 +94,11 @@ export default function FichaDetail() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="p-4 md:p-5 bg-success-soft rounded-xl">
                 <p className="text-sm text-subtle">Custo registado</p>
-                <p className="text-2xl sm:text-3xl font-black text-success-strong">{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</p>
+                <p className="text-2xl sm:text-3xl font-black text-success-strong">{formatCurrency(ficha.totais.custo_total)}</p>
               </div>
               <div className="p-4 md:p-5 bg-surface-muted rounded-xl">
                 <p className="text-sm text-subtle">Custo calculado</p>
-                <p className="text-2xl sm:text-3xl font-black text-strong">{ficha.custos.custo_calculado.toFixed(2)} {currencySymbol}</p>
+                <p className="text-2xl sm:text-3xl font-black text-strong">{formatCurrency(ficha.custos.custo_calculado)}</p>
               </div>
               <div className="p-4 md:p-5 bg-warning-soft rounded-xl">
                 <p className="text-sm text-subtle">Peso total</p>
@@ -106,7 +106,7 @@ export default function FichaDetail() {
               </div>
               <div className="p-4 md:p-5 bg-primary-soft rounded-xl">
                 <p className="text-sm text-subtle">Custo / unidade base</p>
-                <p className="text-2xl sm:text-3xl font-black text-primary-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</p>
+                <p className="text-2xl sm:text-3xl font-black text-primary-strong">{formatCurrency(ficha.totais.custo_por_unidade_base, 3)}</p>
               </div>
             </div>
 
@@ -149,7 +149,7 @@ export default function FichaDetail() {
                       <td className="px-4 sm:px-6 py-3 text-right">{Number(ing.quantidade).toFixed(3)}</td>
                       <td className="px-4 sm:px-6 py-3">{ing.unidade}</td>
                       <td className="px-4 sm:px-6 py-3 text-right">{Number(ing.ppu).toFixed(3)}</td>
-                      <td className="px-4 sm:px-6 py-3 text-right font-bold text-success-strong">{Number(ing.preco).toFixed(2)} {currencySymbol}</td>
+                      <td className="px-4 sm:px-6 py-3 text-right font-bold text-success-strong">{formatCurrency(Number(ing.preco))}</td>
                       <td className="px-4 sm:px-6 py-3 text-right">{Number(ing.peso).toFixed(3)}</td>
                       <td className="px-4 sm:px-6 py-3">
                         <div className="flex flex-wrap gap-2 max-w-xs sm:max-w-sm">
@@ -181,11 +181,11 @@ export default function FichaDetail() {
             </div>
             <div className="flex items-center justify-between text-subtle">
               <span>Custo total</span>
-              <strong>{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</strong>
+              <strong>{formatCurrency(ficha.totais.custo_total)}</strong>
             </div>
             <div className="flex items-center justify-between text-subtle">
               <span>Custo / unidade base</span>
-              <strong>{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</strong>
+              <strong>{formatCurrency(ficha.totais.custo_por_unidade_base, 3)}</strong>
             </div>
             {custoBadge}
           </div>
