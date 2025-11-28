@@ -40,6 +40,7 @@ export default function Sidebar() {
           children: [
             { to: "/configuracao/regionalizacao/pais", nome: "País" },
             { to: "/configuracao/regionalizacao/moeda", nome: "Moeda" },
+            { to: "/configuracao/regionalizacao/politica-precos", nome: "Política de Preços" },
           ],
         },
         { 

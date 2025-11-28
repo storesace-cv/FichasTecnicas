@@ -8,6 +8,7 @@ import ImportarTipo from './pages/import/ImportarTipo';
 import Referencias from './pages/referencias/Referencias';
 import Moeda from './pages/configuracao/Moeda';
 import Pais from './pages/configuracao/Pais';
+import PoliticaPrecos from './pages/configuracao/PoliticaPrecos';
 import TipoNegocio from './pages/configuracao/TipoNegocio';
 import IntervalosFoodCost from './pages/configuracao/IntervalosFoodCost';
 import CalculoPVPFoodCost from './pages/configuracao/CalculoPVPFoodCost';
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/referencias" element={<Referencias />} />
             <Route path="/configuracao/regionalizacao/pais" element={<Pais />} />
             <Route path="/configuracao/regionalizacao/moeda" element={<Moeda />} />
+            <Route path="/configuracao/regionalizacao/politica-precos" element={<PoliticaPrecos />} />
             <Route path="/configuracao/food-cost/tipo-negocio" element={<TipoNegocio />} />
             <Route path="/configuracao/food-cost/intervalos" element={<IntervalosFoodCost />} />
             <Route path="/configuracao/calculo-pvp/food-cost-alvo" element={<CalculoPVPFoodCost />} />

@@ -195,6 +195,28 @@ class Temperatura(db.Model):
     Ativo = db.Column("Ativo", db.Boolean, default=True)
 
 
+class PricingPolicy(db.Model):
+    __tablename__ = "PricingPolicies"
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    PolicyKey = db.Column("PolicyKey", db.String(50), nullable=False)
+    Country = db.Column("Country", db.String(100))
+    ManualOverride = db.Column("ManualOverride", db.Boolean, default=False)
+    CreatedAt = db.Column("CreatedAt", db.DateTime, default=datetime.utcnow)
+    UpdatedAt = db.Column(
+        "UpdatedAt", db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+    def serialize(self):
+        return {
+            "policyKey": self.PolicyKey,
+            "country": self.Country,
+            "manualOverride": bool(self.ManualOverride),
+            "updatedAt": self.UpdatedAt.isoformat() if self.UpdatedAt else None,
+            "createdAt": self.CreatedAt.isoformat() if self.CreatedAt else None,
+        }
+
+
 # ===================================================================
 # Utilities
 # ===================================================================
