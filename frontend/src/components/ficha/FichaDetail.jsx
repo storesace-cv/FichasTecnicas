@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeftIcon, ArrowRightIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from '@heroicons/react/24/outline';
 import { mapFichaResponse } from '../../services/fichas';
+import { useCurrencySymbol } from '../../services/currency';
 
 export default function FichaDetail() {
   const { codigo } = useParams();
@@ -10,6 +11,7 @@ export default function FichaDetail() {
   const [ficha, setFicha] = useState(null);
   const [allCodigos, setAllCodigos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const currencySymbol = useCurrencySymbol();
 
   useEffect(() => {
     Promise.all([
@@ -125,7 +127,7 @@ export default function FichaDetail() {
             <p className="text-base sm:text-lg md:text-xl mt-2 md:mt-4">Porções: {ficha.cabecalho?.porcoes || 1}</p>
             <div className="mt-4 md:mt-8 p-4 md:p-6 bg-success-soft rounded text-center">
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-success-strong">
-                {Number(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
+                {Number(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} {currencySymbol}
               </div>
               <div className="text-sm md:text-base text-subtle mt-1 md:mt-2">Custo total</div>
             </div>
@@ -156,7 +158,7 @@ export default function FichaDetail() {
                       <td className="px-4 sm:px-6 py-3">{item.unidade || '—'}</td>
                       <td className="px-4 sm:px-6 py-3 text-right">{Number(item.ppu || 0).toFixed(3)}</td>
                       <td className="px-4 sm:px-6 py-3 text-right font-semibold text-success-strong">
-                        {Number(item.preco || 0).toFixed(2)} €
+                        {Number(item.preco || 0).toFixed(2)} {currencySymbol}
                       </td>
                     </tr>
                   ))}

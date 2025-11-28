@@ -20,6 +20,7 @@ import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
 import { atualizarAtributosTecnicos, fetchFichaByCodigo, fetchFichas } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
+import { useCurrencySymbol } from '../../services/currency'
 
 const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim()
 
@@ -107,6 +108,7 @@ export default function FichaTecnicaPage() {
   const [erroAtributos, setErroAtributos] = useState(null)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
+  const currencySymbol = useCurrencySymbol()
   const listaNavegacaoEstado = useMemo(() => {
     const codigos = location.state?.listaNavegacao
     return Array.isArray(codigos) ? codigos.map((codigo) => String(codigo)) : null
@@ -127,10 +129,10 @@ export default function FichaTecnicaPage() {
       </span>
     ) : (
       <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warning-soft text-warning-strong text-sm font-semibold">
-        Diferença de {ficha.custos.diferenca.toFixed(2)} €
+        Diferença de {ficha.custos.diferenca.toFixed(2)} {currencySymbol}
       </span>
     )
-  }, [ficha])
+  }, [ficha, currencySymbol])
 
   const meta = ficha?.meta || {}
   const documentos = ficha?.documentos || []
@@ -597,15 +599,15 @@ export default function FichaTecnicaPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)] text-center">
                   <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
-                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
+                  <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} {currencySymbol}</p>
                 </div>
                 <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)] text-center">
                   <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
-                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
+                  <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} {currencySymbol}</p>
                 </div>
                 <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)] text-center">
                   <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
-                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
+                  <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} {currencySymbol}</p>
                 </div>
               </div>
               {precosTaxas && (
@@ -617,7 +619,7 @@ export default function FichaTecnicaPage() {
                         className="bg-surface-muted rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner"
                       >
                         <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
-                        <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} €</p>
+                        <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
                         <p className="text-sm text-muted">
                           Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
                         </p>
@@ -662,7 +664,7 @@ export default function FichaTecnicaPage() {
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
                         <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.ppu).toFixed(3)}</td>
-                        <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)}€</td>
+                        <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} {currencySymbol}</td>
                         <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.peso).toFixed(3)}</td>
                         <td className="px-3 sm:px-4 py-3">
                           <div className="flex flex-wrap gap-2 max-w-xs md:max-w-md">

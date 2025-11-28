@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from 'react';
-
-const STORAGE_KEY = 'configuracao_moeda_simbolo';
+import { CURRENCY_STORAGE_KEY, getCurrencySymbol } from '../../services/currency';
 
 export default function Moeda() {
-  const [simbolo, setSimbolo] = useState('€');
+  const [simbolo, setSimbolo] = useState(getCurrencySymbol);
   const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
-    const simboloGuardado = localStorage.getItem(STORAGE_KEY);
-    if (simboloGuardado) {
-      setSimbolo(simboloGuardado);
-    }
+    setSimbolo(getCurrencySymbol());
   }, []);
 
   const guardar = (event) => {
     event.preventDefault();
     const valor = simbolo.trim();
-    localStorage.setItem(STORAGE_KEY, valor);
+    localStorage.setItem(CURRENCY_STORAGE_KEY, valor);
     setMensagem('Símbolo da moeda atualizado com sucesso.');
     setTimeout(() => setMensagem(''), 3000);
   };
