@@ -273,13 +273,9 @@ export default function FichaTecnicaPage() {
           title={ficha.nome || 'Ficha Técnica'}
           subtitle={`Código interno: ${ficha.codigo}`}
           actions={
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-subtle bg-surface border border-soft rounded-lg hover:bg-[var(--color-neutral-100)]"
-            >
-              <ArrowLeftIcon className="w-5 h-5" /> Voltar
-            </button>
+            <div className="w-full lg:w-auto">
+              <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+            </div>
           }
         />
 
@@ -442,8 +438,6 @@ export default function FichaTecnicaPage() {
         )}
 
           <div className="bg-surface border border-soft rounded-xl shadow-sm">
-            <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-
           <div className="p-4 sm:p-6">
             {activeTab === 'resumo' && (
               <div className="space-y-6">
