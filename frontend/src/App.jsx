@@ -8,6 +8,8 @@ import ImportarTipo from './pages/import/ImportarTipo';
 import Referencias from './pages/referencias/Referencias';
 import Moeda from './pages/configuracao/Moeda';
 import CustosOperacionais from './pages/configuracao/CustosOperacionais';
+import TipoNegocio from './pages/configuracao/TipoNegocio';
+import IntervalosFoodCost from './pages/configuracao/IntervalosFoodCost';
 
 export default function App() {
   return (
@@ -23,6 +25,8 @@ export default function App() {
             <Route path="/importar/:tipo" element={<ImportarTipo />} />
             <Route path="/referencias" element={<Referencias />} />
             <Route path="/configuracao/regionalizacao/moeda" element={<Moeda />} />
+            <Route path="/configuracao/food-cost/tipo-negocio" element={<TipoNegocio />} />
+            <Route path="/configuracao/food-cost/intervalos" element={<IntervalosFoodCost />} />
             <Route path="/configuracao/food-cost/custos-operacionais" element={<CustosOperacionais />} />
           </Routes>
         </div>

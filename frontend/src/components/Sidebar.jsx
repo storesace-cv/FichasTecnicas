@@ -44,6 +44,8 @@ export default function Sidebar() {
           nome: "Food Cost",
           icone: <CurrencyDollarIcon className="w-6 h-6" />,
           children: [
+            { to: "/configuracao/food-cost/tipo-negocio", nome: "Tipo de Negócio" },
+            { to: "/configuracao/food-cost/intervalos", nome: "Intervalos de Food Cost" },
             { to: "/configuracao/food-cost/custos-operacionais", nome: "Custos Operacionais" },
           ],
         },
