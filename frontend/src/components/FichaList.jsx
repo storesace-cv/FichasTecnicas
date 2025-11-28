@@ -1,9 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { mapFichaResponse } from '../services/fichas';
 import { useCurrencySymbol } from '../services/currency';
+import {
+  FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
+  FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
+  getBusinessType,
+  getIntervalsForBusinessType,
+} from '../services/foodCostConfig';
 
 const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim();
 
@@ -40,7 +46,33 @@ export default function FichaList() {
   const [search, setSearch] = useState('');
   const [selectedFamilies, setSelectedFamilies] = useState([]);
   const [selectedSubfamily, setSelectedSubfamily] = useState('');
+  const [selectedFoodCost, setSelectedFoodCost] = useState('');
+  const [foodCostIntervals, setFoodCostIntervals] = useState(() =>
+    getIntervalsForBusinessType(getBusinessType()),
+  );
   const currencySymbol = useCurrencySymbol();
+
+  useEffect(() => {
+    const atualizarIntervalos = () => {
+      setFoodCostIntervals(getIntervalsForBusinessType(getBusinessType()));
+    };
+
+    atualizarIntervalos();
+
+    const handleStorageChange = (event) => {
+      if (
+        !event ||
+        event.key === null ||
+        event.key === FOOD_COST_BUSINESS_TYPE_STORAGE_KEY ||
+        event.key === FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY
+      ) {
+        atualizarIntervalos();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   useEffect(() => {
     axios.get('/api/fichas')
@@ -103,6 +135,48 @@ export default function FichaList() {
     }
   }, [availableSubfamilies, selectedSubfamily]);
 
+  const getFoodCostCategory = useCallback(
+    (valor) => {
+      if (valor === null || valor === undefined || valor === '') return undefined;
+
+      const valorNormalizado = Number(valor);
+
+      if (!Number.isFinite(valorNormalizado)) return undefined;
+
+      const limiteBom = Number.isFinite(Number(foodCostIntervals?.bomMax))
+        ? Number(foodCostIntervals.bomMax)
+        : 25;
+      const limiteNormal = Number.isFinite(Number(foodCostIntervals?.normalMax))
+        ? Number(foodCostIntervals.normalMax)
+        : 30;
+
+      if (valorNormalizado <= limiteBom) return 'Bom';
+      if (valorNormalizado <= limiteNormal) return 'Normal';
+      return 'Mau';
+    },
+    [foodCostIntervals],
+  );
+
+  const foodCostCategories = useMemo(() => {
+    const mapa = new Map();
+
+    fichas.forEach((ficha) => {
+      const custoCalculado = Number(ficha?.custos?.custo_calculado);
+      const preco = Number(ficha?.precosTaxas?.preco1);
+
+      if (!Number.isFinite(custoCalculado) || !Number.isFinite(preco) || preco <= 0) return;
+
+      const valorFoodCost = (custoCalculado / preco) * 100;
+      const categoria = getFoodCostCategory(valorFoodCost);
+
+      if (categoria) {
+        mapa.set(ficha.codigo, categoria);
+      }
+    });
+
+    return mapa;
+  }, [fichas, getFoodCostCategory]);
+
   const filtered = fichas.filter((ficha) => {
     const termoPesquisa = search.toLowerCase();
     const familia = obterFamiliaFicha(ficha);
@@ -118,7 +192,10 @@ export default function FichaList() {
     const correspondeSubfamilia =
       !selectedSubfamily || subfamilia === selectedSubfamily;
 
-    return correspondePesquisa && correspondeFamilia && correspondeSubfamilia;
+    const correspondeFoodCost =
+      !selectedFoodCost || foodCostCategories.get(ficha.codigo) === selectedFoodCost;
+
+    return correspondePesquisa && correspondeFamilia && correspondeSubfamilia && correspondeFoodCost;
   });
 
   const ordered = ordenarPorHierarquiaProdutos(filtered);
@@ -141,7 +218,7 @@ export default function FichaList() {
             />
           </div>
 
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-3">
                 <p className="text-base font-semibold text-strong">Famílias</p>
@@ -198,6 +275,23 @@ export default function FichaList() {
                     {subfamilia}
                   </option>
                 ))}
+              </select>
+            </div>
+
+            <div className="w-full lg:w-72 space-y-2">
+              <label className="text-base font-semibold text-strong" htmlFor="foodcost-select">
+                Food cost
+              </label>
+              <select
+                id="foodcost-select"
+                value={selectedFoodCost}
+                onChange={(e) => setSelectedFoodCost(e.target.value)}
+                className="w-full border border-soft rounded-lg px-3 py-2.5 bg-surface text-strong focus:ring-2 focus:ring-primary-strong/50"
+              >
+                <option value="">Todos</option>
+                <option value="Bom">Bom</option>
+                <option value="Normal">Normal</option>
+                <option value="Mau">Mau</option>
               </select>
             </div>
           </div>
