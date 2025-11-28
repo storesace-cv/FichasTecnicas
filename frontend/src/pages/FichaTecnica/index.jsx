@@ -24,6 +24,7 @@ import { useCurrencySymbol } from '../../services/currency'
 import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
+  DEFAULT_INTERVALS_BY_BUSINESS,
   getBusinessType,
   getIntervalsForBusinessType,
 } from '../../services/foodCostConfig'
@@ -257,10 +258,19 @@ export default function FichaTecnicaPage() {
 
   const getFoodCostBackground = useCallback(
     (valor) => {
-      if (!foodCostIntervals || typeof valor !== 'number') return undefined
+      const valorNormalizado = Number(valor)
 
-      if (valor <= foodCostIntervals.bomMax) return FOOD_COST_BACKGROUND_STYLES.bom
-      if (valor <= foodCostIntervals.normalMax) return FOOD_COST_BACKGROUND_STYLES.normal
+      if (!Number.isFinite(valorNormalizado)) return undefined
+
+      const limiteBom = Number.isFinite(Number(foodCostIntervals?.bomMax))
+        ? Number(foodCostIntervals.bomMax)
+        : DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'].bomMax
+      const limiteNormal = Number.isFinite(Number(foodCostIntervals?.normalMax))
+        ? Number(foodCostIntervals.normalMax)
+        : DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'].normalMax
+
+      if (valorNormalizado <= limiteBom) return FOOD_COST_BACKGROUND_STYLES.bom
+      if (valorNormalizado <= limiteNormal) return FOOD_COST_BACKGROUND_STYLES.normal
       return FOOD_COST_BACKGROUND_STYLES.mau
     },
     [foodCostIntervals]
