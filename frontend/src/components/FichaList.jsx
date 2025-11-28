@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
@@ -30,10 +30,15 @@ const ordenarPorHierarquiaProdutos = (lista = []) => {
   });
 };
 
+const obterFamiliaFicha = (ficha) => ficha?.atributosTecnicos?.familia || ficha?.cabecalho?.familia || '';
+const obterSubfamiliaFicha = (ficha) => ficha?.atributosTecnicos?.subfamilia || ficha?.cabecalho?.subfamilia || '';
+
 export default function FichaList() {
   const [fichas, setFichas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [selectedFamilies, setSelectedFamilies] = useState([]);
+  const [selectedSubfamily, setSelectedSubfamily] = useState('');
 
   useEffect(() => {
     axios.get('/api/fichas')
@@ -44,10 +49,75 @@ export default function FichaList() {
       .catch(() => setLoading(false));
   }, []);
 
-  const filtered = fichas.filter(f =>
-    f?.codigo?.toLowerCase().includes(search.toLowerCase()) ||
-    f?.nome?.toLowerCase().includes(search.toLowerCase())
+  const familyOptions = useMemo(() => {
+    const mapa = new Map();
+
+    fichas.forEach((ficha) => {
+      const familia = obterFamiliaFicha(ficha);
+      const subfamilia = obterSubfamiliaFicha(ficha);
+
+      if (!familia && !subfamilia) return;
+
+      if (!mapa.has(familia)) {
+        mapa.set(familia, new Set());
+      }
+
+      if (subfamilia) {
+        mapa.get(familia).add(subfamilia);
+      }
+    });
+
+    return mapa;
+  }, [fichas]);
+
+  const availableFamilies = useMemo(
+    () => Array.from(familyOptions.keys()).filter(Boolean),
+    [familyOptions],
   );
+
+  const availableSubfamilies = useMemo(() => {
+    if (selectedFamilies.length === 0) {
+      return Array.from(familyOptions.values())
+        .reduce((acc, subfamilias) => [...acc, ...subfamilias], [])
+        .filter(Boolean)
+        .filter((value, index, self) => self.indexOf(value) === index)
+        .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base', numeric: true }));
+    }
+
+    const subfamiliasAssociadas = new Set();
+    selectedFamilies.forEach((familia) => {
+      const subfamilias = familyOptions.get(familia);
+      subfamilias?.forEach((sub) => subfamiliasAssociadas.add(sub));
+    });
+
+    return Array.from(subfamiliasAssociadas.values())
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, 'pt-PT', { sensitivity: 'base', numeric: true }));
+  }, [familyOptions, selectedFamilies]);
+
+  useEffect(() => {
+    if (selectedSubfamily && !availableSubfamilies.includes(selectedSubfamily)) {
+      setSelectedSubfamily('');
+    }
+  }, [availableSubfamilies, selectedSubfamily]);
+
+  const filtered = fichas.filter((ficha) => {
+    const termoPesquisa = search.toLowerCase();
+    const familia = obterFamiliaFicha(ficha);
+    const subfamilia = obterSubfamiliaFicha(ficha);
+
+    const correspondePesquisa =
+      ficha?.codigo?.toLowerCase().includes(termoPesquisa) ||
+      ficha?.nome?.toLowerCase().includes(termoPesquisa);
+
+    const correspondeFamilia =
+      selectedFamilies.length === 0 || selectedFamilies.includes(familia);
+
+    const correspondeSubfamilia =
+      !selectedSubfamily || subfamilia === selectedSubfamily;
+
+    return correspondePesquisa && correspondeFamilia && correspondeSubfamilia;
+  });
 
   const ordered = ordenarPorHierarquiaProdutos(filtered);
 
@@ -55,15 +125,80 @@ export default function FichaList() {
 
   return (
     <div className="max-w-[90rem] mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold text-strong">Fichas Técnicas ({ordered.length})</h2>
-        <input
-          type="text"
-          placeholder="Pesquisar código ou nome..."
-          className="px-3 sm:px-4 py-2.5 sm:py-3 border border-soft rounded-lg text-base sm:text-lg w-full sm:w-96 bg-surface text-subtle placeholder:text-muted"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="sticky top-0 z-20 -mx-4 md:-mx-6 px-4 md:px-6 py-4 md:py-5 bg-surface-muted/95 backdrop-blur supports-[backdrop-filter]:bg-surface-muted/80 border-b border-soft shadow-sm">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-2xl md:text-3xl font-bold text-strong">Fichas Técnicas ({ordered.length})</h2>
+            <input
+              type="text"
+              placeholder="Pesquisar código ou nome..."
+              className="px-3 sm:px-4 py-2.5 sm:py-3 border border-soft rounded-lg text-base sm:text-lg w-full md:w-80 bg-surface text-subtle placeholder:text-muted focus:ring-2 focus:ring-primary-strong/50"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-3">
+                <p className="text-base font-semibold text-strong">Famílias</p>
+                {selectedFamilies.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFamilies([])}
+                    className="text-sm text-primary-strong hover:underline"
+                  >
+                    Limpar seleção
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {availableFamilies.map((familia) => {
+                  const ativa = selectedFamilies.includes(familia);
+                  return (
+                    <button
+                      key={familia}
+                      type="button"
+                      onClick={() =>
+                        setSelectedFamilies((prev) =>
+                          prev.includes(familia)
+                            ? prev.filter((item) => item !== familia)
+                            : [...prev, familia],
+                        )
+                      }
+                      className={`rounded-full border px-3 py-1.5 text-sm font-medium transition shadow-sm ${
+                        ativa
+                          ? 'bg-primary-soft border-primary-strong text-primary-strong'
+                          : 'bg-surface border-soft text-strong hover:border-primary-soft'
+                      }`}
+                    >
+                      {familia}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="w-full lg:w-72 space-y-2">
+              <label className="text-base font-semibold text-strong" htmlFor="subfamilia-select">
+                Sub família
+              </label>
+              <select
+                id="subfamilia-select"
+                value={selectedSubfamily}
+                onChange={(e) => setSelectedSubfamily(e.target.value)}
+                className="w-full border border-soft rounded-lg px-3 py-2.5 bg-surface text-strong focus:ring-2 focus:ring-primary-strong/50"
+              >
+                <option value="">Todas</option>
+                {availableSubfamilies.map((subfamilia) => (
+                  <option key={subfamilia} value={subfamilia}>
+                    {subfamilia}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {ordered.length === 0 ? (
