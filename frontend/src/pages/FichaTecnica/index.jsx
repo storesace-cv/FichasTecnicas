@@ -431,7 +431,7 @@ export default function FichaTecnicaPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-strong">Resumo</h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
                   <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
                   <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
@@ -440,63 +440,9 @@ export default function FichaTecnicaPage() {
                   <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
                   <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
                 </div>
-                <div className="bg-warning-soft rounded-lg p-4 border border-[var(--color-warning-200)]">
-                  <p className="text-xs text-warning-strong uppercase tracking-wide">Peso total</p>
-                  <p className="text-2xl font-bold text-[var(--color-warning-800)]">
-                    {ficha.totais.peso_total.toFixed(3)} {ficha.cabecalho.unidade_base}
-                  </p>
-                </div>
                 <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)]">
                   <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
                   <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
-                <div className="lg:col-span-2">
-                  <h3 className="text-lg font-semibold text-strong mb-3">Composição resumida</h3>
-                  <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                    <table className="w-full min-w-max text-sm md:text-base">
-                      <thead className="bg-surface-muted text-left text-subtle font-semibold">
-                        <tr>
-                          <th className="px-3 sm:px-4 py-3 w-16">Ordem</th>
-                          <th className="px-3 sm:px-4 py-3 w-80 max-w-xs md:max-w-none truncate text-left">Ingrediente</th>
-                          <th className="px-3 sm:px-4 py-3 text-right w-24">Qtd</th>
-                          <th className="px-3 sm:px-4 py-3 w-24">Unidade</th>
-                          <th className="px-3 sm:px-4 py-3 text-right w-32">Custo</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {ficha.composicao.map((ing) => (
-                          <tr key={`${ing.componente_codigo}-${ing.ordem}`} className="border-t border-[var(--color-neutral-100)]">
-                            <td className="px-3 sm:px-4 py-3 text-subtle">{ing.ordem}</td>
-                            <td className="px-3 sm:px-4 py-3 font-medium text-strong max-w-xs md:max-w-none truncate">{ing.componente_nome}</td>
-                            <td className="px-3 sm:px-4 py-3 text-right text-subtle">{Number(ing.quantidade).toFixed(3)}</td>
-                            <td className="px-3 sm:px-4 py-3 text-subtle">{ing.unidade}</td>
-                            <td className="px-3 sm:px-4 py-3 text-right font-semibold text-strong">{Number(ing.preco).toFixed(2)} €</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div className="bg-surface-muted border border-soft rounded-lg p-4 space-y-3">
-                  <h3 className="text-lg font-semibold text-strong">Alergénios</h3>
-                  {ficha.alergenos.length === 0 ? (
-                    <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {ficha.alergenos.map((al) => (
-                        <span
-                          key={al.codigo}
-                          className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong"
-                        >
-                          {al.nome || al.codigo}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -559,6 +505,26 @@ export default function FichaTecnicaPage() {
                 <div className="bg-surface-muted border border-soft rounded-lg p-4">
                   <h4 className="text-md font-semibold text-strong mb-2">Preparação</h4>
                   <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: ficha.preparacao_html }} />
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
+            <div className="p-4 sm:p-6 space-y-3">
+              <h2 className="text-xl font-semibold text-strong">Alergénios</h2>
+              {ficha.alergenos.length === 0 ? (
+                <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {ficha.alergenos.map((al) => (
+                    <span
+                      key={al.codigo}
+                      className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong"
+                    >
+                      {al.nome || al.codigo}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
