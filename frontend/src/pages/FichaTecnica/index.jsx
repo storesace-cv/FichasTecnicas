@@ -665,12 +665,15 @@ export default function FichaTecnicaPage() {
                     {[1, 2, 3, 4, 5].map((indice) => {
                       const valorFoodCost = foodCosts?.[indice]
                       const background = getFoodCostBackground(valorFoodCost)
+                      const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
+                        background ? '' : 'bg-surface-muted'
+                      }`
 
                       return (
                         <div
                           key={`preco-${indice}`}
-                          className="bg-surface-muted rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner"
-                          style={background ? { background } : undefined}
+                          className={cardClasses}
+                          style={background ? { background, backgroundColor: '#fff' } : undefined}
                         >
                           <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
                           <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
