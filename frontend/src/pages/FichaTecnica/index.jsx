@@ -21,6 +21,20 @@ import FichaSkeleton from '../../components/FichaSkeleton'
 import { atualizarAtributosTecnicos, fetchFichaByCodigo, fetchFichas } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
 import { useCurrencySymbol } from '../../services/currency'
+import {
+  FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
+  FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
+  DEFAULT_INTERVALS_BY_BUSINESS,
+  getBusinessType,
+  getIntervalsForBusinessType,
+} from '../../services/foodCostConfig'
+
+const FOOD_COST_BACKGROUND_STYLES = {
+  bom: 'radial-gradient(at 72.3280068101044% 59.7604926962102%, hsla(0, 0%, 96.07843137254902%, 1) 0%, hsla(0, 0%, 96.07843137254902%, 0) 100%), radial-gradient(at 33.43940366587318% 36.57233032049643%, hsla(83.61702127659575, 57.31707317073172%, 67.84313725490196%, 1) 0%, hsla(83.61702127659575, 57.31707317073172%, 67.84313725490196%, 0) 100%), radial-gradient(at 66.16551566845081% 71.30341092963411%, hsla(90.78260869565219, 46.18473895582329%, 48.82352941176471%, 1) 0%, hsla(90.78260869565219, 46.18473895582329%, 48.82352941176471%, 0) 100%)',
+  normal:
+    'radial-gradient(at 21.422998233138134% 56.09280902628184%, hsla(197.1428571428571, 90.32258064516132%, 87.84313725490196%, 1) 0%, hsla(197.1428571428571, 90.32258064516132%, 87.84313725490196%, 0) 100%), radial-gradient(at 85.46528114489233% 64.30043185046553%, hsla(184.0000000000001, 71.4285714285715%, 95.88235294117648%, 1) 0%, hsla(184.0000000000001, 71.4285714285715%, 95.88235294117648%, 0) 100%), radial-gradient(at 28.317915281743545% 38.38187919455547%, hsla(188.25, 96.77419354838709%, 48.62745098039216%, 1) 0%, hsla(188.25, 96.77419354838709%, 48.62745098039216%, 0) 100%)',
+  mau: 'radial-gradient(at 5.843642204478794% 15.223220689417683%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 1) 0%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 0) 100%), radial-gradient(at 69.99322078992536% 85.88683548303212%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 1) 0%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 0) 100%), radial-gradient(at 50.13542387310335% 67.54633112066387%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 1) 0%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 0) 100%), radial-gradient(at 92.50436687456927% 29.53465689488177%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 1) 0%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 0) 100%), radial-gradient(at 71.54093206482173% 48.445122813411665%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 1) 0%, hsla(7.544910179640719, 72.92576419213974%, 55.09803921568628%, 0) 100%), radial-gradient(at 56.85552209763385% 33.60131436479361%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 1) 0%, hsla(28.695652173913036, 43.39622641509433%, 58.4313725490196%, 0) 100%)',
+}
 
 const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim()
 
@@ -99,6 +113,9 @@ export default function FichaTecnicaPage() {
   const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
   const [referencias, setReferencias] = useState({ validades: [], temperaturas: [], tipoArtigos: [] })
   const [referenciasCarregadas, setReferenciasCarregadas] = useState(false)
+  const [foodCostIntervals, setFoodCostIntervals] = useState(() =>
+    getIntervalsForBusinessType(getBusinessType())
+  )
   const [selecoesAtributos, setSelecoesAtributos] = useState({
     validade: '',
     temperatura: '',
@@ -216,6 +233,50 @@ export default function FichaTecnicaPage() {
       return acc
     }, {})
   }, [custoCalculado, precosTaxas])
+
+  useEffect(() => {
+    const atualizarIntervalos = () => {
+      setFoodCostIntervals(getIntervalsForBusinessType(getBusinessType()))
+    }
+
+    atualizarIntervalos()
+
+    const handleStorageChange = (event) => {
+      if (
+        !event ||
+        event.key === null ||
+        event.key === FOOD_COST_BUSINESS_TYPE_STORAGE_KEY ||
+        event.key === FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY
+      ) {
+        atualizarIntervalos()
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  const getFoodCostBackground = useCallback(
+    (valor) => {
+      if (valor === null || valor === undefined || valor === '') return undefined
+
+      const valorNormalizado = Number(valor)
+
+      if (!Number.isFinite(valorNormalizado)) return undefined
+
+      const limiteBom = Number.isFinite(Number(foodCostIntervals?.bomMax))
+        ? Number(foodCostIntervals.bomMax)
+        : DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'].bomMax
+      const limiteNormal = Number.isFinite(Number(foodCostIntervals?.normalMax))
+        ? Number(foodCostIntervals.normalMax)
+        : DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'].normalMax
+
+      if (valorNormalizado <= limiteBom) return FOOD_COST_BACKGROUND_STYLES.bom
+      if (valorNormalizado <= limiteNormal) return FOOD_COST_BACKGROUND_STYLES.normal
+      return FOOD_COST_BACKGROUND_STYLES.mau
+    },
+    [foodCostIntervals]
+  )
 
   useEffect(() => {
     let activo = true
@@ -613,18 +674,27 @@ export default function FichaTecnicaPage() {
               {precosTaxas && (
                 <div className="overflow-x-auto">
                   <div className="grid min-w-[640px] grid-cols-5 gap-4">
-                    {[1, 2, 3, 4, 5].map((indice) => (
-                      <div
-                        key={`preco-${indice}`}
-                        className="bg-surface-muted rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner"
-                      >
-                        <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
-                        <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
-                        <p className="text-sm text-muted">
-                          Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
-                        </p>
-                      </div>
-                    ))}
+                    {[1, 2, 3, 4, 5].map((indice) => {
+                      const valorFoodCost = foodCosts?.[indice]
+                      const background = getFoodCostBackground(valorFoodCost)
+                      const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
+                        background ? '' : 'bg-surface-muted'
+                      }`
+
+                      return (
+                        <div
+                          key={`preco-${indice}`}
+                          className={cardClasses}
+                          style={background ? { background, backgroundColor: '#fff' } : undefined}
+                        >
+                          <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
+                          <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
+                          <p className="text-sm text-muted">
+                            Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
+                          </p>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
