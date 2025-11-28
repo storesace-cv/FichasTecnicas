@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeftIcon,
   ClockIcon,
@@ -93,6 +93,7 @@ function useFichaTecnica(codigo) {
 
 export default function FichaTecnicaPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { fichaId } = useParams()
   const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
   const [referencias, setReferencias] = useState({ validades: [], temperaturas: [], tipoArtigos: [] })
@@ -106,6 +107,10 @@ export default function FichaTecnicaPage() {
   const [erroAtributos, setErroAtributos] = useState(null)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
+  const listaNavegacaoEstado = useMemo(() => {
+    const codigos = location.state?.listaNavegacao
+    return Array.isArray(codigos) ? codigos.map((codigo) => String(codigo)) : null
+  }, [location.state])
   const imagemPratoSrc = useMemo(() => {
     if (!ficha?.imagem_prato) return null
     return /^https?:\/\//.test(ficha.imagem_prato)
@@ -201,6 +206,15 @@ export default function FichaTecnicaPage() {
   useEffect(() => {
     let activo = true
 
+    if (listaNavegacaoEstado && listaNavegacaoEstado.length > 0) {
+      setListaNavegacao(listaNavegacaoEstado)
+      setCarregandoNavegacao(false)
+
+      return () => {
+        activo = false
+      }
+    }
+
     setCarregandoNavegacao(true)
     fetchFichas()
       .then((todasFichas) => {
@@ -218,7 +232,7 @@ export default function FichaTecnicaPage() {
     return () => {
       activo = false
     }
-  }, [])
+  }, [listaNavegacaoEstado])
 
   useEffect(() => {
     aplicarSelecoesAtributos(atributosTecnicos)
@@ -320,7 +334,7 @@ export default function FichaTecnicaPage() {
     <div className="flex flex-wrap items-center gap-2 sm:gap-3">
       <button
         type="button"
-        onClick={() => primeiroCodigo && navigate(`/ficha/${primeiroCodigo}`)}
+        onClick={() => primeiroCodigo && navigate(`/ficha/${primeiroCodigo}`, { state: { listaNavegacao } })}
         disabled={carregandoNavegacao || indiceAtual <= 0 || !primeiroCodigo}
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
           carregandoNavegacao || indiceAtual <= 0 || !primeiroCodigo
@@ -335,7 +349,7 @@ export default function FichaTecnicaPage() {
 
       <button
         type="button"
-        onClick={() => codigoAnterior && navigate(`/ficha/${codigoAnterior}`)}
+        onClick={() => codigoAnterior && navigate(`/ficha/${codigoAnterior}`, { state: { listaNavegacao } })}
         disabled={carregandoNavegacao || !codigoAnterior}
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
           carregandoNavegacao || !codigoAnterior
@@ -354,7 +368,7 @@ export default function FichaTecnicaPage() {
 
       <button
         type="button"
-        onClick={() => codigoSeguinte && navigate(`/ficha/${codigoSeguinte}`)}
+        onClick={() => codigoSeguinte && navigate(`/ficha/${codigoSeguinte}`, { state: { listaNavegacao } })}
         disabled={carregandoNavegacao || !codigoSeguinte}
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
           carregandoNavegacao || !codigoSeguinte
@@ -369,7 +383,7 @@ export default function FichaTecnicaPage() {
 
       <button
         type="button"
-        onClick={() => ultimoCodigo && navigate(`/ficha/${ultimoCodigo}`)}
+        onClick={() => ultimoCodigo && navigate(`/ficha/${ultimoCodigo}`, { state: { listaNavegacao } })}
         disabled={carregandoNavegacao || indiceAtual === totalRegistos - 1 || !ultimoCodigo}
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
           carregandoNavegacao || indiceAtual === totalRegistos - 1 || !ultimoCodigo

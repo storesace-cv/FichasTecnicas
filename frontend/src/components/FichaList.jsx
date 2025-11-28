@@ -120,6 +120,7 @@ export default function FichaList() {
   });
 
   const ordered = ordenarPorHierarquiaProdutos(filtered);
+  const codigosOrdenados = useMemo(() => ordered.map((item) => item.codigo), [ordered]);
 
   if (loading) return <div className="text-center py-16 md:py-20 text-xl md:text-2xl px-4">A carregar fichas...</div>;
 
@@ -210,7 +211,12 @@ export default function FichaList() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {ordered.map(ficha => (
-            <Link key={ficha.codigo} to={`/fichas/${ficha.codigo}`} className="block">
+            <Link
+              key={ficha.codigo}
+              to={`/fichas/${ficha.codigo}`}
+              state={{ listaNavegacao: codigosOrdenados }}
+              className="block"
+            >
               <div className="bg-surface rounded-xl shadow-card overflow-hidden hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer border border-soft">
                 {ficha.imagem_prato && (
                   <img src={`/api/images/${ficha.imagem_prato}`} alt={ficha.nome} className="w-full h-44 sm:h-48 object-cover" />
