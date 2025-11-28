@@ -77,3 +77,80 @@ export function getPolicyDetails(policyKey) {
   return PRICING_POLICY_OPTIONS.find((option) => option.key === policyKey);
 }
 
+const DEFAULT_CORPORATE_ENDINGS = [0, 0.5, 0.9, 0.95];
+
+const roundToStep = (value, step) => {
+  const rounded = Math.round(value / step) * step;
+  return Number.isFinite(rounded) ? Number(rounded.toFixed(2)) : null;
+};
+
+const roundUpToStep = (value, step) => {
+  const rounded = Math.ceil(value / step) * step;
+  return Number.isFinite(rounded) ? Number(rounded.toFixed(2)) : null;
+};
+
+const applyPsychologicalPricing = (value) => {
+  const endings = [0.9, 0.99];
+  const base = Math.floor(value);
+
+  for (let offset = 0; offset < 3; offset += 1) {
+    const currentBase = base + offset;
+    const candidate = endings.map((ending) => currentBase + ending).find((price) => price >= value);
+
+    if (candidate) {
+      return Number(candidate.toFixed(2));
+    }
+  }
+
+  return Number(Math.ceil(value).toFixed(2));
+};
+
+const applyCorporatePricing = (value, endings = DEFAULT_CORPORATE_ENDINGS) => {
+  const normalizedEndings = endings
+    .map((ending) => Number(ending))
+    .filter((ending) => Number.isFinite(ending))
+    .sort((a, b) => a - b);
+
+  if (normalizedEndings.length === 0) return Number(value.toFixed(2));
+
+  const base = Math.floor(value);
+
+  for (let offset = 0; offset < 3; offset += 1) {
+    const currentBase = base + offset;
+    const candidate = normalizedEndings
+      .map((ending) => currentBase + ending)
+      .find((price) => price >= value);
+
+    if (candidate) {
+      return Number(candidate.toFixed(2));
+    }
+  }
+
+  return Number((base + 1 + normalizedEndings[normalizedEndings.length - 1]).toFixed(2));
+};
+
+export function applyPricingPolicyToPrice(value, policyKey) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) return null;
+
+  switch (policyKey) {
+    case 'classic':
+      return roundToStep(numericValue, 0.5);
+    case 'psychological':
+      return applyPsychologicalPricing(numericValue);
+    case 'premium':
+      return Number(Math.ceil(numericValue).toFixed(2));
+    case 'strictEuro':
+      return Number(Math.round(numericValue).toFixed(2));
+    case 'nearestMultiple':
+      return roundToStep(numericValue, 0.05);
+    case 'minimumMargin':
+      return roundUpToStep(numericValue, 0.05);
+    case 'corporate':
+      return applyCorporatePricing(numericValue);
+    default:
+      return Number(numericValue.toFixed(2));
+  }
+}
+

@@ -27,6 +27,7 @@ import {
 import { listarReferencias } from '../../services/referencias'
 import { useCurrencyFormatter } from '../../services/currency'
 import { listarAlergenios } from '../../services/alergenios'
+import { applyPricingPolicyToPrice, fetchPricingPolicy } from '../../services/pricingPolicy'
 import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
@@ -147,6 +148,7 @@ export default function FichaTecnicaPage() {
   const [carregandoAlergenios, setCarregandoAlergenios] = useState(true)
   const [erroAlergenios, setErroAlergenios] = useState(null)
   const [salvandoAlergenios, setSalvandoAlergenios] = useState(false)
+  const [pricingPolicy, setPricingPolicy] = useState(null)
   const [alergenoNotaAberta, setAlergenoNotaAberta] = useState(null)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
@@ -279,6 +281,22 @@ export default function FichaTecnicaPage() {
   }, [])
 
   useEffect(() => {
+    let ativo = true
+
+    fetchPricingPolicy()
+      .then((policy) => {
+        if (ativo) setPricingPolicy(policy)
+      })
+      .catch(() => {
+        if (ativo) setPricingPolicy(null)
+      })
+
+    return () => {
+      ativo = false
+    }
+  }, [])
+
+  useEffect(() => {
     if (!alergenoNotaAberta) return
     const existe = alergeniosDisponiveis.some((alergeno) => alergeno?.id === alergenoNotaAberta)
     if (!existe) {
@@ -306,6 +324,7 @@ export default function FichaTecnicaPage() {
 
     const custoComOperacionais = custoCalculado * (1 + (operationalCostPercent || 0) / 100)
     const ivaPercent = Number(precosTaxas?.iva1) || 0
+    const policyKey = pricingPolicy?.policyKey
 
     return [1, 2, 3, 4, 5].reduce((acc, indice) => {
       const alvoDecimal = foodCostTargets?.[indice - 1]
@@ -313,20 +332,22 @@ export default function FichaTecnicaPage() {
       if (alvoDecimal && Number.isFinite(alvoDecimal)) {
         const pvsi = custoComOperacionais / alvoDecimal
         const pvp = pvsi * (1 + ivaPercent / 100)
-        acc[indice] = Number.isFinite(pvp) ? pvp : null
+        const ajustadoPolitica = applyPricingPolicyToPrice(pvp, policyKey)
+        acc[indice] = Number.isFinite(ajustadoPolitica) ? ajustadoPolitica : null
       } else {
         acc[indice] = null
       }
 
       return acc
     }, {})
-  }, [custoCalculado, foodCostTargets, operationalCostPercent, precosTaxas?.iva1])
+  }, [custoCalculado, foodCostTargets, operationalCostPercent, precosTaxas?.iva1, pricingPolicy?.policyKey])
 
   const pvpCalculadoRatio = useMemo(() => {
     if (typeof custoCalculado !== 'number') return null
 
     const custoComOperacionais = custoCalculado * (1 + (operationalCostPercent || 0) / 100)
     const ivaPercent = Number(precosTaxas?.iva1) || 0
+    const policyKey = pricingPolicy?.policyKey
 
     return [1, 2, 3, 4, 5].reduce((acc, indice) => {
       const ratio = ratios?.[indice - 1]
@@ -334,14 +355,15 @@ export default function FichaTecnicaPage() {
       if (ratio && Number.isFinite(ratio)) {
         const pvsi = custoComOperacionais * ratio
         const pvp = pvsi * (1 + ivaPercent / 100)
-        acc[indice] = Number.isFinite(pvp) ? pvp : null
+        const ajustadoPolitica = applyPricingPolicyToPrice(pvp, policyKey)
+        acc[indice] = Number.isFinite(ajustadoPolitica) ? ajustadoPolitica : null
       } else {
         acc[indice] = null
       }
 
       return acc
     }, {})
-  }, [custoCalculado, operationalCostPercent, precosTaxas?.iva1, ratios])
+  }, [custoCalculado, operationalCostPercent, precosTaxas?.iva1, pricingPolicy?.policyKey, ratios])
 
   useEffect(() => {
     const atualizarIntervalos = () => {
