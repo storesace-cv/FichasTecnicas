@@ -95,3 +95,8 @@ export async function fetchFichas() {
   const response = await axios.get('/api/fichas');
   return response.data.map(mapFichaResponse);
 }
+
+export async function atualizarAtributosTecnicos(codigo, atributos) {
+  const response = await axios.patch(`/api/fichas/${codigo}/atributos`, atributos);
+  return mapFichaResponse(response.data);
+}

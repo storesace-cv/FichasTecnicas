@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify
-from models import FichaTecnica, Produto
+from flask import Blueprint, jsonify, request
+from models import FichaTecnica, Produto, db
 
 
 def _calcular_preco_linha(ficha: FichaTecnica) -> float:
@@ -103,5 +103,33 @@ def get_ficha_by_codigo(codigo):
     produto = Produto.query.filter_by(codigo=codigo).first()
     if not produto or not produto.fichas:
         return jsonify({"error": "Ficha não encontrada"}), 404
+
+    return jsonify(_serialize_produto_ficha(produto))
+
+
+@fichas_bp.route('/fichas/<codigo>/atributos', methods=['PATCH'])
+def atualizar_atributos_tecnicos(codigo):
+    produto = Produto.query.filter_by(codigo=codigo).first()
+    if not produto or not produto.fichas:
+        return jsonify({"error": "Ficha não encontrada"}), 404
+
+    payload = request.get_json(silent=True) or {}
+
+    campos = {
+        "validade": "validade",
+        "temperatura": "temperatura",
+        "tipo_artigo": "tipoArtigo",
+    }
+
+    atualizou = False
+    for payload_key, attr in campos.items():
+        if payload_key in payload:
+            setattr(produto, attr, payload[payload_key] or None)
+            atualizou = True
+
+    if not atualizou:
+        return jsonify({"error": "Nenhum atributo para atualizar"}), 400
+
+    db.session.commit()
 
     return jsonify(_serialize_produto_ficha(produto))

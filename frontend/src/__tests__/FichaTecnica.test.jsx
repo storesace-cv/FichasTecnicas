@@ -5,11 +5,16 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, beforeEach, expect, it, vi } from 'vitest'
 
 import FichaTecnicaPage from '../pages/FichaTecnica'
-import { fetchFichaByCodigo } from '../services/fichas'
+import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../services/fichas'
 import { listarReferencias } from '../services/referencias'
 
 vi.mock('../services/fichas', () => ({
   fetchFichaByCodigo: vi.fn(),
+  atualizarAtributosTecnicos: vi.fn(),
+}))
+
+vi.mock('../services/referencias', () => ({
+  listarReferencias: vi.fn(),
 }))
 
 vi.mock('../services/referencias', () => ({
@@ -98,7 +103,11 @@ describe('FichaTecnicaPage', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     listarReferencias.mockImplementation(async (nome) => {
-      if (nome === 'validades') return [{ Codigo: 'VA-1', Descricao: '3 dias', Ativo: true }]
+      if (nome === 'validades')
+        return [
+          { Codigo: 'VA-1', Descricao: '3 dias', Ativo: true },
+          { Codigo: 'VA-2', Descricao: '7 dias', Ativo: true },
+        ]
       if (nome === 'temperaturas') return [{ Codigo: 'TP-1', Descricao: '4ºC', Ativo: true }]
       if (nome === 'tipoartigos') return [{ Codigo: 'TA-1', Descricao: 'Produto acabado', Ativo: true }]
       return []
@@ -180,5 +189,28 @@ describe('FichaTecnicaPage', () => {
     const imagem = await screen.findByAltText('Imagem do prato Bolo Mármore')
     expect(imagem).toBeInTheDocument()
     expect(imagem.getAttribute('src')).toBe(imagemPratoUrl)
+  })
+
+  it('guarda e reflete as seleções dos atributos técnicos', async () => {
+    fetchFichaByCodigo.mockResolvedValueOnce(buildFicha())
+    atualizarAtributosTecnicos.mockResolvedValue(
+      buildFicha({
+        atributosTecnicos: {
+          ...buildFicha().atributosTecnicos,
+          validade: '7 dias',
+        },
+      }),
+    )
+
+    renderWithRouter()
+
+    const validadeSelect = await screen.findByLabelText('Validade')
+    await userEvent.selectOptions(validadeSelect, '7 dias')
+
+    await waitFor(() =>
+      expect(atualizarAtributosTecnicos).toHaveBeenCalledWith('FT-123', { validade: '7 dias' }),
+    )
+
+    expect(validadeSelect).toHaveValue('7 dias')
   })
 })

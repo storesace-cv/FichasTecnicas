@@ -16,7 +16,7 @@ import Tabs from '../../components/Tabs'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
-import { fetchFichaByCodigo } from '../../services/fichas'
+import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
 
 const tabs = [
@@ -77,6 +77,8 @@ export default function FichaTecnicaPage() {
     temperatura: '',
     tipo_artigo: '',
   })
+  const [salvandoAtributos, setSalvandoAtributos] = useState(false)
+  const [erroAtributos, setErroAtributos] = useState(null)
   const imagemPratoSrc = useMemo(() => {
     if (!ficha?.imagem_prato) return null
     return /^https?:\/\//.test(ficha.imagem_prato)
@@ -117,6 +119,19 @@ export default function FichaTecnicaPage() {
   const selectBaseClasses =
     'w-full rounded-lg border border-soft bg-surface px-3 py-2.5 text-sm text-strong shadow-sm focus:border-[var(--color-primary-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]'
 
+  const sanitizeAtributoValor = useCallback((value) => (value && value !== '—' ? value : ''), [])
+
+  const aplicarSelecoesAtributos = useCallback(
+    (valores) => {
+      setSelecoesAtributos({
+        validade: sanitizeAtributoValor(valores.validade),
+        temperatura: sanitizeAtributoValor(valores.temperatura),
+        tipo_artigo: sanitizeAtributoValor(valores.tipo_artigo),
+      })
+    },
+    [sanitizeAtributoValor],
+  )
+
   useEffect(() => {
     let activo = true
 
@@ -148,17 +163,28 @@ export default function FichaTecnicaPage() {
   }, [])
 
   useEffect(() => {
-    const sanitizeValue = (value) => (value && value !== '—' ? value : '')
+    aplicarSelecoesAtributos(atributosTecnicos)
+  }, [aplicarSelecoesAtributos, atributosTecnicos])
 
-    setSelecoesAtributos({
-      validade: sanitizeValue(atributosTecnicos.validade),
-      temperatura: sanitizeValue(atributosTecnicos.temperatura),
-      tipo_artigo: sanitizeValue(atributosTecnicos.tipo_artigo),
-    })
-  }, [atributosTecnicos.temperatura, atributosTecnicos.tipo_artigo, atributosTecnicos.validade])
+  const handleSelectChange = (campo) => async (event) => {
+    const novoValor = event.target.value
+    setSelecoesAtributos((prev) => ({ ...prev, [campo]: novoValor }))
 
-  const handleSelectChange = (campo) => (event) => {
-    setSelecoesAtributos((prev) => ({ ...prev, [campo]: event.target.value }))
+    if (!ficha?.codigo) return
+
+    setSalvandoAtributos(true)
+    setErroAtributos(null)
+    try {
+      const fichaAtualizada = await atualizarAtributosTecnicos(ficha.codigo, { [campo]: novoValor })
+
+      if (fichaAtualizada?.atributosTecnicos) {
+        aplicarSelecoesAtributos(fichaAtualizada.atributosTecnicos)
+      }
+    } catch (err) {
+      setErroAtributos('Não foi possível guardar os atributos técnicos.')
+    } finally {
+      setSalvandoAtributos(false)
+    }
   }
 
   const renderFallbackOption = (value, options) => {
@@ -376,6 +402,11 @@ export default function FichaTecnicaPage() {
                   </select>
                 </div>
                 <div className="hidden sm:block" aria-hidden="true" />
+                {(salvandoAtributos || erroAtributos) && (
+                  <p className={`text-xs ${erroAtributos ? 'text-[var(--color-error-600)]' : 'text-muted'}`}>
+                    {erroAtributos || 'A guardar alterações...'}
+                  </p>
+                )}
               </div>
               {atributosTecnicos.informacao_adicional && (
                 <div className="sm:col-span-2">
