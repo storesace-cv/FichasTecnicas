@@ -49,6 +49,7 @@ def _serialize_produto_ficha(produto: Produto):
         "unidade_base": produto.unProduFtPV,
         "validade": produto.validade,
         "temperatura": produto.temperatura,
+        "tipo_artigo": produto.tipoArtigo,
         "ativo": produto.ativo,
         "descontinuado": produto.descontinuado,
         "afeta_stk": produto.afetaStock,
