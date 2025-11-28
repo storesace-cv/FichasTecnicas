@@ -38,6 +38,7 @@ export default function Sidebar() {
           nome: "Regionalização",
           icone: <GlobeEuropeAfricaIcon className="w-6 h-6" />,
           children: [
+            { to: "/configuracao/regionalizacao/pais", nome: "País" },
             { to: "/configuracao/regionalizacao/moeda", nome: "Moeda" },
           ],
         },

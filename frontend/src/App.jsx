@@ -7,6 +7,7 @@ import Importacoes from './pages/import/Importacoes';
 import ImportarTipo from './pages/import/ImportarTipo';
 import Referencias from './pages/referencias/Referencias';
 import Moeda from './pages/configuracao/Moeda';
+import Pais from './pages/configuracao/Pais';
 import TipoNegocio from './pages/configuracao/TipoNegocio';
 import IntervalosFoodCost from './pages/configuracao/IntervalosFoodCost';
 import CalculoPVPFoodCost from './pages/configuracao/CalculoPVPFoodCost';
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/importacoes" element={<Importacoes />} />
             <Route path="/importar/:tipo" element={<ImportarTipo />} />
             <Route path="/referencias" element={<Referencias />} />
+            <Route path="/configuracao/regionalizacao/pais" element={<Pais />} />
             <Route path="/configuracao/regionalizacao/moeda" element={<Moeda />} />
             <Route path="/configuracao/food-cost/tipo-negocio" element={<TipoNegocio />} />
             <Route path="/configuracao/food-cost/intervalos" element={<IntervalosFoodCost />} />
