@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { applyCurrencyDefaultsForCountry } from './currency';
 
 export const COUNTRY_STORAGE_KEY = 'configuracao_regionalizacao_pais';
 export const COUNTRY_OPTIONS = ['Portugal', 'Angola', 'Cabo Verde'];
@@ -13,6 +14,7 @@ export function getCountry() {
 export function setCountry(country) {
   if (!COUNTRY_OPTIONS.includes(country)) return;
   localStorage.setItem(COUNTRY_STORAGE_KEY, country);
+  applyCurrencyDefaultsForCountry(country);
 }
 
 export function useCountry() {

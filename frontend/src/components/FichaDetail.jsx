@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeftIcon, ArrowRightIcon, PrinterIcon } from '@heroicons/react/24/outline';
-import { useCurrencySymbol } from '../services/currency';
+import { useCurrencyFormatter } from '../services/currency';
 
 export default function FichaDetail() {
   const { codigo } = useParams();
@@ -10,7 +10,7 @@ export default function FichaDetail() {
   const [ficha, setFicha] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allCodigos, setAllCodigos] = useState([]);
-  const currencySymbol = useCurrencySymbol();
+  const { formatCurrency } = useCurrencyFormatter();
 
   useEffect(() => {
     axios.get(`/api/fichas/${codigo}`).then(res => setFicha(res.data));
@@ -67,7 +67,7 @@ export default function FichaDetail() {
             <div className="mt-8 p-6 bg-success-soft rounded-2xl text-center">
               <p className="text-sm text-subtle uppercase tracking-wider">Custo Total</p>
               <p className="text-5xl font-bold text-success-strong mt-2">
-                {ficha.custo_total.toFixed(2)} {currencySymbol}
+                {formatCurrency(ficha.custo_total)}
               </p>
             </div>
 
@@ -104,7 +104,7 @@ export default function FichaDetail() {
                       <td className="px-6 py-4">{ing.ingrediente.unidade}</td>
                       <td className="px-6 py-4 text-right">{ing.produto.preco_unitario.toFixed(3)}</td>
                       <td className="px-6 py-4 text-right font-bold text-success-strong">
-                        {ing.custo_parcial.toFixed(2)} {currencySymbol}
+                        {formatCurrency(ing.custo_parcial)}
                       </td>
                     </tr>
                   ))}

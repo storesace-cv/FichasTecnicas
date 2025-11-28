@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useCurrencySymbol } from '../../services/currency';
+import { useCurrencyFormatter } from '../../services/currency';
 
 export default function FichaDetail() {
   const { codigo } = useParams();
   const [ficha, setFicha] = useState(null);
-  const currencySymbol = useCurrencySymbol();
+  const { formatCurrency } = useCurrencyFormatter();
 
   useEffect(() => {
     axios.get(`/api/fichas/${codigo}`)
@@ -32,7 +32,7 @@ export default function FichaDetail() {
             <p className="text-lg sm:text-xl mt-3 sm:mt-4">Porções: <strong>{ficha.porcoes || 1}</strong></p>
             <div className="mt-6 sm:mt-8 p-5 sm:p-6 bg-success-soft rounded-xl text-center">
               <p className="text-3xl sm:text-4xl md:text-5xl font-black text-success-strong">
-                {Number(ficha.custo_total).toFixed(2)} {currencySymbol}
+                {formatCurrency(Number(ficha.custo_total))}
               </p>
               <p className="text-base sm:text-lg text-subtle mt-1 sm:mt-2">Custo Total</p>
             </div>
@@ -64,7 +64,7 @@ export default function FichaDetail() {
                       <td className="px-4 sm:px-6 py-3">{ing.ingrediente?.unidade || '-'}</td>
                       <td className="px-4 sm:px-6 py-3 text-right">{Number(ing.produto?.preco_unitario || 0).toFixed(3)}</td>
                       <td className="px-4 sm:px-6 py-3 text-right font-bold text-success-strong">
-                        {Number(ing.custo_parcial || 0).toFixed(2)} {currencySymbol}
+                        {formatCurrency(Number(ing.custo_parcial || 0))}
                       </td>
                     </tr>
                   ))}
