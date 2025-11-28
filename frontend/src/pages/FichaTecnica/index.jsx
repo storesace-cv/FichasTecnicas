@@ -136,6 +136,7 @@ export default function FichaTecnicaPage() {
   const documentos = ficha?.documentos || []
   const links = ficha?.links || []
   const atributosTecnicos = ficha?.atributosTecnicos || {}
+  const precosTaxas = ficha?.precosTaxas
   const totalRegistos = listaNavegacao.length
   const indiceAtual = useMemo(
     () => listaNavegacao.findIndex((codigoLista) => String(codigoLista) === String(ficha?.codigo || fichaId)),
@@ -583,19 +584,34 @@ export default function FichaTecnicaPage() {
                 <h2 className="text-xl font-semibold text-strong">Food Cost</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)]">
+                <div className="bg-primary-soft rounded-lg p-4 border border-[var(--color-primary-200)] text-center">
                   <p className="text-xs text-primary-strong uppercase tracking-wide">Custo registado</p>
                   <p className="text-2xl font-bold text-primary-strong">{ficha.totais.custo_total.toFixed(2)} €</p>
                 </div>
-                <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)]">
+                <div className="bg-secondary-soft rounded-lg p-4 border border-[var(--color-secondary-200)] text-center">
                   <p className="text-xs text-secondary-strong uppercase tracking-wide">Custo calculado</p>
                   <p className="text-2xl font-bold text-secondary-strong">{ficha.custos.custo_calculado.toFixed(2)} €</p>
                 </div>
-                <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)]">
+                <div className="bg-success-soft rounded-lg p-4 border border-[var(--color-success-200)] text-center">
                   <p className="text-xs text-success-strong uppercase tracking-wide">Custo / unidade base</p>
                   <p className="text-2xl font-bold text-success-strong">{ficha.totais.custo_por_unidade_base.toFixed(3)} €</p>
                 </div>
               </div>
+              {precosTaxas && (
+                <div className="overflow-x-auto">
+                  <div className="grid min-w-[640px] grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map((indice) => (
+                      <div
+                        key={`preco-${indice}`}
+                        className="bg-surface-muted rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner"
+                      >
+                        <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
+                        <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} €</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 
