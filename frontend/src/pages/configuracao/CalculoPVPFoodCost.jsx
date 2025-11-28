@@ -114,6 +114,38 @@ export default function CalculoPVPFoodCost() {
             </div>
           )}
         </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card border border-gray-100 space-y-4">
+          <h2 className="text-xl font-bold text-strong">Como funciona o cálculo via Food Cost alvo</h2>
+          <p className="text-base text-subtle">
+            Esta abordagem parte do custo real do prato (ingredientes + custos operacionais) e aplica o{' '}
+            <strong>Food Cost alvo</strong> para chegar ao preço de venda sem IVA (PVSI). Depois, aplica-se o IVA indicado no
+            artigo (campo <strong>iva1</strong>) para obter o PVP final apresentado ao cliente.
+          </p>
+          <div className="space-y-2 text-sm text-strong">
+            <p className="font-semibold">Passos e fórmulas:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>
+                <strong>CustoIngredientes</strong> = soma de (Quantidade × PreçoUnitário) de cada ingrediente importado (estes
+                preços já incluem IVA de origem, mas o cálculo profissional trabalha sem IVA ao aplicar as fórmulas).
+              </li>
+              <li>
+                <strong>CustoComOperacionais</strong> = CustoIngredientes × (1 + PercentagemOperacionais/100).
+              </li>
+              <li>
+                <strong>PVSI</strong> = CustoComOperacionais / FoodCostAlvoDecimal (ex.: 30% → 0.30).
+              </li>
+              <li>
+                <strong>PVP</strong> = PVSI × (1 + IVA/100), usando o IVA do artigo (<strong>iva1</strong>).
+              </li>
+            </ol>
+          </div>
+          <p className="text-sm text-subtle">
+            Dica: um food cost alvo de 25% corresponde aproximadamente a um rácio de 4. Quanto menor o food cost, maior a
+            margem. Ajuste a percentagem de operacionais para refletir eletricidade, mão-de-obra e outros custos indiretos do
+            seu negócio.
+          </p>
+        </div>
       </div>
     </div>
   );

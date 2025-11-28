@@ -113,6 +113,38 @@ export default function CalculoPVPRatio() {
             </div>
           )}
         </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-card border border-gray-100 space-y-4">
+          <h2 className="text-xl font-bold text-strong">Como funciona o cálculo via Rácio</h2>
+          <p className="text-base text-subtle">
+            O rácio é o multiplicador profissional que transforma o custo real do prato (ingredientes + custos operacionais) no
+            preço de venda sem IVA (PVSI). Depois, acrescenta-se o IVA do artigo (campo <strong>iva1</strong>) para apresentar
+            o PVP final ao cliente.
+          </p>
+          <div className="space-y-2 text-sm text-strong">
+            <p className="font-semibold">Passos e fórmulas:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>
+                <strong>CustoIngredientes</strong> = soma de (Quantidade × PreçoUnitário) de cada ingrediente importado. Mesmo
+                que os preços importados já incluam IVA, estas fórmulas trabalham sem IVA ao determinar margens profissionais.
+              </li>
+              <li>
+                <strong>CustoComOperacionais</strong> = CustoIngredientes × (1 + PercentagemOperacionais/100).
+              </li>
+              <li>
+                <strong>PVSI</strong> = CustoComOperacionais × Rácio.
+              </li>
+              <li>
+                <strong>PVP</strong> = PVSI × (1 + IVA/100), usando o IVA do artigo (<strong>iva1</strong>).
+              </li>
+            </ol>
+          </div>
+          <p className="text-sm text-subtle">
+            Dica: o rácio é o inverso do food cost em decimal (Rácio = 1 / FoodCost). Um food cost alvo de 25% equivale a um
+            rácio de 4. Ajuste o rácio conforme a margem desejada e utilize a percentagem de operacionais para refletir custos
+            indiretos como energia e mão-de-obra.
+          </p>
+        </div>
       </div>
     </div>
   );
