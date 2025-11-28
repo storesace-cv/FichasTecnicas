@@ -3,14 +3,40 @@ import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   getBusinessType,
   getDefaultPvpParameters,
+  PVP_VARIATIONS_COUNT,
 } from '../../services/foodCostConfig';
 
 const STORAGE_KEY_OPERACIONAIS = 'configuracao_food_cost_operacionais';
-const STORAGE_KEY_RATIO = 'configuracao_pvp_ratio';
+const STORAGE_KEY_RATIOS = 'configuracao_pvp_ratios';
+const LEGACY_STORAGE_KEY_RATIO = 'configuracao_pvp_ratio';
+
+const createEmptyRatioList = () => Array.from({ length: PVP_VARIATIONS_COUNT }, () => '');
+const parseStoredArray = (rawValue) => {
+  if (!rawValue) return null;
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    if (Array.isArray(parsed)) {
+      const normalized = parsed.slice(0, PVP_VARIATIONS_COUNT).map((value) =>
+        value === '' || value === null || value === undefined ? '' : value.toString()
+      );
+
+      while (normalized.length < PVP_VARIATIONS_COUNT) {
+        normalized.push('');
+      }
+
+      return normalized;
+    }
+  } catch (error) {
+    return null;
+  }
+
+  return null;
+};
 
 export default function CalculoPVPRatio() {
   const [custosOperacionais, setCustosOperacionais] = useState('');
-  const [ratio, setRatio] = useState('');
+  const [ratios, setRatios] = useState(createEmptyRatioList());
   const [tipoNegocio, setTipoNegocio] = useState(getBusinessType());
   const [mensagem, setMensagem] = useState('');
 
@@ -23,13 +49,17 @@ export default function CalculoPVPRatio() {
       setCustosOperacionais(custosGuardados);
     }
 
-    const ratioGuardado = localStorage.getItem(STORAGE_KEY_RATIO);
-    if (ratioGuardado !== null) {
-      setRatio(ratioGuardado);
+    const ratiosGuardados = parseStoredArray(localStorage.getItem(STORAGE_KEY_RATIOS));
+    const ratioLegacy = localStorage.getItem(LEGACY_STORAGE_KEY_RATIO);
+
+    if (ratiosGuardados !== null) {
+      setRatios(ratiosGuardados);
+    } else if (ratioLegacy !== null) {
+      setRatios(Array.from({ length: PVP_VARIATIONS_COUNT }, () => ratioLegacy));
     }
 
     // Pré-preenche apenas quando não existem valores guardados, usando o tipo de negócio escolhido.
-    if (custosGuardados === null && ratioGuardado === null) {
+    if (custosGuardados === null && ratiosGuardados === null && ratioLegacy === null) {
       aplicarDefaults(negocioSelecionado, false);
     }
   }, []);
@@ -49,16 +79,16 @@ export default function CalculoPVPRatio() {
     event.preventDefault();
 
     const custosNormalizados = custosOperacionais === '' ? '' : Math.max(0, Math.min(100, Number(custosOperacionais)));
-    const ratioNormalizado = ratio === '' ? '' : Math.max(0.01, Number(ratio));
+    const ratiosNormalizados = ratios.map((valor) => (valor === '' ? '' : Math.max(0.01, Number(valor))));
 
     const custosParaGuardar = custosNormalizados === '' ? '' : custosNormalizados.toString();
-    const ratioParaGuardar = ratioNormalizado === '' ? '' : ratioNormalizado.toString();
+    const ratiosParaGuardar = ratiosNormalizados.map((valor) => (valor === '' ? '' : valor.toString()));
 
     setCustosOperacionais(custosParaGuardar);
-    setRatio(ratioParaGuardar);
+    setRatios(ratiosParaGuardar);
 
     localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_RATIO, ratioParaGuardar);
+    localStorage.setItem(STORAGE_KEY_RATIOS, JSON.stringify(ratiosParaGuardar));
 
     setMensagem('Parâmetros de cálculo via rácio atualizados com sucesso.');
     setTimeout(() => setMensagem(''), 3000);
@@ -68,14 +98,14 @@ export default function CalculoPVPRatio() {
     const defaults = getDefaultPvpParameters(negocio);
 
     const custosParaGuardar = defaults.operacionaisPercent.toString();
-    const ratioParaGuardar = defaults.ratio.toString();
+    const ratiosParaGuardar = defaults.ratios.map((valor) => valor.toString());
 
     // Substitui pelos valores recomendados para o tipo de negócio selecionado.
     setCustosOperacionais(custosParaGuardar);
-    setRatio(ratioParaGuardar);
+    setRatios(ratiosParaGuardar);
 
     localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
-    localStorage.setItem(STORAGE_KEY_RATIO, ratioParaGuardar);
+    localStorage.setItem(STORAGE_KEY_RATIOS, JSON.stringify(ratiosParaGuardar));
 
     if (exibirMensagem) {
       setMensagem(`Valores predefinidos aplicados para ${negocio}.`);
@@ -88,10 +118,10 @@ export default function CalculoPVPRatio() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-[0.2em] text-muted">Configuração · Cálculo PVP</p>
-          <h1 className="text-4xl font-black text-strong">via Rácio</h1>
+          <h1 className="text-4xl font-black text-strong">Rácio de multiplicação</h1>
           <p className="text-base text-subtle">
-            Defina o rácio de multiplicação para calcular o PVP. Lembre-se que os preços importados de Excel já incluem IVA e a taxa
-            correta está no campo <strong>iva1</strong> da tabela de preços.
+            Defina até cinco rácios de multiplicação para calcular PVP1 a PVP5 quando estiverem disponíveis. Lembre-se que os preços
+            importados de Excel já incluem IVA e a taxa correta está no campo <strong>iva1</strong> da tabela de preços.
           </p>
           <p className="text-sm text-muted">Tipo de negócio selecionado: <strong>{tipoNegocio}</strong></p>
         </div>
@@ -120,22 +150,37 @@ export default function CalculoPVPRatio() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-strong" htmlFor="ratio">
-                Rácio de multiplicação
-              </label>
-              <input
-                id="ratio"
-                type="number"
-                inputMode="decimal"
-                min="0.01"
-                step="0.01"
-                value={ratio}
-                onChange={(event) => setRatio(event.target.value)}
-                placeholder="Exemplo: 2.5"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
-              />
+              <p className="block text-sm font-semibold text-strong">Rácio de multiplicação</p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                {ratios.map((valor, indice) => (
+                  <div key={`ratio-${indice}`} className="space-y-1">
+                    <label className="block text-sm font-semibold text-strong" htmlFor={`ratio-${indice}`}>
+                      Rácio de multiplicação [{indice + 1}]
+                    </label>
+                    <input
+                      id={`ratio-${indice}`}
+                      type="number"
+                      inputMode="decimal"
+                      min="0.01"
+                      step="0.01"
+                      value={valor}
+                      onChange={(event) =>
+                        setRatios((prev) => {
+                          const atualizados = [...prev];
+                          atualizados[indice] = event.target.value;
+                          return atualizados;
+                        })
+                      }
+                      placeholder="Exemplo: 2.5"
+                      className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
+                    />
+                    <p className="text-xs text-subtle">Associado ao futuro cálculo do PVP{indice + 1}.</p>
+                  </div>
+                ))}
+              </div>
               <p className="text-sm text-subtle">
-                Use o rácio que multiplicará o custo com operacionais para obter o PVSI antes da aplicação do IVA (iva1). Este valor deve ser maior que 0 e, tipicamente, superior a 1 (ex.: rácio 4 ≈ food cost de 25%).
+                Use o rácio que multiplicará o custo com operacionais para obter o PVSI antes da aplicação do IVA (iva1). Este valor deve ser
+                maior que 0 e, tipicamente, superior a 1 (ex.: rácio 4 ≈ food cost de 25%).
               </p>
             </div>
 
