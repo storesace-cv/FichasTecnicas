@@ -9,6 +9,7 @@ from routes.api_fichas import fichas_bp
 from routes.api_reset import reset_bp
 from routes.api_referencias import referencias_bp
 from routes.api_alergenios import alergenios_bp
+from routes.api_pricing_policy import pricing_policy_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -21,6 +22,7 @@ app.register_blueprint(fichas_bp)   # já tem url_prefix dentro do ficheiro
 app.register_blueprint(reset_bp)    # já tem url_prefix dentro do ficheiro
 app.register_blueprint(referencias_bp)
 app.register_blueprint(alergenios_bp)
+app.register_blueprint(pricing_policy_bp)
 
 with app.app_context():
     db.create_all()

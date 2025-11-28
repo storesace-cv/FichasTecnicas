@@ -1,0 +1,79 @@
+import axios from 'axios';
+
+export const PRICING_POLICY_OPTIONS = [
+  {
+    key: 'classic',
+    title: 'Arredondamento Comercial Clássico (.00 ou .50)',
+    description: 'Arredonda o preço para valores como 10,00 €, 10,50 €, 11,00 €.',
+    examples: 'Ex.: 10,32 → 10,50 · 10,66 → 11,00',
+  },
+  {
+    key: 'psychological',
+    title: 'Psychological Pricing (.90 / .99)',
+    description: 'Usa preços psicológicos que parecem mais baixos, como 9,90 €, 9,95 €, 9,99 €.',
+    examples: 'Ex.: 10,32 → 10,90 · 10,66 → 10,90 · 11,10 → 11,90',
+  },
+  {
+    key: 'premium',
+    title: 'Arredondamento Premium — termina em .00',
+    description: 'Arredonda sempre para o euro inteiro superior, transmitindo imagem mais premium.',
+    examples: 'Ex.: 10,32 → 11,00 · 14,71 → 15,00',
+  },
+  {
+    key: 'strictEuro',
+    title: 'Arredondamento rígido ao euro',
+    description: 'Arredonda para o euro mais próximo (para cima ou para baixo), usado em cantinas/coletividades.',
+    examples: 'Ex.: 10,32 → 10,00 · 10,66 → 11,00',
+  },
+  {
+    key: 'nearestMultiple',
+    title: 'Arredondamento ao múltiplo mais próximo (0,05 ou 0,10)',
+    description: 'Arredonda ao múltiplo mais próximo de 0,05 € ou 0,10 €, típico em cafetarias e bares.',
+    examples: 'Ex.: passo 0,05 → 10,32 → 10,30 · passo 0,10 → 10,36 → 10,40',
+  },
+  {
+    key: 'minimumMargin',
+    title: 'Arredondamento para garantir margem mínima',
+    description:
+      'Ajusta o preço ao valor mínimo que assegura o Food Cost máximo pretendido e arredonda para cima a partir daí.',
+    examples: 'Ex.: preço mínimo 10,12 € → arredonda para 10,50 € ou 10,90 € conforme política interna.',
+  },
+  {
+    key: 'corporate',
+    title: 'Arredondamento corporativo (lista de finais permitidos)',
+    description: 'Preço final termina com finais pré-definidos (ex.: .00, .50, .90, .95), usado em cadeias e grupos.',
+    examples: 'Ex.: finais {0,00; 0,50; 0,90} → 10,32 → 10,50 · 10,76 → 10,90',
+  },
+];
+
+export const DEFAULT_PRICING_POLICY_BY_COUNTRY = {
+  Portugal: 'nearestMultiple',
+  Angola: 'premium',
+  'Cabo Verde': 'classic',
+};
+
+export async function fetchPricingPolicy() {
+  const response = await axios.get('/api/pricing-policy');
+  return response.data;
+}
+
+export async function savePricingPolicy(policyKey, country) {
+  const response = await axios.put('/api/pricing-policy', {
+    policyKey,
+    country,
+    manualOverride: true,
+  });
+  return response.data;
+}
+
+export async function applyPricingPolicyDefaultForCountry(country) {
+  const response = await axios.post('/api/pricing-policy/apply-default', {
+    country,
+  });
+  return response.data;
+}
+
+export function getPolicyDetails(policyKey) {
+  return PRICING_POLICY_OPTIONS.find((option) => option.key === policyKey);
+}
+

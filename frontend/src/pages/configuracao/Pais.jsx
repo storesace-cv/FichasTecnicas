@@ -9,9 +9,9 @@ export default function Pais() {
     setPaisSelecionado(getCountry());
   }, []);
 
-  const guardar = (event) => {
+  const guardar = async (event) => {
     event.preventDefault();
-    setCountry(paisSelecionado);
+    await setCountry(paisSelecionado);
     setMensagem('País atualizado com sucesso.');
     setTimeout(() => setMensagem(''), 3000);
   };

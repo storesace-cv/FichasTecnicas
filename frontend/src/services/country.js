@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { applyCurrencyDefaultsForCountry } from './currency';
+import { applyPricingPolicyDefaultForCountry } from './pricingPolicy';
 
 export const COUNTRY_STORAGE_KEY = 'configuracao_regionalizacao_pais';
 export const COUNTRY_OPTIONS = ['Portugal', 'Angola', 'Cabo Verde'];
@@ -11,10 +12,16 @@ export function getCountry() {
   return COUNTRY_OPTIONS.includes(storedCountry) ? storedCountry : DEFAULT_COUNTRY;
 }
 
-export function setCountry(country) {
+export async function setCountry(country) {
   if (!COUNTRY_OPTIONS.includes(country)) return;
+
   localStorage.setItem(COUNTRY_STORAGE_KEY, country);
   applyCurrencyDefaultsForCountry(country);
+  try {
+    await applyPricingPolicyDefaultForCountry(country);
+  } catch (error) {
+    // A aplicação continua mesmo se não conseguir sincronizar a política agora.
+  }
 }
 
 export function useCountry() {
