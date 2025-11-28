@@ -18,9 +18,15 @@ import PageHeader from '../../components/PageHeader'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
-import { atualizarAtributosTecnicos, fetchFichaByCodigo, fetchFichas } from '../../services/fichas'
+import {
+  atualizarAlergeniosFicha,
+  atualizarAtributosTecnicos,
+  fetchFichaByCodigo,
+  fetchFichas,
+} from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
 import { useCurrencySymbol } from '../../services/currency'
+import { listarAlergenios } from '../../services/alergenios'
 import {
   FOOD_COST_BUSINESS_TYPE_STORAGE_KEY,
   FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY,
@@ -111,14 +117,14 @@ function useFichaTecnica(codigo) {
     carregarFicha()
   }, [carregarFicha])
 
-  return { ficha, loading, error, refetch: carregarFicha }
+  return { ficha, loading, error, refetch: carregarFicha, setFicha }
 }
 
 export default function FichaTecnicaPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { fichaId } = useParams()
-  const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
+  const { ficha, loading, error, refetch, setFicha } = useFichaTecnica(fichaId)
   const [referencias, setReferencias] = useState({ validades: [], temperaturas: [], tipoArtigos: [] })
   const [referenciasCarregadas, setReferenciasCarregadas] = useState(false)
   const [foodCostIntervals, setFoodCostIntervals] = useState(() =>
@@ -136,6 +142,11 @@ export default function FichaTecnicaPage() {
   })
   const [salvandoAtributos, setSalvandoAtributos] = useState(false)
   const [erroAtributos, setErroAtributos] = useState(null)
+  const [alergeniosDisponiveis, setAlergeniosDisponiveis] = useState([])
+  const [alergeniosSelecionados, setAlergeniosSelecionados] = useState(() => new Set())
+  const [carregandoAlergenios, setCarregandoAlergenios] = useState(true)
+  const [erroAlergenios, setErroAlergenios] = useState(null)
+  const [salvandoAlergenios, setSalvandoAlergenios] = useState(false)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
   const currencySymbol = useCurrencySymbol()
@@ -235,6 +246,20 @@ export default function FichaTecnicaPage() {
     return () => {
       activo = false
     }
+  }, [])
+
+  useEffect(() => {
+    setCarregandoAlergenios(true)
+    listarAlergenios()
+      .then((lista) => {
+        setAlergeniosDisponiveis(lista || [])
+        setErroAlergenios(null)
+      })
+      .catch(() => {
+        setAlergeniosDisponiveis([])
+        setErroAlergenios('Não foi possível carregar a lista de alergénios.')
+      })
+      .finally(() => setCarregandoAlergenios(false))
   }, [])
 
   const foodCosts = useMemo(() => {
@@ -394,6 +419,11 @@ export default function FichaTecnicaPage() {
     aplicarSelecoesAtributos(atributosTecnicos)
   }, [aplicarSelecoesAtributos, atributosTecnicos])
 
+  useEffect(() => {
+    const seleccionados = new Set((ficha?.alergenos || []).map((al) => al.id ?? al.codigo ?? al.nome))
+    setAlergeniosSelecionados(seleccionados)
+  }, [ficha?.codigo, ficha?.alergenos])
+
   const handleSelectChange = (campo) => async (event) => {
     const novoValor = event.target.value
     setSelecoesAtributos((prev) => ({ ...prev, [campo]: novoValor }))
@@ -412,6 +442,33 @@ export default function FichaTecnicaPage() {
       setErroAtributos('Não foi possível guardar os atributos técnicos.')
     } finally {
       setSalvandoAtributos(false)
+    }
+  }
+
+  const handleToggleAlergeno = async (alergenoId) => {
+    if (!ficha?.codigo) return
+
+    const proximaSelecao = new Set(alergeniosSelecionados)
+    if (proximaSelecao.has(alergenoId)) {
+      proximaSelecao.delete(alergenoId)
+    } else {
+      proximaSelecao.add(alergenoId)
+    }
+
+    setAlergeniosSelecionados(proximaSelecao)
+    setErroAlergenios(null)
+    setSalvandoAlergenios(true)
+
+    try {
+      const fichaAtualizada = await atualizarAlergeniosFicha(ficha.codigo, Array.from(proximaSelecao))
+      setFicha(fichaAtualizada)
+      const confirmados = new Set((fichaAtualizada?.alergenos || []).map((al) => al.id ?? al.codigo ?? al.nome))
+      setAlergeniosSelecionados(confirmados)
+    } catch (err) {
+      setErroAlergenios('Não foi possível atualizar os alergénios.')
+      setAlergeniosSelecionados(new Set((ficha?.alergenos || []).map((al) => al.id ?? al.codigo ?? al.nome)))
+    } finally {
+      setSalvandoAlergenios(false)
     }
   }
 
@@ -934,7 +991,7 @@ export default function FichaTecnicaPage() {
                             {(ing.alergenos || []).length === 0 && <span className="text-xs text-muted">—</span>}
                             {(ing.alergenos || []).map((al) => (
                               <span
-                                key={`${al.codigo}-${ing.ordem}`}
+                                key={`${al.id || al.codigo || al.nome}-${ing.ordem}`}
                                 className="text-[11px] px-2 py-1 rounded-full bg-red-50 text-red-700 border border-red-100"
                               >
                                 {al.nome || al.codigo}
@@ -957,15 +1014,81 @@ export default function FichaTecnicaPage() {
           </section>
 
           <section className="w-full bg-surface border border-soft rounded-xl shadow-sm">
-            <div className="p-4 sm:p-6 space-y-3">
-              <h2 className="text-xl font-semibold text-strong">Alergénios</h2>
-              {ficha.alergenos.length === 0 ? (
-                <p className="text-sm text-subtle">Nenhum alergénio associado às linhas desta ficha.</p>
-              ) : (
+            <div className="p-4 sm:p-6 space-y-4">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-strong">Alergénios</h2>
+                  <p className="text-xs text-muted">Selecione os alergénios aplicáveis ao produto.</p>
+                </div>
+                {salvandoAlergenios && (
+                  <span className="text-xs font-semibold text-primary-strong">A guardar alterações…</span>
+                )}
+              </div>
+
+              {erroAlergenios && (
+                <div className="text-sm text-error-strong bg-error-soft border border-[var(--color-error-200)] rounded-lg px-3 py-2">
+                  {erroAlergenios}
+                </div>
+              )}
+
+              <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
+                <table className="w-full min-w-[720px] text-sm">
+                  <thead className="bg-surface-muted text-left text-subtle font-semibold">
+                    <tr>
+                      <th className="px-3 sm:px-4 py-3 w-24 text-center">Selecionar</th>
+                      <th className="px-3 sm:px-4 py-3">Nome</th>
+                      <th className="px-3 sm:px-4 py-3">Nome inglês</th>
+                      <th className="px-3 sm:px-4 py-3">Exemplos / notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {carregandoAlergenios ? (
+                      <tr>
+                        <td colSpan={4} className="px-3 sm:px-4 py-4 text-center text-subtle">
+                          A carregar alergénios…
+                        </td>
+                      </tr>
+                    ) : alergeniosDisponiveis.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-3 sm:px-4 py-4 text-center text-subtle">
+                          Nenhum alergénio disponível.
+                        </td>
+                      </tr>
+                    ) : (
+                      alergeniosDisponiveis.map((alergeno) => {
+                        const selecionado = alergeniosSelecionados.has(alergeno.id)
+                        return (
+                          <tr
+                            key={alergeno.id || alergeno.nome}
+                            className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted"
+                          >
+                            <td className="px-3 sm:px-4 py-3 text-center">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-soft text-primary-strong focus:ring-[var(--color-primary-300)]"
+                                checked={selecionado}
+                                onChange={() => handleToggleAlergeno(alergeno.id)}
+                                disabled={salvandoAlergenios}
+                              />
+                            </td>
+                            <td className="px-3 sm:px-4 py-3 font-semibold text-strong">{alergeno.nome}</td>
+                            <td className="px-3 sm:px-4 py-3 text-subtle">{alergeno.nome_ingles || '—'}</td>
+                            <td className="px-3 sm:px-4 py-3 text-subtle">
+                              {alergeno.exemplos || alergeno.descricao || alergeno.notas || '—'}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {ficha.alergenos.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {ficha.alergenos.map((al) => (
                     <span
-                      key={al.codigo}
+                      key={al.id || al.codigo || al.nome}
                       className="text-xs px-3 py-1 rounded-full border border-[var(--color-error-200)] bg-error-soft text-error-strong"
                     >
                       {al.nome || al.codigo}

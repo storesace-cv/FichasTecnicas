@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from models import FichaTecnica, Produto, db
+from models import Alergenio, FichaTecnica, Produto, db
 
 
 def _calcular_preco_linha(ficha: FichaTecnica) -> float:
@@ -9,6 +9,17 @@ def _calcular_preco_linha(ficha: FichaTecnica) -> float:
     qtd = float(ficha.qtd or 0)
     ppu = float(ficha.ppu or 0)
     return qtd * ppu
+
+
+def _serialize_alergeno(alergeno: Alergenio):
+    return {
+        "id": alergeno.Id,
+        "nome": alergeno.Nome,
+        "nome_ingles": alergeno.NomeIngles,
+        "descricao": alergeno.Descricao,
+        "exemplos": alergeno.Exemplos,
+        "notas": alergeno.Notas,
+    }
 
 
 def _serialize_produto_ficha(produto: Produto):
@@ -90,7 +101,7 @@ def _serialize_produto_ficha(produto: Produto):
             "unidade_base": unidade_base,
             "custo_por_unidade_base": custo_registado / porcoes if porcoes else custo_registado,
         },
-        "alergenos": [],
+        "alergenos": [_serialize_alergeno(al) for al in produto.alergenios],
         "preparacao_html": None,
         "precos_taxas": precos_taxas,
     }
@@ -141,6 +152,30 @@ def atualizar_atributos_tecnicos(codigo):
 
     if not atualizou:
         return jsonify({"error": "Nenhum atributo para atualizar"}), 400
+
+    db.session.commit()
+
+    return jsonify(_serialize_produto_ficha(produto))
+
+
+@fichas_bp.route('/fichas/<codigo>/alergenios', methods=['PUT'])
+def atualizar_alergenios(codigo):
+    produto = Produto.query.filter_by(codigo=codigo).first()
+    if not produto or not produto.fichas:
+        return jsonify({"error": "Ficha não encontrada"}), 404
+
+    payload = request.get_json(silent=True) or {}
+    selecionados = payload.get("alergenios") or []
+
+    if not isinstance(selecionados, list):
+        return jsonify({"error": "Formato de alergénios inválido"}), 400
+
+    alergenios = (
+        Alergenio.query.filter(Alergenio.Id.in_(selecionados)).order_by(Alergenio.Nome.asc()).all()
+        if selecionados
+        else []
+    )
+    produto.alergenios = alergenios
 
     db.session.commit()
 
