@@ -43,6 +43,7 @@ export function mapFichaResponse(apiData) {
     unidade_base: unidadeBase,
     validade: cabecalho.validade || apiData.validade || '—',
     temperatura: cabecalho.temperatura || apiData.temperatura || '—',
+    tipo_artigo: cabecalho.tipo_artigo || apiData.tipo_artigo || apiData.tipoArtigo || '—',
     informacao_adicional: cabecalho.informacao_adicional || apiData.informacao_adicional || '',
   };
 
@@ -93,4 +94,9 @@ export async function fetchFichaByCodigo(codigo) {
 export async function fetchFichas() {
   const response = await axios.get('/api/fichas');
   return response.data.map(mapFichaResponse);
+}
+
+export async function atualizarAtributosTecnicos(codigo, atributos) {
+  const response = await axios.patch(`/api/fichas/${codigo}/atributos`, atributos);
+  return mapFichaResponse(response.data);
 }

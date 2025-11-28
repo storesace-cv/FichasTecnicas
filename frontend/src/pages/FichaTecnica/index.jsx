@@ -16,7 +16,8 @@ import Tabs from '../../components/Tabs'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
-import { fetchFichaByCodigo } from '../../services/fichas'
+import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../../services/fichas'
+import { listarReferencias } from '../../services/referencias'
 
 const tabs = [
   { label: 'Resumo', value: 'resumo' },
@@ -69,6 +70,15 @@ export default function FichaTecnicaPage() {
   const { fichaId } = useParams()
   const { ficha, loading, error, refetch } = useFichaTecnica(fichaId)
   const [activeTab, setActiveTab] = useState('resumo')
+  const [referencias, setReferencias] = useState({ validades: [], temperaturas: [], tipoArtigos: [] })
+  const [referenciasCarregadas, setReferenciasCarregadas] = useState(false)
+  const [selecoesAtributos, setSelecoesAtributos] = useState({
+    validade: '',
+    temperatura: '',
+    tipo_artigo: '',
+  })
+  const [salvandoAtributos, setSalvandoAtributos] = useState(false)
+  const [erroAtributos, setErroAtributos] = useState(null)
   const imagemPratoSrc = useMemo(() => {
     if (!ficha?.imagem_prato) return null
     return /^https?:\/\//.test(ficha.imagem_prato)
@@ -89,6 +99,100 @@ export default function FichaTecnicaPage() {
       </span>
     )
   }, [ficha])
+
+  const meta = ficha?.meta || {}
+  const documentos = ficha?.documentos || []
+  const links = ficha?.links || []
+  const atributosTecnicos = ficha?.atributosTecnicos || {}
+  const opcoesValidades = useMemo(
+    () => (referencias.validades || []).filter((opcao) => opcao.Ativo !== false),
+    [referencias.validades],
+  )
+  const opcoesTemperaturas = useMemo(
+    () => (referencias.temperaturas || []).filter((opcao) => opcao.Ativo !== false),
+    [referencias.temperaturas],
+  )
+  const opcoesTiposArtigos = useMemo(
+    () => (referencias.tipoArtigos || []).filter((opcao) => opcao.Ativo !== false),
+    [referencias.tipoArtigos],
+  )
+  const selectBaseClasses =
+    'w-full rounded-lg border border-soft bg-surface px-3 py-2.5 text-sm text-strong shadow-sm focus:border-[var(--color-primary-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]'
+
+  const sanitizeAtributoValor = useCallback((value) => (value && value !== '—' ? value : ''), [])
+
+  const aplicarSelecoesAtributos = useCallback(
+    (valores) => {
+      setSelecoesAtributos({
+        validade: sanitizeAtributoValor(valores.validade),
+        temperatura: sanitizeAtributoValor(valores.temperatura),
+        tipo_artigo: sanitizeAtributoValor(valores.tipo_artigo),
+      })
+    },
+    [sanitizeAtributoValor],
+  )
+
+  useEffect(() => {
+    let activo = true
+
+    setReferenciasCarregadas(false)
+    Promise.all([
+      listarReferencias('validades'),
+      listarReferencias('temperaturas'),
+      listarReferencias('tipoartigos'),
+    ])
+      .then(([validades, temperaturas, tipoArtigos]) => {
+        if (!activo) return
+        setReferencias({
+          validades: validades || [],
+          temperaturas: temperaturas || [],
+          tipoArtigos: tipoArtigos || [],
+        })
+      })
+      .catch(() => {
+        if (!activo) return
+        setReferencias({ validades: [], temperaturas: [], tipoArtigos: [] })
+      })
+      .finally(() => {
+        if (activo) setReferenciasCarregadas(true)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  useEffect(() => {
+    aplicarSelecoesAtributos(atributosTecnicos)
+  }, [aplicarSelecoesAtributos, atributosTecnicos])
+
+  const handleSelectChange = (campo) => async (event) => {
+    const novoValor = event.target.value
+    setSelecoesAtributos((prev) => ({ ...prev, [campo]: novoValor }))
+
+    if (!ficha?.codigo) return
+
+    setSalvandoAtributos(true)
+    setErroAtributos(null)
+    try {
+      const fichaAtualizada = await atualizarAtributosTecnicos(ficha.codigo, { [campo]: novoValor })
+
+      if (fichaAtualizada?.atributosTecnicos) {
+        aplicarSelecoesAtributos(fichaAtualizada.atributosTecnicos)
+      }
+    } catch (err) {
+      setErroAtributos('Não foi possível guardar os atributos técnicos.')
+    } finally {
+      setSalvandoAtributos(false)
+    }
+  }
+
+  const renderFallbackOption = (value, options) => {
+    if (!value) return null
+    return options.some((opcao) => opcao.Descricao === value) ? null : (
+      <option value={value}>{value}</option>
+    )
+  }
 
   if (loading && !ficha) {
     return <FichaSkeleton />
@@ -145,10 +249,6 @@ export default function FichaTecnicaPage() {
     )
   }
 
-  const meta = ficha.meta || {}
-  const documentos = ficha.documentos || []
-  const links = ficha.links || []
-  const atributosTecnicos = ficha.atributosTecnicos || {}
   const historicoRegistos =
     ficha.historico?.length > 0
       ? ficha.historico
@@ -239,21 +339,81 @@ export default function FichaTecnicaPage() {
                   <dt className="text-xs uppercase tracking-wide text-muted">Unidade base</dt>
                   <dd className="text-sm font-semibold text-strong">{atributosTecnicos.unidade_base}</dd>
                 </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-muted">Validade</dt>
-                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.validade}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-muted">Temperatura</dt>
-                  <dd className="text-sm font-semibold text-strong">{atributosTecnicos.temperatura}</dd>
-                </div>
-                {atributosTecnicos.informacao_adicional && (
-                  <div className="sm:col-span-2">
-                    <dt className="text-xs uppercase tracking-wide text-muted">Informação adicional</dt>
-                    <dd className="text-sm text-subtle">{atributosTecnicos.informacao_adicional}</dd>
-                  </div>
-                )}
               </dl>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-muted" htmlFor="validade-select">
+                    Validade
+                  </label>
+                  <select
+                    id="validade-select"
+                    className={selectBaseClasses}
+                    value={selecoesAtributos.validade}
+                    onChange={handleSelectChange('validade')}
+                    disabled={!referenciasCarregadas || opcoesValidades.length === 0}
+                  >
+                    <option value="">{referenciasCarregadas ? 'Seleciona a validade' : 'A carregar opções...'}</option>
+                    {renderFallbackOption(selecoesAtributos.validade, opcoesValidades)}
+                    {opcoesValidades.map((opcao) => (
+                      <option key={opcao.Codigo} value={opcao.Descricao}>
+                        {opcao.Descricao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs uppercase tracking-wide text-muted" htmlFor="temperatura-select">
+                    Temperatura
+                  </label>
+                  <select
+                    id="temperatura-select"
+                    className={selectBaseClasses}
+                    value={selecoesAtributos.temperatura}
+                    onChange={handleSelectChange('temperatura')}
+                    disabled={!referenciasCarregadas || opcoesTemperaturas.length === 0}
+                  >
+                    <option value="">{referenciasCarregadas ? 'Seleciona a temperatura' : 'A carregar opções...'}</option>
+                    {renderFallbackOption(selecoesAtributos.temperatura, opcoesTemperaturas)}
+                    {opcoesTemperaturas.map((opcao) => (
+                      <option key={opcao.Codigo} value={opcao.Descricao}>
+                        {opcao.Descricao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1 sm:col-start-1">
+                  <label className="text-xs uppercase tracking-wide text-muted" htmlFor="tipo-artigo-select">
+                    Tipo Artigo
+                  </label>
+                  <select
+                    id="tipo-artigo-select"
+                    className={selectBaseClasses}
+                    value={selecoesAtributos.tipo_artigo}
+                    onChange={handleSelectChange('tipo_artigo')}
+                    disabled={!referenciasCarregadas || opcoesTiposArtigos.length === 0}
+                  >
+                    <option value="">{referenciasCarregadas ? 'Seleciona o tipo de artigo' : 'A carregar opções...'}</option>
+                    {renderFallbackOption(selecoesAtributos.tipo_artigo, opcoesTiposArtigos)}
+                    {opcoesTiposArtigos.map((opcao) => (
+                      <option key={opcao.Codigo} value={opcao.Descricao}>
+                        {opcao.Descricao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="hidden sm:block" aria-hidden="true" />
+                {(salvandoAtributos || erroAtributos) && (
+                  <p className={`text-xs ${erroAtributos ? 'text-[var(--color-error-600)]' : 'text-muted'}`}>
+                    {erroAtributos || 'A guardar alterações...'}
+                  </p>
+                )}
+              </div>
+              {atributosTecnicos.informacao_adicional && (
+                <div className="sm:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-muted">Informação adicional</p>
+                  <p className="text-sm text-subtle">{atributosTecnicos.informacao_adicional}</p>
+                </div>
+              )}
             </div>
           </div>
 
