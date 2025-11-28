@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { normalizarAlergeno } from './alergenios';
 
 export function normalizeNumber(value, fallback = 0) {
   const numeric = Number(value);
@@ -26,7 +27,7 @@ export function mapFichaResponse(apiData) {
     ppu: normalizeNumber(item.ppu ?? item.produto?.preco_unitario, 0),
     preco: normalizeNumber(item.preco ?? item.custo_parcial, 0),
     peso: normalizeNumber(item.peso ?? item.quantidade ?? item.quantidade_ficha ?? item.qtd, 0),
-    alergenos: item.alergenos || [],
+    alergenos: (item.alergenos || []).map(normalizarAlergeno),
   }));
 
   const custoCalculado = apiData.custos?.custo_calculado ?? composicao.reduce((acc, ing) => acc + ing.preco, 0);
@@ -86,7 +87,7 @@ export function mapFichaResponse(apiData) {
       atualizadoEm: apiData.atualizado_em || apiData.updatedAt || apiData.data_atualizacao || cabecalho.data_atualizacao || null,
     },
     atributosTecnicos,
-    alergenos: apiData.alergenos || [],
+    alergenos: (apiData.alergenos || []).map(normalizarAlergeno),
     documentos: apiData.documentos || apiData.anexos || [],
     links: apiData.links || apiData.ligacoes || [],
     historico: apiData.historico || [],
@@ -108,5 +109,12 @@ export async function fetchFichas() {
 
 export async function atualizarAtributosTecnicos(codigo, atributos) {
   const response = await axios.patch(`/api/fichas/${codigo}/atributos`, atributos);
+  return mapFichaResponse(response.data);
+}
+
+export async function atualizarAlergeniosFicha(codigo, alergeniosIds = []) {
+  const response = await axios.put(`/api/fichas/${codigo}/alergenios`, {
+    alergenios: alergeniosIds,
+  });
   return mapFichaResponse(response.data);
 }
