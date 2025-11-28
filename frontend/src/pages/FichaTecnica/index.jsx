@@ -9,14 +9,43 @@ import {
   LinkIcon,
   TagIcon,
   UserCircleIcon,
+  ArrowRightIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
 } from '@heroicons/react/24/outline'
 import Breadcrumbs from '../../components/Breadcrumbs'
 import PageHeader from '../../components/PageHeader'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import StateMessage from '../../components/StateMessage'
 import FichaSkeleton from '../../components/FichaSkeleton'
-import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../../services/fichas'
+import { atualizarAtributosTecnicos, fetchFichaByCodigo, fetchFichas } from '../../services/fichas'
 import { listarReferencias } from '../../services/referencias'
+
+const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim()
+
+const ordenarPorHierarquiaProdutos = (lista = []) => {
+  const locale = 'pt-PT'
+  const compareStrings = (a, b) => a.localeCompare(b, locale, { sensitivity: 'base', numeric: true })
+
+  return [...lista].sort((a, b) => {
+    const familiaA = normalizarCampoOrdenacao(a.atributosTecnicos?.familia || a.cabecalho?.familia)
+    const familiaB = normalizarCampoOrdenacao(b.atributosTecnicos?.familia || b.cabecalho?.familia)
+    const familiaCmp = compareStrings(familiaA, familiaB)
+    if (familiaCmp !== 0) return familiaCmp
+
+    const subfamiliaA = normalizarCampoOrdenacao(a.atributosTecnicos?.subfamilia || a.cabecalho?.subfamilia)
+    const subfamiliaB = normalizarCampoOrdenacao(b.atributosTecnicos?.subfamilia || b.cabecalho?.subfamilia)
+    const subfamiliaCmp = compareStrings(subfamiliaA, subfamiliaB)
+    if (subfamiliaCmp !== 0) return subfamiliaCmp
+
+    const produtoA = normalizarCampoOrdenacao(a.nome || a.cabecalho?.nome)
+    const produtoB = normalizarCampoOrdenacao(b.nome || b.cabecalho?.nome)
+    const produtoCmp = compareStrings(produtoA, produtoB)
+    if (produtoCmp !== 0) return produtoCmp
+
+    return compareStrings(normalizarCampoOrdenacao(a.codigo), normalizarCampoOrdenacao(b.codigo))
+  })
+}
 
 const formatDate = (value) => {
   if (!value) return '—'
@@ -75,6 +104,8 @@ export default function FichaTecnicaPage() {
   })
   const [salvandoAtributos, setSalvandoAtributos] = useState(false)
   const [erroAtributos, setErroAtributos] = useState(null)
+  const [listaNavegacao, setListaNavegacao] = useState([])
+  const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
   const imagemPratoSrc = useMemo(() => {
     if (!ficha?.imagem_prato) return null
     return /^https?:\/\//.test(ficha.imagem_prato)
@@ -100,6 +131,15 @@ export default function FichaTecnicaPage() {
   const documentos = ficha?.documentos || []
   const links = ficha?.links || []
   const atributosTecnicos = ficha?.atributosTecnicos || {}
+  const totalRegistos = listaNavegacao.length
+  const indiceAtual = useMemo(
+    () => listaNavegacao.findIndex((codigoLista) => String(codigoLista) === String(ficha?.codigo || fichaId)),
+    [listaNavegacao, ficha?.codigo, fichaId],
+  )
+  const codigoAnterior = indiceAtual > 0 ? listaNavegacao[indiceAtual - 1] : null
+  const codigoSeguinte = indiceAtual >= 0 && indiceAtual < totalRegistos - 1 ? listaNavegacao[indiceAtual + 1] : null
+  const primeiroCodigo = totalRegistos > 0 ? listaNavegacao[0] : null
+  const ultimoCodigo = totalRegistos > 0 ? listaNavegacao[totalRegistos - 1] : null
   const opcoesValidades = useMemo(
     () => (referencias.validades || []).filter((opcao) => opcao.Ativo !== false),
     [referencias.validades],
@@ -151,6 +191,28 @@ export default function FichaTecnicaPage() {
       })
       .finally(() => {
         if (activo) setReferenciasCarregadas(true)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  useEffect(() => {
+    let activo = true
+
+    setCarregandoNavegacao(true)
+    fetchFichas()
+      .then((todasFichas) => {
+        if (!activo) return
+        const codigosOrdenados = ordenarPorHierarquiaProdutos(todasFichas || []).map((item) => item.codigo)
+        setListaNavegacao(codigosOrdenados)
+      })
+      .catch(() => {
+        if (activo) setListaNavegacao([])
+      })
+      .finally(() => {
+        if (activo) setCarregandoNavegacao(false)
       })
 
     return () => {
@@ -254,19 +316,94 @@ export default function FichaTecnicaPage() {
           { icon: UserCircleIcon, titulo: 'Responsável', descricao: meta.autor || 'Equipa não definida' },
         ]
   const isRefreshing = loading && !!ficha
+  const acoesNavegacao = (
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <button
+        type="button"
+        onClick={() => primeiroCodigo && navigate(`/ficha/${primeiroCodigo}`)}
+        disabled={carregandoNavegacao || indiceAtual <= 0 || !primeiroCodigo}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
+          carregandoNavegacao || indiceAtual <= 0 || !primeiroCodigo
+            ? 'bg-[var(--color-neutral-200)] text-muted cursor-not-allowed'
+            : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'
+        }`}
+        aria-label="Início"
+      >
+        <ChevronDoubleLeftIcon className="w-5 h-5" />
+        <span className="hidden sm:inline">Início</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => codigoAnterior && navigate(`/ficha/${codigoAnterior}`)}
+        disabled={carregandoNavegacao || !codigoAnterior}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
+          carregandoNavegacao || !codigoAnterior
+            ? 'bg-[var(--color-neutral-200)] text-muted cursor-not-allowed'
+            : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'
+        }`}
+        aria-label="Atrás"
+      >
+        <ArrowLeftIcon className="w-5 h-5" />
+        <span className="hidden sm:inline">Atrás</span>
+      </button>
+
+      <span className="text-base font-bold text-strong min-w-[110px] text-center">
+        {carregandoNavegacao ? '…' : indiceAtual >= 0 ? `${indiceAtual + 1} / ${totalRegistos}` : '—'}
+      </span>
+
+      <button
+        type="button"
+        onClick={() => codigoSeguinte && navigate(`/ficha/${codigoSeguinte}`)}
+        disabled={carregandoNavegacao || !codigoSeguinte}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
+          carregandoNavegacao || !codigoSeguinte
+            ? 'bg-[var(--color-neutral-200)] text-muted cursor-not-allowed'
+            : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'
+        }`}
+        aria-label="Avançar"
+      >
+        <span className="hidden sm:inline">Avançar</span>
+        <ArrowRightIcon className="w-5 h-5" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => ultimoCodigo && navigate(`/ficha/${ultimoCodigo}`)}
+        disabled={carregandoNavegacao || indiceAtual === totalRegistos - 1 || !ultimoCodigo}
+        className={`inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold transition ${
+          carregandoNavegacao || indiceAtual === totalRegistos - 1 || !ultimoCodigo
+            ? 'bg-[var(--color-neutral-200)] text-muted cursor-not-allowed'
+            : 'bg-[var(--color-primary-600)] text-on-primary hover:bg-[var(--color-primary-700)] hover:scale-105'
+        }`}
+        aria-label="Fim"
+      >
+        <span className="hidden sm:inline">Fim</span>
+        <ChevronDoubleRightIcon className="w-5 h-5" />
+      </button>
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-surface-muted py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-        <Breadcrumbs
-          items={[
-            { label: 'Fichas Técnicas', href: '/' },
-            { label: ficha.nome || ficha.codigo || 'Ficha Técnica' },
-          ]}
-        />
+    <div className="min-h-screen bg-surface-muted">
+      <div className="sticky top-0 z-40 bg-surface-muted/95 backdrop-blur border-b border-soft">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4">
+          <Breadcrumbs
+            items={[
+              { label: 'Fichas Técnicas', href: '/' },
+              { label: ficha.nome || ficha.codigo || 'Ficha Técnica' },
+            ]}
+          />
 
-        <PageHeader title={ficha.nome || 'Ficha Técnica'} subtitle={`Código interno: ${ficha.codigo}`} />
+          <PageHeader
+            title={ficha.nome || 'Ficha Técnica'}
+            subtitle={`Código interno: ${ficha.codigo}`}
+            actions={acoesNavegacao}
+          />
+        </div>
+      </div>
 
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8 pb-10 pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-surface border border-soft rounded-xl p-4 space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted uppercase tracking-wide">
