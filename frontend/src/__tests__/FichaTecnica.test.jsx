@@ -6,9 +6,14 @@ import { describe, beforeEach, expect, it, vi } from 'vitest'
 
 import FichaTecnicaPage from '../pages/FichaTecnica'
 import { fetchFichaByCodigo } from '../services/fichas'
+import { listarReferencias } from '../services/referencias'
 
 vi.mock('../services/fichas', () => ({
   fetchFichaByCodigo: vi.fn(),
+}))
+
+vi.mock('../services/referencias', () => ({
+  listarReferencias: vi.fn(),
 }))
 
 const buildFicha = (overrides = {}) => ({
@@ -41,6 +46,7 @@ const buildFicha = (overrides = {}) => ({
     unidade_base: 'kg',
     validade: '3 dias',
     temperatura: '4ºC',
+    tipo_artigo: 'Produto acabado',
     informacao_adicional: 'Servir fresco',
   },
   composicao: [
@@ -91,6 +97,12 @@ const renderWithRouter = () =>
 describe('FichaTecnicaPage', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    listarReferencias.mockImplementation(async (nome) => {
+      if (nome === 'validades') return [{ Codigo: 'VA-1', Descricao: '3 dias', Ativo: true }]
+      if (nome === 'temperaturas') return [{ Codigo: 'TP-1', Descricao: '4ºC', Ativo: true }]
+      if (nome === 'tipoartigos') return [{ Codigo: 'TA-1', Descricao: 'Produto acabado', Ativo: true }]
+      return []
+    })
   })
 
   it('renders ficha metadata and switches between tabs', async () => {
@@ -106,6 +118,9 @@ describe('FichaTecnicaPage', () => {
     expect(screen.getByText('Ativo')).toBeInTheDocument()
     expect(screen.getByText('Chef Silva')).toBeInTheDocument()
     expect(screen.getByText('Padaria')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Validade')).toHaveValue('3 dias')
+    expect(screen.getByLabelText('Temperatura')).toHaveValue('4ºC')
+    expect(screen.getByLabelText('Tipo Artigo')).toHaveValue('Produto acabado')
 
     expect(screen.getByText('Custo registado')).toBeInTheDocument()
     expect(screen.getByText('Composição resumida')).toBeInTheDocument()

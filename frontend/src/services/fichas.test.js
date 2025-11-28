@@ -21,6 +21,7 @@ describe('mapFichaResponse', () => {
         subfamilia: 'Bolos',
         validade: '3 dias',
         temperatura: '4ºC',
+        tipo_artigo: 'Produto acabado',
         informacao_adicional: 'Servir frio',
       },
       composicao: [
@@ -41,6 +42,7 @@ describe('mapFichaResponse', () => {
     expect(payload.descricao).toBe('Uma ficha de exemplo');
     expect(payload.atributosTecnicos.familia).toBe('Pastelaria');
     expect(payload.atributosTecnicos.informacao_adicional).toBe('Servir frio');
+    expect(payload.atributosTecnicos.tipo_artigo).toBe('Produto acabado');
   });
 
   it('derives costs and totals from legacy ingredient fields when missing', () => {

@@ -43,6 +43,7 @@ export function mapFichaResponse(apiData) {
     unidade_base: unidadeBase,
     validade: cabecalho.validade || apiData.validade || '—',
     temperatura: cabecalho.temperatura || apiData.temperatura || '—',
+    tipo_artigo: cabecalho.tipo_artigo || apiData.tipo_artigo || apiData.tipoArtigo || '—',
     informacao_adicional: cabecalho.informacao_adicional || apiData.informacao_adicional || '',
   };
 
