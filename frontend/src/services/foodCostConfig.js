@@ -1,5 +1,8 @@
 export const FOOD_COST_BUSINESS_TYPE_STORAGE_KEY = 'configuracao_food_cost_tipo_negocio';
 export const FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY = 'configuracao_food_cost_intervalos_consultores';
+export const OPERACIONAL_COST_STORAGE_KEY = 'configuracao_food_cost_operacionais';
+export const PVP_FOOD_COST_TARGETS_STORAGE_KEY = 'configuracao_pvp_food_cost_alvos';
+export const PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY = 'configuracao_pvp_food_cost_alvos_decimais';
 export const PVP_VARIATIONS_COUNT = 5;
 
 const fillArrayWithDefault = (value) => Array.from({ length: PVP_VARIATIONS_COUNT }, () => value);
@@ -110,4 +113,59 @@ export const getDefaultPvpParameters = (tipoNegocio) => {
     foodCostDecimals,
     ratios,
   };
+};
+
+const normalizeDecimal = (value) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+};
+
+const parseJsonArray = (value) => {
+  if (!value) return null;
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const ensureArraySize = (values) => {
+  const normalized = Array.isArray(values) ? [...values].slice(0, PVP_VARIATIONS_COUNT) : [];
+
+  while (normalized.length < PVP_VARIATIONS_COUNT) {
+    normalized.push(null);
+  }
+
+  return normalized;
+};
+
+export const getOperationalCostPercent = () => {
+  const stored = Number(localStorage.getItem(OPERACIONAL_COST_STORAGE_KEY));
+
+  if (Number.isFinite(stored) && stored >= 0) {
+    return Math.min(100, Math.max(0, stored));
+  }
+
+  return getDefaultPvpParameters(getBusinessType()).operacionaisPercent;
+};
+
+export const getFoodCostTargetDecimals = () => {
+  const storedDecimals = parseJsonArray(localStorage.getItem(PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY));
+
+  if (storedDecimals) {
+    return ensureArraySize(storedDecimals).map((value) => normalizeDecimal(value));
+  }
+
+  const storedPercents = parseJsonArray(localStorage.getItem(PVP_FOOD_COST_TARGETS_STORAGE_KEY));
+
+  if (storedPercents) {
+    return ensureArraySize(storedPercents).map((value) => {
+      const percent = normalizeDecimal(value);
+      return percent ? percent / 100 : null;
+    });
+  }
+
+  return getDefaultPvpParameters(getBusinessType()).foodCostDecimals;
 };
