@@ -6,6 +6,8 @@ import FichaTecnicaPage from './pages/FichaTecnica';
 import Importacoes from './pages/import/Importacoes';
 import ImportarTipo from './pages/import/ImportarTipo';
 import Referencias from './pages/referencias/Referencias';
+import Moeda from './pages/configuracao/Moeda';
+import CustosOperacionais from './pages/configuracao/CustosOperacionais';
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
             <Route path="/importacoes" element={<Importacoes />} />
             <Route path="/importar/:tipo" element={<ImportarTipo />} />
             <Route path="/referencias" element={<Referencias />} />
+            <Route path="/configuracao/regionalizacao/moeda" element={<Moeda />} />
+            <Route path="/configuracao/food-cost/custos-operacionais" element={<CustosOperacionais />} />
           </Routes>
         </div>
       </div>
