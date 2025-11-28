@@ -3,6 +3,7 @@ import axios from 'axios';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { mapFichaResponse } from '../services/fichas';
+import { useCurrencySymbol } from '../services/currency';
 
 const normalizarCampoOrdenacao = (valor) => (valor ?? '').toString().trim();
 
@@ -39,6 +40,7 @@ export default function FichaList() {
   const [search, setSearch] = useState('');
   const [selectedFamilies, setSelectedFamilies] = useState([]);
   const [selectedSubfamily, setSelectedSubfamily] = useState('');
+  const currencySymbol = useCurrencySymbol();
 
   useEffect(() => {
     axios.get('/api/fichas')
@@ -231,7 +233,7 @@ export default function FichaList() {
                   <h3 className="text-lg sm:text-xl font-bold text-strong mb-2 sm:mb-3 line-clamp-2">{ficha.nome}</h3>
                   <div className="text-right">
                     <p className="text-2xl sm:text-3xl font-bold text-success-strong">
-                      {(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} €
+                      {(ficha.totais?.custo_total || ficha.custos?.custo_registado || 0).toFixed(2)} {currencySymbol}
                     </p>
                     <p className="text-xs sm:text-sm text-muted">custo total</p>
                   </div>
