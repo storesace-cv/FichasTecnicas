@@ -305,7 +305,7 @@ export default function FichaList() {
           <p className="text-base sm:text-lg text-subtle mt-2">Vai a "Importar Excel" e carrega o teu ficheiro do NET-bo!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
           {ordered.map(ficha => (
             <Link
               key={ficha.codigo}
