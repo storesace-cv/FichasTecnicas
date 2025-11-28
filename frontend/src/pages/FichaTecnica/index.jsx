@@ -137,6 +137,7 @@ export default function FichaTecnicaPage() {
   const links = ficha?.links || []
   const atributosTecnicos = ficha?.atributosTecnicos || {}
   const precosTaxas = ficha?.precosTaxas
+  const custoCalculado = ficha?.custos?.custo_calculado
   const totalRegistos = listaNavegacao.length
   const indiceAtual = useMemo(
     () => listaNavegacao.findIndex((codigoLista) => String(codigoLista) === String(ficha?.codigo || fichaId)),
@@ -203,6 +204,16 @@ export default function FichaTecnicaPage() {
       activo = false
     }
   }, [])
+
+  const foodCosts = useMemo(() => {
+    if (!precosTaxas || typeof custoCalculado !== 'number') return null
+
+    return [1, 2, 3, 4, 5].reduce((acc, indice) => {
+      const preco = Number(precosTaxas[`preco${indice}`])
+      acc[indice] = preco > 0 && Number.isFinite(preco) ? (custoCalculado / preco) * 100 : null
+      return acc
+    }, {})
+  }, [custoCalculado, precosTaxas])
 
   useEffect(() => {
     let activo = true
@@ -607,6 +618,9 @@ export default function FichaTecnicaPage() {
                       >
                         <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
                         <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} €</p>
+                        <p className="text-sm text-muted">
+                          Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
+                        </p>
                       </div>
                     ))}
                   </div>
