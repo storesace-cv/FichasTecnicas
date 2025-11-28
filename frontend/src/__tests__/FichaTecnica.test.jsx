@@ -17,6 +17,10 @@ vi.mock('../services/referencias', () => ({
   listarReferencias: vi.fn(),
 }))
 
+vi.mock('../services/referencias', () => ({
+  listarReferencias: vi.fn(),
+}))
+
 const buildFicha = (overrides = {}) => ({
   codigo: 'FT-123',
   nome: 'Bolo de Chocolate',
