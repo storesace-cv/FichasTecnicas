@@ -3,11 +3,9 @@ import React, { useEffect, useState } from 'react';
 const STORAGE_KEY_OPERACIONAIS = 'configuracao_food_cost_operacionais';
 const STORAGE_KEY_FOOD_COST_ALVO = 'configuracao_pvp_food_cost_alvo';
 const STORAGE_KEY_FOOD_COST_ALVO_DECIMAL = 'configuracao_pvp_food_cost_alvo_decimal';
-
 export default function CalculoPVPFoodCost() {
   const [custosOperacionais, setCustosOperacionais] = useState('');
   const [foodCostAlvo, setFoodCostAlvo] = useState('');
-  const [foodCostAlvoDecimal, setFoodCostAlvoDecimal] = useState('');
   const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
@@ -21,10 +19,6 @@ export default function CalculoPVPFoodCost() {
       setFoodCostAlvo(foodCostGuardado);
     }
 
-    const foodCostDecimalGuardado = localStorage.getItem(STORAGE_KEY_FOOD_COST_ALVO_DECIMAL);
-    if (foodCostDecimalGuardado !== null) {
-      setFoodCostAlvoDecimal(foodCostDecimalGuardado);
-    }
   }, []);
 
   const guardar = (event) => {
@@ -33,15 +27,8 @@ export default function CalculoPVPFoodCost() {
     const custosNormalizados = custosOperacionais === '' ? '' : Math.max(0, Math.min(100, Number(custosOperacionais)));
     const foodCostNormalizado = foodCostAlvo === '' ? '' : Math.max(0.01, Math.min(100, Number(foodCostAlvo)));
 
-    const foodCostDecimalNormalizado = (() => {
-      if (foodCostAlvoDecimal !== '') {
-        return Math.max(0.01, Math.min(1, Number(foodCostAlvoDecimal)));
-      }
-      if (foodCostNormalizado !== '') {
-        return Math.max(0.01, Math.min(1, foodCostNormalizado / 100));
-      }
-      return '';
-    })();
+    const foodCostDecimalNormalizado =
+      foodCostNormalizado === '' ? '' : Math.max(0.01, Math.min(1, foodCostNormalizado / 100));
 
     const custosParaGuardar = custosNormalizados === '' ? '' : custosNormalizados.toString();
     const foodCostParaGuardar = foodCostNormalizado === '' ? '' : foodCostNormalizado.toString();
@@ -49,7 +36,6 @@ export default function CalculoPVPFoodCost() {
 
     setCustosOperacionais(custosParaGuardar);
     setFoodCostAlvo(foodCostParaGuardar);
-    setFoodCostAlvoDecimal(foodCostDecimalParaGuardar);
 
     localStorage.setItem(STORAGE_KEY_OPERACIONAIS, custosParaGuardar);
     localStorage.setItem(STORAGE_KEY_FOOD_COST_ALVO, foodCostParaGuardar);
@@ -111,28 +97,7 @@ export default function CalculoPVPFoodCost() {
                 className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
               />
               <p className="text-sm text-subtle">
-                Indique o food cost alvo em percentagem. Se não preencher o valor decimal, este será deduzido automaticamente (ex.: 30% → 0.30) e usado em PVSI = Custo com operacionais / FoodCostAlvo.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-strong" htmlFor="food-cost-alvo-decimal">
-                Food cost alvo (decimal)
-              </label>
-              <input
-                id="food-cost-alvo-decimal"
-                type="number"
-                inputMode="decimal"
-                min="0.01"
-                max="1"
-                step="0.001"
-                value={foodCostAlvoDecimal}
-                onChange={(event) => setFoodCostAlvoDecimal(event.target.value)}
-                placeholder="Exemplo: 0.30"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm focus:border-primary focus:outline-none"
-              />
-              <p className="text-sm text-subtle">
-                Se preferir, introduza diretamente o valor decimal do food cost (ex.: 30% → 0.30). Este valor é usado em PVSI = Custo com operacionais / FoodCostAlvoDecimal.
+                Indique o food cost alvo em percentagem; o valor decimal correspondente é deduzido automaticamente (ex.: 30% → 0.30) e usado em PVSI = Custo com operacionais / FoodCostAlvo.
               </p>
             </div>
 
@@ -158,12 +123,12 @@ export default function CalculoPVPFoodCost() {
 
         <div className="rounded-2xl bg-white p-6 shadow-card border border-gray-100 space-y-4">
           <h2 className="text-xl font-bold text-strong">Como funciona o cálculo via Food Cost alvo</h2>
-          <p className="text-base text-subtle">
-            Esta abordagem parte do custo real do prato (ingredientes + custos operacionais) e aplica o{' '}
-            <strong>Food Cost alvo</strong> (em percentagem ou em decimal) para chegar ao preço de venda sem IVA (PVSI). Depois,
-            aplica-se o IVA indicado no
-            artigo (campo <strong>iva1</strong>) para obter o PVP final apresentado ao cliente.
-          </p>
+            <p className="text-base text-subtle">
+              Esta abordagem parte do custo real do prato (ingredientes + custos operacionais) e aplica o{' '}
+              <strong>Food Cost alvo</strong> em percentagem, deduzindo automaticamente o valor decimal correspondente, para chegar ao preço de venda sem IVA (PVSI).
+              Depois, aplica-se o IVA indicado no
+              artigo (campo <strong>iva1</strong>) para obter o PVP final apresentado ao cliente.
+            </p>
           <div className="space-y-2 text-sm text-strong">
             <p className="font-semibold">Passos e fórmulas:</p>
             <ol className="list-decimal list-inside space-y-1">
@@ -175,7 +140,7 @@ export default function CalculoPVPFoodCost() {
                 <strong>CustoComOperacionais</strong> = CustoIngredientes × (1 + PercentagemOperacionais/100).
               </li>
               <li>
-                <strong>PVSI</strong> = CustoComOperacionais / FoodCostAlvoDecimal (ex.: 30% → 0.30).
+                <strong>PVSI</strong> = CustoComOperacionais / FoodCostAlvoDecimal, onde o decimal é deduzido automaticamente a partir da percentagem indicada (ex.: 30% → 0.30).
               </li>
               <li>
                 <strong>PVP</strong> = PVSI × (1 + IVA/100), usando o IVA do artigo (<strong>iva1</strong>).
