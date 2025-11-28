@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import json
+import os
 import uuid
 
 
@@ -67,6 +69,12 @@ class Produto(db.Model):
     fichas = db.relationship(
         "FichaTecnica", back_populates="produto", cascade="all, delete-orphan"
     )
+    alergenios = db.relationship(
+        "Alergenio",
+        secondary="ProdutoAlergenios",
+        back_populates="produtos",
+        cascade="all",
+    )
 
 
 class FichaTecnica(db.Model):
@@ -122,6 +130,39 @@ class PrecoTaxa(db.Model):
     produto = db.relationship("Produto", back_populates="preco")
 
 
+class Alergenio(db.Model):
+    __tablename__ = "Alergenios"
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    Nome = db.Column("Nome", db.String(200), nullable=False)
+    NomeIngles = db.Column("NomeIngles", db.String(200))
+    Descricao = db.Column("Descricao", db.Text)
+    Exemplos = db.Column("Exemplos", db.Text)
+    Notas = db.Column("Notas", db.Text)
+
+    produtos = db.relationship(
+        "Produto",
+        secondary="ProdutoAlergenios",
+        back_populates="alergenios",
+    )
+
+
+class ProdutoAlergenio(db.Model):
+    __tablename__ = "ProdutoAlergenios"
+
+    Id = db.Column("Id", db.Integer, primary_key=True)
+    ProdutoCodigo = db.Column(
+        "ProdutoCodigo", db.String(50), db.ForeignKey("produtos.codigo"), nullable=False
+    )
+    AlergenioId = db.Column(
+        "AlergenioId", db.Integer, db.ForeignKey("Alergenios.Id"), nullable=False
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint("ProdutoCodigo", "AlergenioId", name="uq_produto_alergenio"),
+    )
+
+
 # ===================================================================
 # TABELAS DE REFERÊNCIA
 # ===================================================================
@@ -161,3 +202,36 @@ class Temperatura(db.Model):
 def create_tables_and_seed():
     db.create_all()
     print("Tabelas criadas!")
+
+
+def seed_alergenios_from_json(json_path: str):
+    if not json_path:
+        return
+
+    if Alergenio.query.count() > 0:
+        return
+
+    if not os.path.exists(json_path):
+        print(f"Ficheiro de seed de alergénios não encontrado em {json_path}")
+        return
+
+    with open(json_path, "r", encoding="utf-8") as handle:
+        try:
+            dados = json.load(handle)
+        except json.JSONDecodeError:
+            print("Ficheiro de alergénios inválido; ignorando seed.")
+            return
+
+    for entrada in dados or []:
+        novo = Alergenio(
+            Id=entrada.get("id"),
+            Nome=entrada.get("nome"),
+            NomeIngles=entrada.get("nome_ingles"),
+            Descricao=entrada.get("descricao"),
+            Exemplos="\n".join(entrada.get("exemplos", [])) if isinstance(entrada.get("exemplos"), list) else entrada.get("exemplos"),
+            Notas=entrada.get("notas"),
+        )
+        db.session.add(novo)
+
+    db.session.commit()
+    print(f"Seed de alergénios aplicado a partir de {json_path}")

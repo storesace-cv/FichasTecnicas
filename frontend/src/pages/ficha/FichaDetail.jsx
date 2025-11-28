@@ -154,7 +154,9 @@ export default function FichaDetail() {
                       <td className="px-4 sm:px-6 py-3">
                         <div className="flex flex-wrap gap-2 max-w-xs sm:max-w-sm">
                           {(ing.alergenos || []).map(al => (
-                            <span key={`${al.codigo}-${ing.ordem}`} className="text-xs bg-error-soft text-error-strong px-2 py-1 rounded-full border border-[var(--color-error-200)]">
+                            <span
+                              key={`${al.id || al.codigo || al.nome}-${ing.ordem}`}
+                              className="text-xs bg-error-soft text-error-strong px-2 py-1 rounded-full border border-[var(--color-error-200)]">
                               {al.nome || al.codigo}
                             </span>
                           ))}
@@ -190,17 +192,17 @@ export default function FichaDetail() {
 
           <div className="bg-surface rounded-2xl shadow p-6 space-y-3 lg:col-span-1">
             <h3 className="text-xl font-bold text-strong">Alergénios do produto</h3>
-            {ficha.alergenos.length === 0 ? (
-              <p className="text-muted">Nenhum alergénio associado às linhas desta ficha.</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {ficha.alergenos.map(al => (
-                  <span key={al.codigo} className="text-sm bg-error-soft text-error-strong px-3 py-1 rounded-full border border-[var(--color-error-200)]">
+              {ficha.alergenos.length === 0 ? (
+                <p className="text-muted">Nenhum alergénio associado às linhas desta ficha.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {ficha.alergenos.map(al => (
+                  <span key={al.id || al.codigo || al.nome} className="text-sm bg-error-soft text-error-strong px-3 py-1 rounded-full border border-[var(--color-error-200)]">
                     {al.nome || al.codigo}
                   </span>
                 ))}
-              </div>
-            )}
+                </div>
+              )}
           </div>
 
           <div className="bg-surface rounded-2xl shadow p-6 space-y-3 lg:col-span-1">

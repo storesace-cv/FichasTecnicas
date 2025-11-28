@@ -5,20 +5,23 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, beforeEach, expect, it, vi } from 'vitest'
 
 import FichaTecnicaPage from '../pages/FichaTecnica'
-import { atualizarAtributosTecnicos, fetchFichaByCodigo } from '../services/fichas'
+import { atualizarAtributosTecnicos, fetchFichaByCodigo, fetchFichas } from '../services/fichas'
+import { listarAlergenios } from '../services/alergenios'
 import { listarReferencias } from '../services/referencias'
 
 vi.mock('../services/fichas', () => ({
   fetchFichaByCodigo: vi.fn(),
+  fetchFichas: vi.fn(() => Promise.resolve([])),
   atualizarAtributosTecnicos: vi.fn(),
+  atualizarAlergeniosFicha: vi.fn(),
 }))
 
 vi.mock('../services/referencias', () => ({
   listarReferencias: vi.fn(),
 }))
 
-vi.mock('../services/referencias', () => ({
-  listarReferencias: vi.fn(),
+vi.mock('../services/alergenios', () => ({
+  listarAlergenios: vi.fn(),
 }))
 
 const buildFicha = (overrides = {}) => ({
@@ -102,6 +105,8 @@ const renderWithRouter = () =>
 describe('FichaTecnicaPage', () => {
   beforeEach(() => {
     vi.resetAllMocks()
+    fetchFichas.mockResolvedValue([])
+    listarAlergenios.mockResolvedValue([])
     listarReferencias.mockImplementation(async (nome) => {
       if (nome === 'validades')
         return [
