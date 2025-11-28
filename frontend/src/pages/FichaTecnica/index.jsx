@@ -768,8 +768,8 @@ export default function FichaTecnicaPage() {
             <div className="p-4 sm:p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted">via Food Cost alvo</p>
                   <h2 className="text-xl font-semibold text-strong">Food Cost - Calculado</h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted">via Food Cost alvo</p>
                 </div>
               </div>
               {pvpCalculadoFoodCost && (
