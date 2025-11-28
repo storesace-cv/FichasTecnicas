@@ -18,3 +18,8 @@ npm-debug.log*
 
 # Env
 .env
+
+# Databases
+backend/databases/*.db
+backend/databases/*.db-journal
+backend/databases/* 2.db-journal
