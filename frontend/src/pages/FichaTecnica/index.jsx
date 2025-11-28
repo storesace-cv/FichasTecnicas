@@ -256,13 +256,13 @@ export default function FichaTecnicaPage() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
-  const getFoodCostBackground = useCallback(
+  const getFoodCostClassification = useCallback(
     (valor) => {
-      if (valor === null || valor === undefined || valor === '') return undefined
+      if (valor === null || valor === undefined || valor === '') return {}
 
       const valorNormalizado = Number(valor)
 
-      if (!Number.isFinite(valorNormalizado)) return undefined
+      if (!Number.isFinite(valorNormalizado)) return {}
 
       const limiteBom = Number.isFinite(Number(foodCostIntervals?.bomMax))
         ? Number(foodCostIntervals.bomMax)
@@ -271,9 +271,10 @@ export default function FichaTecnicaPage() {
         ? Number(foodCostIntervals.normalMax)
         : DEFAULT_INTERVALS_BY_BUSINESS['Restauração tradicional'].normalMax
 
-      if (valorNormalizado <= limiteBom) return FOOD_COST_BACKGROUND_STYLES.bom
-      if (valorNormalizado <= limiteNormal) return FOOD_COST_BACKGROUND_STYLES.normal
-      return FOOD_COST_BACKGROUND_STYLES.mau
+      if (valorNormalizado <= limiteBom) return { status: 'bom', background: FOOD_COST_BACKGROUND_STYLES.bom }
+      if (valorNormalizado <= limiteNormal)
+        return { status: 'normal', background: FOOD_COST_BACKGROUND_STYLES.normal }
+      return { status: 'mau', background: FOOD_COST_BACKGROUND_STYLES.mau }
     },
     [foodCostIntervals]
   )
@@ -676,10 +677,16 @@ export default function FichaTecnicaPage() {
                   <div className="grid min-w-[640px] grid-cols-5 gap-4">
                     {[1, 2, 3, 4, 5].map((indice) => {
                       const valorFoodCost = foodCosts?.[indice]
-                      const background = getFoodCostBackground(valorFoodCost)
+                      const { background, status } = getFoodCostClassification(valorFoodCost)
+                      const isFoodCostMau = status === 'mau'
                       const cardClasses = `rounded-lg p-4 border border-[var(--color-neutral-100)] text-center shadow-inner ${
                         background ? '' : 'bg-surface-muted'
+                      } ${isFoodCostMau ? 'text-white' : ''}`
+                      const labelClassName = `text-xs uppercase tracking-wide ${
+                        isFoodCostMau ? 'text-white/90' : 'text-subtle'
                       }`
+                      const priceClassName = `text-xl font-semibold ${isFoodCostMau ? 'text-white' : 'text-strong'}`
+                      const foodCostClassName = `text-sm ${isFoodCostMau ? 'text-white/90' : 'text-muted'}`
 
                       return (
                         <div
@@ -687,9 +694,9 @@ export default function FichaTecnicaPage() {
                           className={cardClasses}
                           style={background ? { background, backgroundColor: '#fff' } : undefined}
                         >
-                          <p className="text-xs text-subtle uppercase tracking-wide">PVP {indice}</p>
-                          <p className="text-xl font-semibold text-strong">{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
-                          <p className="text-sm text-muted">
+                          <p className={labelClassName}>PVP {indice}</p>
+                          <p className={priceClassName}>{precosTaxas[`preco${indice}`].toFixed(2)} {currencySymbol}</p>
+                          <p className={foodCostClassName}>
                             Food Cost: {foodCosts?.[indice] ? `${foodCosts[indice].toFixed(2)} %` : '—'}
                           </p>
                         </div>
