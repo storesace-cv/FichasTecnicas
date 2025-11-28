@@ -3,6 +3,8 @@ export const FOOD_COST_CONSULTANT_INTERVALS_STORAGE_KEY = 'configuracao_food_cos
 export const OPERACIONAL_COST_STORAGE_KEY = 'configuracao_food_cost_operacionais';
 export const PVP_FOOD_COST_TARGETS_STORAGE_KEY = 'configuracao_pvp_food_cost_alvos';
 export const PVP_FOOD_COST_TARGETS_DECIMALS_STORAGE_KEY = 'configuracao_pvp_food_cost_alvos_decimais';
+export const PVP_RATIOS_STORAGE_KEY = 'configuracao_pvp_ratios';
+export const LEGACY_PVP_RATIO_STORAGE_KEY = 'configuracao_pvp_ratio';
 export const PVP_VARIATIONS_COUNT = 5;
 
 const fillArrayWithDefault = (value) => Array.from({ length: PVP_VARIATIONS_COUNT }, () => value);
@@ -120,6 +122,11 @@ const normalizeDecimal = (value) => {
   return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
 };
 
+const normalizeRatio = (value) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+};
+
 const parseJsonArray = (value) => {
   if (!value) return null;
 
@@ -168,4 +175,21 @@ export const getFoodCostTargetDecimals = () => {
   }
 
   return getDefaultPvpParameters(getBusinessType()).foodCostDecimals;
+};
+
+export const getPvpRatios = () => {
+  const storedRatios = parseJsonArray(localStorage.getItem(PVP_RATIOS_STORAGE_KEY));
+
+  if (storedRatios) {
+    return ensureArraySize(storedRatios).map((value) => normalizeRatio(value));
+  }
+
+  const legacyRatio = localStorage.getItem(LEGACY_PVP_RATIO_STORAGE_KEY);
+
+  if (legacyRatio !== null && legacyRatio !== undefined) {
+    const normalizedLegacyRatio = normalizeRatio(legacyRatio);
+    return ensureArraySize(Array.from({ length: PVP_VARIATIONS_COUNT }, () => normalizedLegacyRatio));
+  }
+
+  return getDefaultPvpParameters(getBusinessType()).ratios;
 };
