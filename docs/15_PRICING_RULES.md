@@ -1,185 +1,244 @@
-Regras Oficiais de Cálculo — Rácio, Food Cost, Custos Operacionais e Preço de Venda (com IVA)
+# 15 – Regras Oficiais de Cálculo — Rácio, Food Cost, Custos Operacionais, Preço de Venda (com IVA) e Política de Preços
 
-Este documento define as regras profissionais para o cálculo financeiro de fichas técnicas de produtos/pratos:
-	•	Rácio de um prato
-	•	Food Cost (%)
-	•	Custos Operacionais (Overhead Cost)
-	•	Preço de Venda Profissional (com IVA)
+---
 
-Estas regras devem ser seguidas por todas as implementações futuras da aplicação (backend, frontend, APIs, exportações e lógica de cálculo).
+# 1. Rácio de um Prato (Multiplicador de Custo)
 
-⸻
+O **Rácio** é o multiplicador aplicado ao custo total do prato (incluindo custos operacionais) para obter o **Preço de Venda Sem IVA (PVSI)**.
 
-1. Rácio de um Prato (Multiplicador de Custo)
+    Rácio = PreçoDeVendaSemIVA / CustoTotalDoPrato
 
-1.1 Definição
+Relação direta com o Food Cost:
 
-O Rácio é o multiplicador aplicado ao custo do prato para chegar ao preço de venda sem IVA.
+    Rácio = 1 / FoodCostDecimal
 
-Rácio = PreçoDeVendaSemIVA / CustoTotalDoPrato
+Interpretação prática:
 
-1.2 Relação com Food Cost
+| Rácio | FC%  | Interpretação     |
+|-------|------|-------------------|
+| 3     | ~33% | Margem aceitável  |
+| 4     | 25%  | Boa margem        |
+| 5     | 20%  | Muito boa         |
+| 6–7   | 14–17% | Excelente       |
 
-Como relação direta:
+---
 
-Rácio = 1 / FoodCostDecimal
+# 2. Food Cost (%)
+
+O **Food Cost** representa a percentagem do preço sem IVA que corresponde ao custo dos ingredientes.
+
+    FoodCost% = (CustoTotal / PreçoDeVendaSemIVA) × 100
+
+⚠️ O Food Cost é sempre calculado **sem IVA**.
+
+Exemplos típicos:
+- 25% → restauração tradicional  
+- 30% → menus  
+- 18–22% → pratos premium  
+
+---
+
+# 3. Custos Operacionais (Overhead Cost)
+
+Incluem, entre outros:
+
+- eletricidade  
+- gás  
+- água  
+- mão de obra direta  
+- desperdício natural  
+- consumíveis (óleo, detergentes)  
+- manutenção e equipamento  
+
+Aplicação:
+
+    CustoComOperacionais = CustoIngredientes × (1 + PercentualOperacionais)
+
+Percentuais típicos:
+
+- 10% → fast food  
+- 15% → restauração generalista  
+- 20% → premium  
+- 25% → produtos de alta complexidade  
+
+---
+
+# 4. Cálculo Profissional do Preço de Venda (com IVA)
+
+O cálculo profissional tem **4 etapas**.
+
+## 4.1 Custo dos ingredientes
+
+    CustoIngredientes = soma(Quantidade × PrecoUnitario)
+
+## 4.2 Aplicação dos custos operacionais
+
+    CustoComOperacionais = CustoIngredientes × (1 + PercentualOperacionais)
+
+## 4.3 Preço de Venda Sem IVA (PVSI)
+
+### Método A — Food Cost alvo
+
+    PVSI = CustoComOperacionais / FoodCostAlvoDecimal
+
+### Método B — Rácio
+
+    PVSI = CustoComOperacionais × Rácio
+
+## 4.4 Preço Final Com IVA
+
+    PVP = PVSI × (1 + IVA/100)
+
+---
+
+# 5. Exemplos Profissionais
+
+Os exemplos numéricos devem seguir sempre a sequência:
+
+1. Calcular CustoIngredientes  
+2. Aplicar PercentualOperacionais → CustoComOperacionais  
+3. Calcular PVSI:
+   - via Food Cost alvo, ou  
+   - via Rácio  
+4. Aplicar IVA → PVP  
+5. Só depois aplicar a Política de Preços (arredondamento).
+
+---
+
+# 6. Política de Preços (Arredondamento)
+
+A política de preços determina como o valor final (já com IVA) deve ser arredondado para apresentação comercial.
+
+Ela é aplicada **depois** de:
+
+1. cálculo dos custos,  
+2. aplicação dos custos operacionais,  
+3. cálculo do PVSI,  
+4. aplicação do IVA.
+
+---
+
+# 7. Métodos Profissionais de Arredondamento
+
+A aplicação suporta **sete** métodos de arredondamento. Cada método deve ser explicado de forma clara na UI.
+
+### 7.1 Arredondamento Comercial Clássico (“.00” ou “.50”)
+
+Arredonda o preço para valores como 10,00 €, 10,50 €, 11,00 €.
 
 Exemplos:
-	•	FC = 25% → rácio = 4
-	•	FC = 20% → rácio = 5
 
-1.3 Interpretação prática
+- 10,32 → 10,50  
+- 10,66 → 11,00  
 
-Rácio	FC%	Interpretação
-3	~33%	Margem aceitável
-4	25%	Boa margem
-5	20%	Muito bom
-6–7	14–17%	Excelente margem
+### 7.2 Psychological Pricing (“.90” ou “.99”)
 
+Usa preços psicológicos que “parecem mais baixos”, como 9,90 €, 9,95 €, 9,99 €.
 
-⸻
+Exemplos:
 
-2. Food Cost (%)
+- 10,32 → 10,90  
+- 10,66 → 10,90  
+- 11,10 → 11,90  
 
-2.1 Definição
+### 7.3 Arredondamento Premium — termina em .00
 
-Percentagem do preço sem IVA que representa o custo dos ingredientes.
+Arredonda sempre para o euro inteiro superior, dando uma imagem mais premium.
 
-2.2 Fórmula profissional
+Exemplos:
 
-FoodCost% = (CustoTotalDoPrato / PreçoDeVendaSemIVA) × 100
+- 10,32 → 11,00  
+- 14,71 → 15,00  
 
-⚠️ IMPORTANTE
-O Food Cost é SEM IVA.
-O IVA não pertence ao restaurante.
+### 7.4 Arredondamento rígido ao euro
 
-2.3 Food Cost alvo
+Arredonda para o euro mais próximo (para cima ou para baixo). Usado em cantinas e coletividades.
 
-É a meta definida pelo restaurante.
-Exemplos comuns:
-	•	25% para pratos normais
-	•	30% para menus
-	•	18–22% para pratos premium
+Exemplos:
 
-⸻
+- 10,32 → 10,00  
+- 10,66 → 11,00  
 
-3. Custos Operacionais (Overhead Cost)
+### 7.5 Arredondamento ao múltiplo mais próximo (0,05 ou 0,10)
 
-3.1 Definição
+Arredonda ao múltiplo mais próximo de 0,05 € ou 0,10 €, típico em cafetarias e bares.
 
-Custos indiretos associados à confeção do prato:
-	•	eletricidade
-	•	gás
-	•	água
-	•	mão-de-obra direta de cozinha
-	•	desperdício normal
-	•	consumíveis (óleo, detergentes, etc.)
-	•	manutenção e equipamento
+Exemplos:
 
-Estes custos não aparecem na lista de ingredientes, mas fazem parte do custo real de produção.
+- passo 0,05 → 10,32 → 10,30  
+- passo 0,10 → 10,36 → 10,40  
 
-3.2 Percentagem típica
+(O passo concreto — 0,05 ou 0,10 — pode ser futuramente configurável.)
 
-Valores usados pelo setor:
-	•	10% — fast food, grande volume
-	•	15% — restauração generalista (valor mais comum)
-	•	20% — pratos premium
-	•	25% — muita mão-de-obra (pastelaria, sushi, fine dining)
+### 7.6 Garantia de margem mínima
 
-A percentagem deve ser configurável no sistema.
+Ajusta o preço ao valor mínimo que respeita um Food Cost máximo (por exemplo 30%), podendo depois aplicar um arredondamento adicional para cima.
 
-3.3 Como aplicar
+Exemplo:
 
-Aplica-se ao custo total dos ingredientes antes de calcular o preço de venda.
+- Preço mínimo para FC máximo de 30% = 10,12 €  
+- Sistema arredonda para o próximo preço que mantém ou melhora essa margem (por exemplo 10,50 € ou 10,90 €).
 
-CustoComOperacionais = CustoIngredientes × (1 + PercentualOperacionais)
+### 7.7 Arredondamento corporativo (lista de finais permitidos)
 
-Se PercentualOperacionais = 15%:
+O preço final tem de terminar com um conjunto de finais predefinidos (por exemplo .00, .50, .90, .95), muito usado em cadeias e grupos.
 
-CustoComOperacionais = CustoIngredientes × 1.15
+Exemplo:
 
+- finais permitidos: {0,00; 0,50; 0,90}  
+- 10,32 → 10,50  
+- 10,76 → 10,90  
 
-⸻
+---
 
-4. Cálculo Profissional do Preço de Venda (com IVA)
+# 8. Política de Preços por País (Valores por Defeito)
 
-O cálculo dá-se em três etapas:
+Quando o País é definido em `Configuração → Regionalização`, a aplicação pode sugerir uma política de preços por defeito, **apenas se o utilizador ainda não tiver escolhido nenhuma política manualmente**.
 
-⸻
+| País        | Política de Preços por Defeito                                           |
+|------------|---------------------------------------------------------------------------|
+| Portugal   | 5. Arredondamento ao múltiplo mais próximo (0,05 / 0,10)                 |
+| Angola     | 3. Arredondamento Premium — termina em .00                               |
+| Cabo Verde | 1. Arredondamento Comercial Clássico (“.00” ou “.50”)                    |
 
-4.1 Etapa 1 — Cálculo do custo base (ingredientes)
+O utilizador pode sempre alterar a política de preços e escolher qualquer um dos sete métodos.
 
-CustoIngredientes = soma(Quantidade × PrecoUnitario)
+---
 
+# 9. Tipos de Negócio e Defaults de Cálculo PVP
 
-⸻
+Consoante o tipo de negócio selecionado em `Configuração → Food Cost → Tipo de Negócio`, a aplicação sugere valores padrão para:
 
-4.2 Etapa 2 — Aplicação dos Custos Operacionais
+- Percentagem de custos operacionais (%)  
+- Food cost alvo (%)  
+- Food cost alvo (decimal)  
+- Rácio de multiplicação  
 
-CustoComOperacionais = CustoIngredientes × (1 + PercentualOperacionais)
+Valores recomendados:
 
-Este é o custo REAL para calcular margens e Food Cost.
+| Tipo de Negócio            | Custos Operacionais | FC alvo | FC decimal | Rácio |
+|----------------------------|---------------------|---------|------------|-------|
+| Hotéis                     | 18%                 | 30%     | 0,30       | 3,3   |
+| Restauração Tradicional    | 15%                 | 30%     | 0,30       | 3,5   |
+| Cadeias                    | 12%                 | 25%     | 0,25       | 4,0   |
+| Consultores de F&B         | 15%                 | 27%     | 0,27       | 3,7   |
 
-⸻
+Em todos os ecrãs de configuração de cálculo PVP deve existir um botão:
 
-4.3 Etapa 3 — Calcular o Preço Sem IVA (PVSI)
+> **Repor valores por defeito**
 
-O restaurante pode usar:
+que volta a aplicar os valores acima para o tipo de negócio selecionado (sem afetar outras configurações, a menos que o utilizador o peça explicitamente).
 
-Método A — Via Food Cost alvo
+---
 
-PVSI = CustoComOperacionais / FoodCostAlvoDecimal
+# 10. Regras Obrigatórias para Implementação
 
-Método B — Via Rácio
+1. O Food Cost e o Rácio são sempre calculados **sem IVA**.  
+2. Os custos operacionais são aplicados **antes** do cálculo de PVSI.  
+3. A ordem dos cálculos é fixa:
 
-PVSI = CustoComOperacionais × Rácio
+       Ingredientes → Operacionais → PVSI → IVA → Arredondamento
 
-Ambos os métodos são válidos.
-
-⸻
-
-4.4 Etapa 4 — Preço Final (com IVA)
-
-PVP = PVSI × (1 + IVA/100)
-
-
-⸻
-
-5. Exemplo completo (profissional)
-
-Ingredientes total:
-
-2.40 €
-
-Custos operacionais:
-
-15% → 0.15
-
-CustoComOperacionais = 2.40 × 1.15 = 2.76 €
-
-Food Cost alvo:
-
-30% → 0.30
-
-PVSI = 2.76 / 0.30 = 9.20 €
-
-IVA = 13%
-
-PVP = 9.20 × 1.13 = 10.396 ≈ 10.40 €
-
-Preço final sugerido:
-10.50 €
-
-⸻
-
-6. Regras obrigatórias para o Codex
-	1.	Food Cost e Rácio são sempre calculados sem IVA.
-	2.	Custos operacionais devem ser aplicados antes do cálculo do PVSI.
-	3.	O Codex deve seguir esta ordem:
-	•	ler ingredientes
-	•	somar custo
-	•	aplicar operacionais
-	•	calcular PVSI via FC ou Rácio
-	•	aplicar IVA
-	4.	Nunca calcular preço de venda diretamente sem FC, Rácio ou operacionais.
-	5.	Alterações futuras às regras de cálculo devem ser refletidas neste documento antes de alterar código.
+4. A Política de Preços (arredondamento) é sempre aplicada ao **PVP final** (já com IVA).  
+5. Defaults por país só se aplicam quando ainda não existe escolha manual do utilizador.  
+6. Qualquer alteração futura às regras de cálculo deve ser primeiro refletida neste documento e só depois implementada em código.
