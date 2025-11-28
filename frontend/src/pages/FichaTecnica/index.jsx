@@ -147,6 +147,7 @@ export default function FichaTecnicaPage() {
   const [carregandoAlergenios, setCarregandoAlergenios] = useState(true)
   const [erroAlergenios, setErroAlergenios] = useState(null)
   const [salvandoAlergenios, setSalvandoAlergenios] = useState(false)
+  const [alergenoNotaAberta, setAlergenoNotaAberta] = useState(null)
   const [listaNavegacao, setListaNavegacao] = useState([])
   const [carregandoNavegacao, setCarregandoNavegacao] = useState(true)
   const currencySymbol = useCurrencySymbol()
@@ -202,6 +203,21 @@ export default function FichaTecnicaPage() {
     () => (referencias.tipoArtigos || []).filter((opcao) => opcao.Ativo !== false),
     [referencias.tipoArtigos],
   )
+  const obterDescricaoAlergeno = useCallback((alergeno) => {
+    if (!alergeno) return ''
+    return alergeno.exemplos || alergeno.descricao || alergeno.notas || ''
+  }, [])
+  const linhasAlergenos = useMemo(() => {
+    const linhas = []
+    for (let i = 0; i < alergeniosDisponiveis.length; i += 3) {
+      const linha = alergeniosDisponiveis.slice(i, i + 3)
+      while (linha.length < 3) {
+        linha.push(null)
+      }
+      linhas.push(linha)
+    }
+    return linhas
+  }, [alergeniosDisponiveis])
   const selectBaseClasses =
     'w-full rounded-lg border border-soft bg-surface px-3 py-2.5 text-sm text-strong shadow-sm focus:border-[var(--color-primary-400)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-100)]'
 
@@ -261,6 +277,14 @@ export default function FichaTecnicaPage() {
       })
       .finally(() => setCarregandoAlergenios(false))
   }, [])
+
+  useEffect(() => {
+    if (!alergenoNotaAberta) return
+    const existe = alergeniosDisponiveis.some((alergeno) => alergeno?.id === alergenoNotaAberta)
+    if (!existe) {
+      setAlergenoNotaAberta(null)
+    }
+  }, [alergenoNotaAberta, alergeniosDisponiveis])
 
   const foodCosts = useMemo(() => {
     if (!precosTaxas || typeof custoCalculado !== 'number') return null
@@ -1032,53 +1056,73 @@ export default function FichaTecnicaPage() {
               )}
 
               <div className="overflow-x-auto border border-[var(--color-neutral-100)] rounded-lg">
-                <table className="w-full min-w-[720px] text-sm">
+                <table className="w-full min-w-[640px] text-sm">
                   <thead className="bg-surface-muted text-left text-subtle font-semibold">
                     <tr>
-                      <th className="px-3 sm:px-4 py-3 w-24 text-center">Selecionar</th>
-                      <th className="px-3 sm:px-4 py-3">Nome</th>
-                      <th className="px-3 sm:px-4 py-3">Nome inglês</th>
-                      <th className="px-3 sm:px-4 py-3">Exemplos / notas</th>
+                      <th className="px-3 sm:px-4 py-3" colSpan={3}>
+                        Selecione os alergénios aplicáveis
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {carregandoAlergenios ? (
                       <tr>
-                        <td colSpan={4} className="px-3 sm:px-4 py-4 text-center text-subtle">
+                        <td colSpan={3} className="px-3 sm:px-4 py-4 text-center text-subtle">
                           A carregar alergénios…
                         </td>
                       </tr>
                     ) : alergeniosDisponiveis.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-3 sm:px-4 py-4 text-center text-subtle">
+                        <td colSpan={3} className="px-3 sm:px-4 py-4 text-center text-subtle">
                           Nenhum alergénio disponível.
                         </td>
                       </tr>
                     ) : (
-                      alergeniosDisponiveis.map((alergeno) => {
-                        const selecionado = alergeniosSelecionados.has(alergeno.id)
-                        return (
-                          <tr
-                            key={alergeno.id || alergeno.nome}
-                            className="border-t border-[var(--color-neutral-100)] hover:bg-surface-muted"
-                          >
-                            <td className="px-3 sm:px-4 py-3 text-center">
-                              <input
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-soft text-primary-strong focus:ring-[var(--color-primary-300)]"
-                                checked={selecionado}
-                                onChange={() => handleToggleAlergeno(alergeno.id)}
-                                disabled={salvandoAlergenios}
-                              />
-                            </td>
-                            <td className="px-3 sm:px-4 py-3 font-semibold text-strong">{alergeno.nome}</td>
-                            <td className="px-3 sm:px-4 py-3 text-subtle">{alergeno.nome_ingles || '—'}</td>
-                            <td className="px-3 sm:px-4 py-3 text-subtle">
-                              {alergeno.exemplos || alergeno.descricao || alergeno.notas || '—'}
-                            </td>
-                          </tr>
-                        )
-                      })
+                      linhasAlergenos.map((linha, linhaIdx) => (
+                        <tr key={`linha-alergenos-${linhaIdx}`} className="border-t border-[var(--color-neutral-100)]">
+                          {linha.map((alergeno, idx) => {
+                            if (!alergeno) {
+                              return <td key={`alergeno-vazio-${linhaIdx}-${idx}`} className="px-3 sm:px-4 py-3" />
+                            }
+
+                            const selecionado = alergeniosSelecionados.has(alergeno.id)
+                            const descricao = obterDescricaoAlergeno(alergeno)
+                            const notaVisivel = alergenoNotaAberta === alergeno.id
+
+                            return (
+                              <td key={alergeno.id || alergeno.nome} className="px-3 sm:px-4 py-3 align-top w-1/3">
+                                <div className="flex items-start gap-3">
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 mt-0.5 rounded border-soft text-primary-strong focus:ring-[var(--color-primary-300)]"
+                                    checked={selecionado}
+                                    onChange={() => handleToggleAlergeno(alergeno.id)}
+                                    disabled={salvandoAlergenios}
+                                  />
+                                  <div className="space-y-2">
+                                    <button
+                                      type="button"
+                                      className="text-left font-semibold text-strong hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-300)] focus:ring-offset-2 focus:ring-offset-surface rounded"
+                                      title={descricao || undefined}
+                                      onClick={() =>
+                                        descricao &&
+                                        setAlergenoNotaAberta((atual) => (atual === alergeno.id ? null : alergeno.id))
+                                      }
+                                    >
+                                      {alergeno.nome}
+                                    </button>
+                                    {descricao && notaVisivel && (
+                                      <p className="text-xs leading-snug text-subtle bg-surface-muted border border-soft rounded-md px-3 py-2">
+                                        {descricao}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      ))
                     )}
                   </tbody>
                 </table>
